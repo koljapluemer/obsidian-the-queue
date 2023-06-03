@@ -64,6 +64,10 @@ export class ExampleModal extends Modal {
 		];
 		// load the content of the random card
 		this.app.vault.read(randomCard).then((content) => {
+			if (!content) {
+				new Notice('No content found...');
+				return;
+			}
 			new Notice('Found random card...');
 
 			contentEl.createEl("p", { text: content });
