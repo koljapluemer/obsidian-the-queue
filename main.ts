@@ -98,7 +98,7 @@ export class ExampleModal extends Modal {
 					.addEventListener("click", () => {
 						this.loadNewCard();
 					});
-				
+
 				buttonRow
 					.createEl("button", {
 						text: "Correct",
@@ -114,42 +114,143 @@ export class ExampleModal extends Modal {
 					.addEventListener("click", () => {
 						this.loadNewCard();
 					});
-
-					
 			} else if (tags.filter((tag) => tag.tag === "#habit").length > 0) {
 				// not today, do later, done
 				buttonRow
-				.createEl("button", {
-					text: "Not Today",
-				})
-				.addEventListener("click", () => {
-					this.loadNewCard();
-				});
-			
-			buttonRow
-				.createEl("button", {
-					text: "Later",
-				})
-				.addEventListener("click", () => {
-					this.loadNewCard();
-				});
+					.createEl("button", {
+						text: "Not Today",
+					})
+					.addEventListener("click", () => {
+						this.loadNewCard();
+					});
 
-			buttonRow
-				.createEl("button", {
-					text: "Done",
-				})
-				.addEventListener("click", () => {
-					this.loadNewCard();
+				buttonRow
+					.createEl("button", {
+						text: "Later",
+					})
+					.addEventListener("click", () => {
+						this.loadNewCard();
+					});
+
+				buttonRow
+					.createEl("button", {
+						text: "Done",
+					})
+					.addEventListener("click", () => {
+						this.loadNewCard();
+					});
+
+				// todo
+			} else if (tags.filter((tag) => tag.tag === "#todo").length > 0) {
+				// delete, later, not today, done
+				buttonRow
+					.createEl("button", {
+						text: "Delete",
+					})
+					.addEventListener("click", () => {
+						this.loadNewCard();
+					});
+
+				buttonRow
+					.createEl("button", {
+						text: "Later",
+					})
+					.addEventListener("click", () => {
+						this.loadNewCard();
+					});
+
+				buttonRow
+					.createEl("button", {
+						text: "Not Today",
+					})
+					.addEventListener("click", () => {
+						this.loadNewCard();
+					});
+
+				buttonRow
+					.createEl("button", {
+						text: "Done",
+					})
+					.addEventListener("click", () => {
+						this.loadNewCard();
+					});
+			}
+			// check:
+			else if (tags.filter((tag) => tag.tag === "#check").length > 0) {
+				// no, kind of, yes
+				buttonRow
+					.createEl("button", {
+						text: "No",
+					})
+					.addEventListener("click", () => {
+						this.loadNewCard();
+					});
+
+				buttonRow
+					.createEl("button", {
+						text: "Kind of",
+					})
+					.addEventListener("click", () => {
+						this.loadNewCard();
+					});
+
+				buttonRow
+					.createEl("button", {
+						text: "Yes",
+					})
+					.addEventListener("click", () => {
+						this.loadNewCard();
+					});
+			}
+			// book or article
+			else if (
+				tags.filter(
+					(tag) => tag.tag === "#book" || tag.tag === "#article"
+				).length > 0
+			) {
+				contentEl.createEl("h3", {
+					text: "Read at a bit :)",
 				});
-				
+				// not today, later, done, finished
+				buttonRow
+					.createEl("button", {
+						text: "Not Today",
+					})
+					.addEventListener("click", () => {
+						this.loadNewCard();
+					});
+
+				buttonRow
+					.createEl("button", {
+						text: "Later",
+					})
+					.addEventListener("click", () => {
+						this.loadNewCard();
+					});
+
+				buttonRow
+					.createEl("button", {
+						text: "Done",
+					})
+					.addEventListener("click", () => {
+						this.loadNewCard();
+					});
+
+				buttonRow
+					.createEl("button", {
+						text: "Finished",
+					})
+					.addEventListener("click", () => {
+						this.loadNewCard();
+					});
 			} else {
 				buttonRow
-				.createEl("button", {
-					text: "Show Next",
-				})
-				.addEventListener("click", () => {
-					this.loadNewCard();
-				});
+					.createEl("button", {
+						text: "Show Next",
+					})
+					.addEventListener("click", () => {
+						this.loadNewCard();
+					});
 			}
 		});
 	}
