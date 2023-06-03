@@ -2,11 +2,13 @@ import {
 	App,
 	Editor,
 	MarkdownView,
+	MarkdownPreviewView,
 	Modal,
 	Notice,
 	Plugin,
 	PluginSettingTab,
 	Setting,
+	Component,
 } from "obsidian";
 
 // Remember to rename these classes and interfaces!
@@ -43,6 +45,8 @@ export default class MyPlugin extends Plugin {
 }
 
 export class ExampleModal extends Modal {
+	component: Component;
+
 	result: string;
 	onSubmit: (result: string) => void;
 
@@ -71,7 +75,9 @@ export class ExampleModal extends Modal {
 			}
 			new Notice('Found random card...');
 
-			contentEl.createEl("p", { text: content });
+			const cardContent = MarkdownPreviewView.renderMarkdown(content, contentEl, randomCard.path, this.component);
+
+			// contentEl.createEl("p", { text: content });
 
 			const buttonRow = contentEl.createDiv("button-row");
 
