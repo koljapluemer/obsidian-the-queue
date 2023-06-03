@@ -11,6 +11,8 @@ import {
 	Component,
 } from "obsidian";
 
+import { supermemo, SuperMemoItem, SuperMemoGrade } from "supermemo";
+
 // Remember to rename these classes and interfaces!
 
 interface MyPluginSettings {
@@ -55,7 +57,25 @@ export class ExampleModal extends Modal {
 		this.onSubmit = onSubmit;
 	}
 
-	loadNewCard() {
+	loadNewCard(cardType: string = "", answer: string = "") {
+		// handle card answer
+		if (cardType === "learn") {
+			let item: SuperMemoItem = {
+				interval: 0,
+				repetition: 0,
+				efactor: 2.5,
+			};
+			let answerGrade: SuperMemoGrade = 0;
+			if (answer === "correct") {
+				answerGrade = 3;
+			} else if (answer === "easy") {
+				answerGrade = 5;
+			}
+			console.log("item before answer", item);
+			item = supermemo(item, answerGrade);
+			console.log(`item after answer ${answerGrade}`, item);
+		}
+
 		new Notice("Loading new card...");
 
 		const { contentEl } = this;
@@ -84,11 +104,9 @@ export class ExampleModal extends Modal {
 			);
 
 			const tags = this.app.metadataCache.getFileCache(randomCard)!.tags!;
-			console.log("Tags", tags);
 
 			const buttonRow = contentEl.createDiv("button-row");
 			// check if the property tag: "#learn" exists in nested object tags
-			console.log("type, ", typeof tags);
 
 			if (tags.filter((tag) => tag.tag === "#learn").length > 0) {
 				buttonRow
@@ -96,7 +114,7 @@ export class ExampleModal extends Modal {
 						text: "Wrong",
 					})
 					.addEventListener("click", () => {
-						this.loadNewCard();
+						this.loadNewCard("learn", "wrong");
 					});
 
 				buttonRow
@@ -104,7 +122,7 @@ export class ExampleModal extends Modal {
 						text: "Correct",
 					})
 					.addEventListener("click", () => {
-						this.loadNewCard();
+						this.loadNewCard("learn", "correct");
 					});
 
 				buttonRow
@@ -112,7 +130,7 @@ export class ExampleModal extends Modal {
 						text: "Easy",
 					})
 					.addEventListener("click", () => {
-						this.loadNewCard();
+						this.loadNewCard("learn", "easy");
 					});
 			} else if (tags.filter((tag) => tag.tag === "#habit").length > 0) {
 				// not today, do later, done
@@ -121,7 +139,7 @@ export class ExampleModal extends Modal {
 						text: "Not Today",
 					})
 					.addEventListener("click", () => {
-						this.loadNewCard();
+						this.loadNewCard("habit", "");
 					});
 
 				buttonRow
@@ -129,7 +147,7 @@ export class ExampleModal extends Modal {
 						text: "Later",
 					})
 					.addEventListener("click", () => {
-						this.loadNewCard();
+						this.loadNewCard("habit", "");
 					});
 
 				buttonRow
@@ -137,7 +155,7 @@ export class ExampleModal extends Modal {
 						text: "Done",
 					})
 					.addEventListener("click", () => {
-						this.loadNewCard();
+						this.loadNewCard("habit", "");
 					});
 
 				// todo
@@ -148,7 +166,7 @@ export class ExampleModal extends Modal {
 						text: "Delete",
 					})
 					.addEventListener("click", () => {
-						this.loadNewCard();
+						this.loadNewCard("todo", "");
 					});
 
 				buttonRow
@@ -156,7 +174,7 @@ export class ExampleModal extends Modal {
 						text: "Later",
 					})
 					.addEventListener("click", () => {
-						this.loadNewCard();
+						this.loadNewCard("todo", "");
 					});
 
 				buttonRow
@@ -164,7 +182,7 @@ export class ExampleModal extends Modal {
 						text: "Not Today",
 					})
 					.addEventListener("click", () => {
-						this.loadNewCard();
+						this.loadNewCard("todo", "");
 					});
 
 				buttonRow
@@ -172,7 +190,7 @@ export class ExampleModal extends Modal {
 						text: "Done",
 					})
 					.addEventListener("click", () => {
-						this.loadNewCard();
+						this.loadNewCard("todo", "");
 					});
 			}
 			// check:
@@ -183,7 +201,7 @@ export class ExampleModal extends Modal {
 						text: "No",
 					})
 					.addEventListener("click", () => {
-						this.loadNewCard();
+						this.loadNewCard("check", "");
 					});
 
 				buttonRow
@@ -191,7 +209,7 @@ export class ExampleModal extends Modal {
 						text: "Kind of",
 					})
 					.addEventListener("click", () => {
-						this.loadNewCard();
+						this.loadNewCard("check", "");
 					});
 
 				buttonRow
@@ -199,7 +217,7 @@ export class ExampleModal extends Modal {
 						text: "Yes",
 					})
 					.addEventListener("click", () => {
-						this.loadNewCard();
+						this.loadNewCard("check", "");
 					});
 			}
 			// book or article
@@ -217,7 +235,7 @@ export class ExampleModal extends Modal {
 						text: "Not Today",
 					})
 					.addEventListener("click", () => {
-						this.loadNewCard();
+						this.loadNewCard("read", "");
 					});
 
 				buttonRow
@@ -225,7 +243,7 @@ export class ExampleModal extends Modal {
 						text: "Later",
 					})
 					.addEventListener("click", () => {
-						this.loadNewCard();
+						this.loadNewCard("read", "");
 					});
 
 				buttonRow
@@ -233,7 +251,7 @@ export class ExampleModal extends Modal {
 						text: "Done",
 					})
 					.addEventListener("click", () => {
-						this.loadNewCard();
+						this.loadNewCard("read", "");
 					});
 
 				buttonRow
@@ -241,7 +259,7 @@ export class ExampleModal extends Modal {
 						text: "Finished",
 					})
 					.addEventListener("click", () => {
-						this.loadNewCard();
+						this.loadNewCard("read", "");
 					});
 			} else {
 				buttonRow
@@ -249,14 +267,14 @@ export class ExampleModal extends Modal {
 						text: "Show Next",
 					})
 					.addEventListener("click", () => {
-						this.loadNewCard();
+						this.loadNewCard("misc", "");
 					});
 			}
 		});
 	}
 
 	onOpen() {
-		this.loadNewCard();
+		this.loadNewCard("");
 	}
 
 	onClose() {
