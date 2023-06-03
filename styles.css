@@ -6,3 +6,24 @@ available in the app when your plugin is enabled.
 If your plugin does not need CSS, delete this file.
 
 */
+
+.queue-modal {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.queue-modal * {
+    /* background: rgba(180, 123, 125, 0.2); */
+}
+
+.button-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+}
+
+.button-row > * {
+    display: grid;
+    place-items: center;
+}

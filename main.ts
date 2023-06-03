@@ -42,34 +42,6 @@ export default class MyPlugin extends Plugin {
 	onunload() {}
 }
 
-class SampleModal extends Modal {
-	constructor(app: App) {
-		super(app);
-	}
-
-	onOpen() {
-		const { containerEl } = this;
-		containerEl.empty();
-		containerEl.createEl("h2", { text: "Random Card" });
-		// load a random card from vault
-		const randomCard = this.app.vault
-			.getFiles()
-			.filter((file) => file.extension === "md")[
-			Math.floor(Math.random() * this.app.vault.getFiles().length)
-		];
-		// load the content of the random card
-		this.app.vault.read(randomCard).then((content) => {
-			containerEl.createEl("br");
-			containerEl.createEl("p", { text: content });
-		});
-	}
-
-	onClose() {
-		const { contentEl } = this;
-		contentEl.empty();
-	}
-}
-
 export class ExampleModal extends Modal {
 	result: string;
 	onSubmit: (result: string) => void;
@@ -81,24 +53,36 @@ export class ExampleModal extends Modal {
 
 	onOpen() {
 		const { contentEl } = this;
+		contentEl.addClass("queue-modal");
 
-		contentEl.createEl("h1", { text: "What's your name?" });
+		const randomCard = this.app.vault
+			.getFiles()
+			.filter((file) => file.extension === "md")[
+			Math.floor(Math.random() * this.app.vault.getFiles().length)
+		];
+		// load the content of the random card
+		this.app.vault.read(randomCard).then((content) => {
+			contentEl.createEl("p", { text: content });
 
-		new Setting(contentEl).setName("Name").addText((text) =>
-			text.onChange((value) => {
-				this.result = value;
-			})
-		);
+			const buttonRow = contentEl.createDiv("button-row");
 
-		new Setting(contentEl).addButton((btn) =>
-			btn
-				.setButtonText("Submit")
-				.setCta()
-				.onClick(() => {
-					this.close();
-					this.onSubmit(this.result);
-				})
-		);
+			new Setting(buttonRow).addButton((btn) =>
+				btn
+					.setButtonText("Show Next")
+					// .setCta()
+					.onClick(() => {
+						// this.close();
+						// this.onSubmit(this.result);
+					})
+			);
+		
+		});
+
+		// new Setting(contentEl).setName("Name").addText((text) =>
+		// 	text.onChange((value) => {
+		// 		this.result = value;
+		// 	})
+		// );
 	}
 
 	onClose() {
