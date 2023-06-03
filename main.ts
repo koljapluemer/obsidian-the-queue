@@ -57,6 +57,7 @@ export class ExampleModal extends Modal {
 		const { contentEl } = this;
 		contentEl.addClass("queue-modal");
 
+		// get a random card
 		const randomCard = this.app.vault
 			.getFiles()
 			.filter((file) => file.extension === "md")[
