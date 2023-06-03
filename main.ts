@@ -59,6 +59,7 @@ export class ExampleModal extends Modal {
 		new Notice("Loading new card...");
 
 		const { contentEl } = this;
+		contentEl.empty();
 		contentEl.addClass("queue-modal");
 
 		// get a random card
@@ -83,50 +84,72 @@ export class ExampleModal extends Modal {
 			);
 
 			const tags = this.app.metadataCache.getFileCache(randomCard)!.tags!;
-			console.log('Tags', tags);
+			console.log("Tags", tags);
 
 			const buttonRow = contentEl.createDiv("button-row");
 			// check if the property tag: "#learn" exists in nested object tags
-			console.log('type, ', typeof tags);
+			console.log("type, ", typeof tags);
 
 			if (tags.filter((tag) => tag.tag === "#learn").length > 0) {
-				new Setting(buttonRow).addButton((btn) =>
-					btn
-						.setButtonText("Wrong")
-						.setCta()
-						.onClick(() => {
-							contentEl.empty();
-							this.loadNewCard();
-						})
-				);
-				new Setting(buttonRow).addButton((btn) =>
-					btn
-						.setButtonText("Good")
-						.setCta()
-						.onClick(() => {
-							contentEl.empty();
-							this.loadNewCard();
-						})
-				);
-				new Setting(buttonRow).addButton((btn) =>
-					btn
-						.setButtonText("Easy")
-						.setCta()
-						.onClick(() => {
-							contentEl.empty();
-							this.loadNewCard();
-						})
-				);
+				buttonRow
+					.createEl("button", {
+						text: "Wrong",
+					})
+					.addEventListener("click", () => {
+						this.loadNewCard();
+					});
+				
+				buttonRow
+					.createEl("button", {
+						text: "Correct",
+					})
+					.addEventListener("click", () => {
+						this.loadNewCard();
+					});
+
+				buttonRow
+					.createEl("button", {
+						text: "Easy",
+					})
+					.addEventListener("click", () => {
+						this.loadNewCard();
+					});
+
+					
+			} else if (tags.filter((tag) => tag.tag === "#habit").length > 0) {
+				// not today, do later, done
+				buttonRow
+				.createEl("button", {
+					text: "Not Today",
+				})
+				.addEventListener("click", () => {
+					this.loadNewCard();
+				});
+			
+			buttonRow
+				.createEl("button", {
+					text: "Later",
+				})
+				.addEventListener("click", () => {
+					this.loadNewCard();
+				});
+
+			buttonRow
+				.createEl("button", {
+					text: "Done",
+				})
+				.addEventListener("click", () => {
+					this.loadNewCard();
+				});
+				
 			} else {
-				new Setting(buttonRow).addButton((btn) =>
-					btn
-						.setButtonText("Show Next")
-						.setCta()
-						.onClick(() => {
-							contentEl.empty();
-							this.loadNewCard();
-						})
-				);
+				buttonRow
+				.createEl("button", {
+					text: "Show Next",
+				})
+				.addEventListener("click", () => {
+					this.loadNewCard();
+				});
 			}
 		});
 	}
