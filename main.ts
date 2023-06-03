@@ -56,7 +56,7 @@ export class ExampleModal extends Modal {
 	}
 
 	loadNewCard() {
-		new Notice('Loading new card...');
+		new Notice("Loading new card...");
 
 		const { contentEl } = this;
 		contentEl.addClass("queue-modal");
@@ -70,26 +70,64 @@ export class ExampleModal extends Modal {
 		// load the content of the random card
 		this.app.vault.read(randomCard).then((content) => {
 			if (!content) {
-				new Notice('No content found...');
+				new Notice("No content found...");
 				return;
 			}
-			new Notice('Found random card...');
+			new Notice("Found random card...");
 
-			const cardContent = MarkdownPreviewView.renderMarkdown(content, contentEl, randomCard.path, this.component);
+			const cardContent = MarkdownPreviewView.renderMarkdown(
+				content,
+				contentEl,
+				randomCard.path,
+				this.component
+			);
 
-			// contentEl.createEl("p", { text: content });
+			const tags = this.app.metadataCache.getFileCache(randomCard)!.tags!;
+			console.log('Tags', tags);
 
 			const buttonRow = contentEl.createDiv("button-row");
+			// check if the property tag: "#learn" exists in nested object tags
+			console.log('type, ', typeof tags);
 
-			new Setting(buttonRow).addButton((btn) =>
-				btn
-					.setButtonText("Show Next")
-					.setCta()
-					.onClick(() => {
-						contentEl.empty();
-						this.loadNewCard();
-					})
-			);
+			if (tags.filter((tag) => tag.tag === "#learn").length > 0) {
+				new Setting(buttonRow).addButton((btn) =>
+					btn
+						.setButtonText("Wrong")
+						.setCta()
+						.onClick(() => {
+							contentEl.empty();
+							this.loadNewCard();
+						})
+				);
+				new Setting(buttonRow).addButton((btn) =>
+					btn
+						.setButtonText("Good")
+						.setCta()
+						.onClick(() => {
+							contentEl.empty();
+							this.loadNewCard();
+						})
+				);
+				new Setting(buttonRow).addButton((btn) =>
+					btn
+						.setButtonText("Easy")
+						.setCta()
+						.onClick(() => {
+							contentEl.empty();
+							this.loadNewCard();
+						})
+				);
+			} else {
+				new Setting(buttonRow).addButton((btn) =>
+					btn
+						.setButtonText("Show Next")
+						.setCta()
+						.onClick(() => {
+							contentEl.empty();
+							this.loadNewCard();
+						})
+				);
+			}
 		});
 	}
 

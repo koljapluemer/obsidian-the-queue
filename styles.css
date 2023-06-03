@@ -20,10 +20,12 @@ If your plugin does not need CSS, delete this file.
 .button-row {
     display: flex;
     flex-direction: row;
-    justify-content: space-around;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
 }
 
-.button-row > * {
+/* .button-row > * {
     display: grid;
     place-items: center;
-}
+} */
