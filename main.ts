@@ -51,7 +51,9 @@ export class ExampleModal extends Modal {
 		this.onSubmit = onSubmit;
 	}
 
-	onOpen() {
+	loadNewCard() {
+		new Notice('Loading new card...');
+
 		const { contentEl } = this;
 		contentEl.addClass("queue-modal");
 
@@ -62,6 +64,8 @@ export class ExampleModal extends Modal {
 		];
 		// load the content of the random card
 		this.app.vault.read(randomCard).then((content) => {
+			new Notice('Found random card...');
+
 			contentEl.createEl("p", { text: content });
 
 			const buttonRow = contentEl.createDiv("button-row");
@@ -69,20 +73,17 @@ export class ExampleModal extends Modal {
 			new Setting(buttonRow).addButton((btn) =>
 				btn
 					.setButtonText("Show Next")
-					// .setCta()
+					.setCta()
 					.onClick(() => {
-						// this.close();
-						// this.onSubmit(this.result);
+						contentEl.empty();
+						this.loadNewCard();
 					})
 			);
-		
 		});
+	}
 
-		// new Setting(contentEl).setName("Name").addText((text) =>
-		// 	text.onChange((value) => {
-		// 		this.result = value;
-		// 	})
-		// );
+	onOpen() {
+		this.loadNewCard();
 	}
 
 	onClose() {
