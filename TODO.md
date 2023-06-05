@@ -1,0 +1,1 @@
+* find out how the Advanced Random plugin gets a random note, I need that for just about any feature. *after that maybe I can even abstract kaado3*

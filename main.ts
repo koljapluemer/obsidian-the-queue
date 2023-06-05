@@ -11,7 +11,7 @@ import {
 	Component,
 } from "obsidian";
 
-import { supermemo, SuperMemoItem, SuperMemoGrade } from "supermemo";
+import { supermemo, SuperMemoItem, SuperMemoGrade } from 'supermemo';
 
 // Remember to rename these classes and interfaces!
 
@@ -58,13 +58,14 @@ export class ExampleModal extends Modal {
 	}
 
 	loadNewCard(cardType: string = "", answer: string = "") {
+
 		// handle card answer
 		if (cardType === "learn") {
 			let item: SuperMemoItem = {
 				interval: 0,
 				repetition: 0,
 				efactor: 2.5,
-			};
+			  };
 			let answerGrade: SuperMemoGrade = 0;
 			if (answer === "correct") {
 				answerGrade = 3;
@@ -75,6 +76,7 @@ export class ExampleModal extends Modal {
 			item = supermemo(item, answerGrade);
 			console.log(`item after answer ${answerGrade}`, item);
 		}
+
 
 		new Notice("Loading new card...");
 
@@ -122,7 +124,7 @@ export class ExampleModal extends Modal {
 						text: "Correct",
 					})
 					.addEventListener("click", () => {
-						this.loadNewCard("learn", "correct");
+						this.loadNewCard("learn","correct");
 					});
 
 				buttonRow
@@ -130,7 +132,7 @@ export class ExampleModal extends Modal {
 						text: "Easy",
 					})
 					.addEventListener("click", () => {
-						this.loadNewCard("learn", "easy");
+						this.loadNewCard("learn","easy");
 					});
 			} else if (tags.filter((tag) => tag.tag === "#habit").length > 0) {
 				// not today, do later, done
@@ -139,7 +141,7 @@ export class ExampleModal extends Modal {
 						text: "Not Today",
 					})
 					.addEventListener("click", () => {
-						this.loadNewCard("habit", "");
+						this.loadNewCard("habit","");
 					});
 
 				buttonRow
@@ -147,7 +149,7 @@ export class ExampleModal extends Modal {
 						text: "Later",
 					})
 					.addEventListener("click", () => {
-						this.loadNewCard("habit", "");
+						this.loadNewCard("habit","");
 					});
 
 				buttonRow
@@ -155,7 +157,7 @@ export class ExampleModal extends Modal {
 						text: "Done",
 					})
 					.addEventListener("click", () => {
-						this.loadNewCard("habit", "");
+						this.loadNewCard("habit","");
 					});
 
 				// todo
@@ -166,7 +168,7 @@ export class ExampleModal extends Modal {
 						text: "Delete",
 					})
 					.addEventListener("click", () => {
-						this.loadNewCard("todo", "");
+						this.loadNewCard("todo","");
 					});
 
 				buttonRow
@@ -174,7 +176,7 @@ export class ExampleModal extends Modal {
 						text: "Later",
 					})
 					.addEventListener("click", () => {
-						this.loadNewCard("todo", "");
+						this.loadNewCard("todo","");
 					});
 
 				buttonRow
@@ -182,7 +184,7 @@ export class ExampleModal extends Modal {
 						text: "Not Today",
 					})
 					.addEventListener("click", () => {
-						this.loadNewCard("todo", "");
+						this.loadNewCard("todo","");
 					});
 
 				buttonRow
@@ -190,7 +192,7 @@ export class ExampleModal extends Modal {
 						text: "Done",
 					})
 					.addEventListener("click", () => {
-						this.loadNewCard("todo", "");
+						this.loadNewCard("todo","");
 					});
 			}
 			// check:
@@ -209,7 +211,7 @@ export class ExampleModal extends Modal {
 						text: "Kind of",
 					})
 					.addEventListener("click", () => {
-						this.loadNewCard("check", "");
+						this.loadNewCard("check","");
 					});
 
 				buttonRow
@@ -217,7 +219,7 @@ export class ExampleModal extends Modal {
 						text: "Yes",
 					})
 					.addEventListener("click", () => {
-						this.loadNewCard("check", "");
+						this.loadNewCard("check","");
 					});
 			}
 			// book or article
@@ -235,7 +237,7 @@ export class ExampleModal extends Modal {
 						text: "Not Today",
 					})
 					.addEventListener("click", () => {
-						this.loadNewCard("read", "");
+						this.loadNewCard("read","");
 					});
 
 				buttonRow
@@ -243,7 +245,7 @@ export class ExampleModal extends Modal {
 						text: "Later",
 					})
 					.addEventListener("click", () => {
-						this.loadNewCard("read", "");
+						this.loadNewCard("read","");
 					});
 
 				buttonRow
@@ -251,7 +253,7 @@ export class ExampleModal extends Modal {
 						text: "Done",
 					})
 					.addEventListener("click", () => {
-						this.loadNewCard("read", "");
+						this.loadNewCard("read","");
 					});
 
 				buttonRow
@@ -259,7 +261,7 @@ export class ExampleModal extends Modal {
 						text: "Finished",
 					})
 					.addEventListener("click", () => {
-						this.loadNewCard("read", "");
+						this.loadNewCard("read","");
 					});
 			} else {
 				buttonRow
@@ -267,7 +269,7 @@ export class ExampleModal extends Modal {
 						text: "Show Next",
 					})
 					.addEventListener("click", () => {
-						this.loadNewCard("misc", "");
+						this.loadNewCard("misc","");
 					});
 			}
 		});
