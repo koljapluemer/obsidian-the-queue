@@ -51,11 +51,15 @@ export class ExampleModal extends Modal {
 
 	result: string;
 	onSubmit: (result: string) => void;
+	markdownFiles: any[];
 
 	constructor(app: App, onSubmit: (result: string) => void) {
 		super(app);
+		this.markdownFiles = app.vault.getMarkdownFiles();
 		this.onSubmit = onSubmit;
 	}
+
+
 
 	loadNewCard(cardType: string = "", answer: string = "") {
 
@@ -85,10 +89,8 @@ export class ExampleModal extends Modal {
 		contentEl.addClass("queue-modal");
 
 		// get a random card
-		const randomCard = this.app.vault
-			.getFiles()
-			.filter((file) => file.extension === "md")[
-			Math.floor(Math.random() * this.app.vault.getFiles().length)
+		const randomCard = this.markdownFiles[
+			Math.floor(Math.random() * this.markdownFiles.length)
 		];
 		// load the content of the random card
 		this.app.vault.read(randomCard).then((content) => {
