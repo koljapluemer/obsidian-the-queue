@@ -9,9 +9,11 @@ import {
 	PluginSettingTab,
 	Setting,
 	Component,
+	TFile,
+	FrontMatterCache,
 } from "obsidian";
 
-import { supermemo, SuperMemoItem, SuperMemoGrade } from 'supermemo';
+import { supermemo, SuperMemoItem, SuperMemoGrade } from "supermemo";
 
 // Remember to rename these classes and interfaces!
 
@@ -58,7 +60,8 @@ export class ExampleModal extends Modal {
 		const unfilteredMarkdownFiles = app.vault.getMarkdownFiles();
 		// limit to files that either don't have frontmatter tag 'dueAt' or have a dueAt tag that is in the past
 		this.markdownFiles = unfilteredMarkdownFiles.filter((file) => {
-			const dueAt = app.metadataCache.getFileCache(file)?.frontmatter?.dueAt;
+			const dueAt =
+				app.metadataCache.getFileCache(file)?.frontmatter?.dueAt;
 			if (!dueAt) {
 				return true;
 			}
@@ -68,29 +71,45 @@ export class ExampleModal extends Modal {
 		this.onSubmit = onSubmit;
 	}
 
-
-
-	loadNewCard(cardType: string = "", answer: string = "") {
-
+	handleScoring(card: TFile, answer: string = "") {
 		// handle card answer
-		if (cardType === "learn") {
-			let item: SuperMemoItem = {
-				interval: 0,
-				repetition: 0,
-				efactor: 2.5,
-			  };
-			let answerGrade: SuperMemoGrade = 0;
-			if (answer === "correct") {
-				answerGrade = 3;
-			} else if (answer === "easy") {
-				answerGrade = 5;
-			}
-			console.log("item before answer", item);
-			item = supermemo(item, answerGrade);
-			console.log(`item after answer ${answerGrade}`, item);
+		// if (cardType === "learn") {
+		// 	let item: SuperMemoItem = {
+		// 		interval: 0,
+		// 		repetition: 0,
+		// 		efactor: 2.5,
+		// 	  };
+		// 	let answerGrade: SuperMemoGrade = 0;
+		// 	if (answer === "correct") {
+		// 		answerGrade = 3;
+		// 	} else if (answer === "easy") {
+		// 		answerGrade = 5;
+		// 	}
+		// 	console.log("item before answer", item);
+		// 	item = supermemo(item, answerGrade);
+		// 	console.log(`item after answer ${answerGrade}`, item);
+		// }
+
+		const dateIn24Hours = new Date();
+		dateIn24Hours.setHours(dateIn24Hours.getHours() + 24);
+		// set frontmatter property dueAt to date in 24 hours
+		// this.app.metadataCache.getFileCache(card)!.frontmatter!.dueAt = dateIn24Hours.toISOString();
+		const metadata = this.app.metadataCache.getFileCache(card);
+		// check if frontmatter exists, if not create it
+		if (!metadata!.frontmatter) {
+			// Create a new `FrontMatterCache` object
+			const newFrontMatter = {
+				test: "hello",
+			};
+
+			metadata!.frontmatter = newFrontMatter;
 		}
+		console.log("metadata now", metadata);
 
+		this.loadNewCard();
+	}
 
+	loadNewCard() {
 		new Notice("Loading new card...");
 
 		const { contentEl } = this;
@@ -98,9 +117,10 @@ export class ExampleModal extends Modal {
 		contentEl.addClass("queue-modal");
 
 		// get a random card
-		const randomCard = this.markdownFiles[
-			Math.floor(Math.random() * this.markdownFiles.length)
-		];
+		const randomCard =
+			this.markdownFiles[
+				Math.floor(Math.random() * this.markdownFiles.length)
+			];
 		// load the content of the random card
 		this.app.vault.read(randomCard).then((content) => {
 			if (!content) {
@@ -127,7 +147,7 @@ export class ExampleModal extends Modal {
 						text: "Wrong",
 					})
 					.addEventListener("click", () => {
-						this.loadNewCard("learn", "wrong");
+						this.handleScoring(randomCard, "wrong");
 					});
 
 				buttonRow
@@ -135,7 +155,7 @@ export class ExampleModal extends Modal {
 						text: "Correct",
 					})
 					.addEventListener("click", () => {
-						this.loadNewCard("learn","correct");
+						this.handleScoring(randomCard, "correct");
 					});
 
 				buttonRow
@@ -143,7 +163,7 @@ export class ExampleModal extends Modal {
 						text: "Easy",
 					})
 					.addEventListener("click", () => {
-						this.loadNewCard("learn","easy");
+						this.handleScoring(randomCard, "easy");
 					});
 			} else if (tags.filter((tag) => tag.tag === "#habit").length > 0) {
 				// not today, do later, done
@@ -152,7 +172,7 @@ export class ExampleModal extends Modal {
 						text: "Not Today",
 					})
 					.addEventListener("click", () => {
-						this.loadNewCard("habit","");
+						this.handleScoring(randomCard, "");
 					});
 
 				buttonRow
@@ -160,7 +180,7 @@ export class ExampleModal extends Modal {
 						text: "Later",
 					})
 					.addEventListener("click", () => {
-						this.loadNewCard("habit","");
+						this.handleScoring(randomCard, "");
 					});
 
 				buttonRow
@@ -168,7 +188,7 @@ export class ExampleModal extends Modal {
 						text: "Done",
 					})
 					.addEventListener("click", () => {
-						this.loadNewCard("habit","");
+						this.handleScoring(randomCard, "");
 					});
 
 				// todo
@@ -179,7 +199,7 @@ export class ExampleModal extends Modal {
 						text: "Delete",
 					})
 					.addEventListener("click", () => {
-						this.loadNewCard("todo","");
+						this.handleScoring(randomCard, "");
 					});
 
 				buttonRow
@@ -187,7 +207,7 @@ export class ExampleModal extends Modal {
 						text: "Later",
 					})
 					.addEventListener("click", () => {
-						this.loadNewCard("todo","");
+						this.handleScoring(randomCard, "");
 					});
 
 				buttonRow
@@ -195,7 +215,7 @@ export class ExampleModal extends Modal {
 						text: "Not Today",
 					})
 					.addEventListener("click", () => {
-						this.loadNewCard("todo","");
+						this.handleScoring(randomCard, "");
 					});
 
 				buttonRow
@@ -203,7 +223,7 @@ export class ExampleModal extends Modal {
 						text: "Done",
 					})
 					.addEventListener("click", () => {
-						this.loadNewCard("todo","");
+						this.handleScoring(randomCard, "");
 					});
 			}
 			// check:
@@ -214,7 +234,7 @@ export class ExampleModal extends Modal {
 						text: "No",
 					})
 					.addEventListener("click", () => {
-						this.loadNewCard("check", "");
+						this.handleScoring(randomCard, "");
 					});
 
 				buttonRow
@@ -222,7 +242,7 @@ export class ExampleModal extends Modal {
 						text: "Kind of",
 					})
 					.addEventListener("click", () => {
-						this.loadNewCard("check","");
+						this.handleScoring(randomCard, "");
 					});
 
 				buttonRow
@@ -230,7 +250,7 @@ export class ExampleModal extends Modal {
 						text: "Yes",
 					})
 					.addEventListener("click", () => {
-						this.loadNewCard("check","");
+						this.handleScoring(randomCard, "");
 					});
 			}
 			// book or article
@@ -248,7 +268,7 @@ export class ExampleModal extends Modal {
 						text: "Not Today",
 					})
 					.addEventListener("click", () => {
-						this.loadNewCard("read","");
+						this.handleScoring(randomCard, "");
 					});
 
 				buttonRow
@@ -256,7 +276,7 @@ export class ExampleModal extends Modal {
 						text: "Later",
 					})
 					.addEventListener("click", () => {
-						this.loadNewCard("read","");
+						this.handleScoring(randomCard, "");
 					});
 
 				buttonRow
@@ -264,7 +284,7 @@ export class ExampleModal extends Modal {
 						text: "Done",
 					})
 					.addEventListener("click", () => {
-						this.loadNewCard("read","");
+						this.handleScoring(randomCard, "");
 					});
 
 				buttonRow
@@ -272,7 +292,7 @@ export class ExampleModal extends Modal {
 						text: "Finished",
 					})
 					.addEventListener("click", () => {
-						this.loadNewCard("read","");
+						this.handleScoring(randomCard, "");
 					});
 			} else {
 				buttonRow
@@ -280,14 +300,14 @@ export class ExampleModal extends Modal {
 						text: "Show Next",
 					})
 					.addEventListener("click", () => {
-						this.loadNewCard("misc","");
+						this.handleScoring(randomCard, "");
 					});
 			}
 		});
 	}
 
 	onOpen() {
-		this.loadNewCard("");
+		this.loadNewCard();
 	}
 
 	onClose() {
