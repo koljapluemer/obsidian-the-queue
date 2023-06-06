@@ -55,7 +55,16 @@ export class ExampleModal extends Modal {
 
 	constructor(app: App, onSubmit: (result: string) => void) {
 		super(app);
-		this.markdownFiles = app.vault.getMarkdownFiles();
+		const unfilteredMarkdownFiles = app.vault.getMarkdownFiles();
+		// limit to files that either don't have frontmatter tag 'dueAt' or have a dueAt tag that is in the past
+		this.markdownFiles = unfilteredMarkdownFiles.filter((file) => {
+			const dueAt = app.metadataCache.getFileCache(file)?.frontmatter?.dueAt;
+			if (!dueAt) {
+				return true;
+			}
+			return dueAt < new Date().toISOString();
+		});
+		console.log("amount of due notes", this.markdownFiles.length);
 		this.onSubmit = onSubmit;
 	}
 
