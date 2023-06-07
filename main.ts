@@ -103,7 +103,13 @@ export class ExampleModal extends Modal {
 			};
 
 			metadata!.frontmatter = newFrontMatter;
+		} else {
+			// if frontmatter exists, add dueAt property
+			metadata!.frontmatter!.dueAt = dateIn24Hours.toISOString();
 		}
+		// save the metadata
+		this.app.metadataCache = metadata!;
+
 		console.log("metadata now", metadata);
 
 		this.loadNewCard();
@@ -119,7 +125,8 @@ export class ExampleModal extends Modal {
 		// get a random card
 		const randomCard =
 			this.markdownFiles[
-				Math.floor(Math.random() * this.markdownFiles.length)
+				// Math.floor(Math.random() * this.markdownFiles.length)
+				0
 			];
 		// load the content of the random card
 		this.app.vault.read(randomCard).then((content) => {
