@@ -111,12 +111,24 @@ export class ExampleModal extends Modal {
 
 		// get a random card
 		const randomCard = this.markdownFiles.filter((file) => {
+			let willBeIncluded = false;
 			const dueAt =
 				app.metadataCache.getFileCache(file)?.frontmatter?.dueAt;
 			if (!dueAt) {
-				return true;
+				willBeIncluded = true;
+			} else {
+				willBeIncluded = dueAt < new Date().toISOString();
 			}
-			return dueAt < new Date().toISOString();
+
+			// exclude cards with the tag #inactive
+			const tags = this.app.metadataCache.getFileCache(file)?.tags;
+			if (tags) {
+				if (tags.filter((tag) => tag.tag === "#inactive").length > 0) {
+					willBeIncluded = false;
+				}
+			}
+			return willBeIncluded;
+			
 		})[Math.floor(Math.random() * this.markdownFiles.length)];
 
 		
