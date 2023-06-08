@@ -92,6 +92,12 @@ export class ExampleModal extends Modal {
 	handleScoring(card: TFile, answer: string = "") {
 		// handle card answer
 		const type = this.getTypeOfNote(card);
+
+		const answersToPraise = ["yes", "finished", "done", "correct", "easy"];
+		if (answersToPraise.includes(answer)) {
+			new Notice("Good job!");
+		}
+
 		if (type === "learn") {
 			this.app.fileManager.processFrontMatter(card, (frontmatter) => {
 				const interval = frontmatter["interval"] || 0;
@@ -133,7 +139,6 @@ export class ExampleModal extends Modal {
 				"finished",
 				"show-next",
 			];
-			const answersToPraise = ["yes", "finished", "done"];
 
 			if (answersWhereIntervalIsAdded.includes(answer)) {
 				// get interval either from frontmatter or set to 1
@@ -159,7 +164,6 @@ export class ExampleModal extends Modal {
 	}
 
 	loadNewCard(lastOpenendNoteName: string = "") {
-		new Notice("Loading new card...");
 
 		let randomCard: TFile;
 
@@ -179,7 +183,7 @@ export class ExampleModal extends Modal {
 			console.log("no last opened note, getting new random");
 			// get a random card
 			const possibleCards = this.markdownFiles.filter((file) => {
-				// return true;
+				return true;
 				let willBeIncluded = false;
 				const dueAt =
 					app.metadataCache.getFileCache(file)?.frontmatter?.dueAt;
@@ -227,11 +231,9 @@ export class ExampleModal extends Modal {
 		// load the content of the random card
 		this.app.vault.read(randomCard).then((content) => {
 			if (!content) {
-				new Notice("No content found...");
+				console.log("No content found...");
 				return;
 			}
-			// new Notice("Found random card...");
-
 			const splitCard = content.split("---");
 
 			// if metadata has property frontmatter, treat differently
