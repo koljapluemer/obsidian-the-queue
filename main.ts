@@ -91,13 +91,9 @@ export class ExampleModal extends Modal {
 		const dateIn24Hours = new Date();
 		dateIn24Hours.setHours(dateIn24Hours.getHours() + 24);
 		// set frontmatter property dueAt to date in 24 hours
-		// check if frontmatter exists, if not create it
 		this.app.fileManager.processFrontMatter(card, (frontmatter) => {
-			// setting frontmatter
 			frontmatter["dueAt"] = dateIn24Hours.toISOString();
 		});
-
-		// console.log("metadata now", this.app.metadataCache.getFileCache(card));
 
 		this.loadNewCard();
 	}
@@ -123,6 +119,7 @@ export class ExampleModal extends Modal {
 
 		// get a random card
 		const possibleCards = this.markdownFiles.filter((file) => {
+			return true;
 			let willBeIncluded = false;
 			const dueAt =
 				app.metadataCache.getFileCache(file)?.frontmatter?.dueAt;
@@ -152,11 +149,21 @@ export class ExampleModal extends Modal {
 				new Notice("No content found...");
 				return;
 			}
-			new Notice("Found random card...");
+			// new Notice("Found random card...");
 
 			const splitCard = content.split("---");
-			const front = splitCard[0];
-			const back = splitCard[1];
+
+			// if metadata has property frontmatter, treat differently
+			const metadata = this.app.metadataCache.getFileCache(randomCard);
+			let front = "";
+			let back = "";
+			if (metadata?.frontmatter) {
+				front = splitCard[2];
+				back = splitCard[3];
+			} else {
+				front = splitCard[0];
+				back = splitCard[1];
+			}
 			console.log("front", front, "back", back);
 
 			const cardContent = MarkdownPreviewView.renderMarkdown(
@@ -166,180 +173,196 @@ export class ExampleModal extends Modal {
 				this.component
 			);
 
-			const tags = this.app.metadataCache.getFileCache(randomCard)!.tags!;
+			const tags = this.app.metadataCache.getFileCache(randomCard)!.tags;
 
 			const buttonRow = contentEl.createDiv("button-row");
 			// check if the property tag: "#learn" exists in nested object tags
+			if (tags) {
+				if (tags.filter((tag) => tag.tag === "#learn").length > 0) {
+					buttonRow
+						.createEl("button", {
+							text: "Reveal",
+						})
+						.addEventListener("click", () => {
+							contentEl.empty();
+							MarkdownPreviewView.renderMarkdown(
+								front + "\n---\n" + back,
+								contentEl,
+								randomCard.path,
+								this.component
+							);
+							const buttonRow = contentEl.createDiv("button-row");
 
-			if (tags.filter((tag) => tag.tag === "#learn").length > 0) {
-				buttonRow
-					.createEl("button", {
-						text: "Reveal",
-					})
-					.addEventListener("click", () => {
-						contentEl.empty();
-						MarkdownPreviewView.renderMarkdown(
-							front + "\n---\n" + back,
-							contentEl,
-							randomCard.path,
-							this.component
-						);
-						const buttonRow = contentEl.createDiv("button-row");
+							buttonRow
+								.createEl("button", {
+									text: "Wrong",
+								})
+								.addEventListener("click", () => {
+									this.handleScoring(randomCard, "wrong");
+								});
 
-						buttonRow
-							.createEl("button", {
-								text: "Wrong",
-							})
-							.addEventListener("click", () => {
-								this.handleScoring(randomCard, "wrong");
-							});
+							buttonRow
+								.createEl("button", {
+									text: "Correct",
+								})
+								.addEventListener("click", () => {
+									this.handleScoring(randomCard, "correct");
+								});
 
-						buttonRow
-							.createEl("button", {
-								text: "Correct",
-							})
-							.addEventListener("click", () => {
-								this.handleScoring(randomCard, "correct");
-							});
+							buttonRow
+								.createEl("button", {
+									text: "Easy",
+								})
+								.addEventListener("click", () => {
+									this.handleScoring(randomCard, "easy");
+								});
+						});
+				} else if (
+					tags.filter((tag) => tag.tag === "#habit").length > 0
+				) {
+					// not today, do later, done
+					buttonRow
+						.createEl("button", {
+							text: "Not Today",
+						})
+						.addEventListener("click", () => {
+							this.handleScoring(randomCard, "");
+						});
 
-						buttonRow
-							.createEl("button", {
-								text: "Easy",
-							})
-							.addEventListener("click", () => {
-								this.handleScoring(randomCard, "easy");
-							});
-					});
-			} else if (tags.filter((tag) => tag.tag === "#habit").length > 0) {
-				// not today, do later, done
-				buttonRow
-					.createEl("button", {
-						text: "Not Today",
-					})
-					.addEventListener("click", () => {
-						this.handleScoring(randomCard, "");
-					});
+					buttonRow
+						.createEl("button", {
+							text: "Later",
+						})
+						.addEventListener("click", () => {
+							this.handleScoring(randomCard, "");
+						});
 
-				buttonRow
-					.createEl("button", {
-						text: "Later",
-					})
-					.addEventListener("click", () => {
-						this.handleScoring(randomCard, "");
-					});
+					buttonRow
+						.createEl("button", {
+							text: "Done",
+						})
+						.addEventListener("click", () => {
+							this.handleScoring(randomCard, "");
+						});
 
-				buttonRow
-					.createEl("button", {
-						text: "Done",
-					})
-					.addEventListener("click", () => {
-						this.handleScoring(randomCard, "");
-					});
+					// todo
+				} else if (
+					tags.filter((tag) => tag.tag === "#todo").length > 0
+				) {
+					// delete, later, not today, done
+					buttonRow
+						.createEl("button", {
+							text: "Delete",
+						})
+						.addEventListener("click", () => {
+							this.handleScoring(randomCard, "");
+						});
 
-				// todo
-			} else if (tags.filter((tag) => tag.tag === "#todo").length > 0) {
-				// delete, later, not today, done
-				buttonRow
-					.createEl("button", {
-						text: "Delete",
-					})
-					.addEventListener("click", () => {
-						this.handleScoring(randomCard, "");
-					});
+					buttonRow
+						.createEl("button", {
+							text: "Later",
+						})
+						.addEventListener("click", () => {
+							this.handleScoring(randomCard, "");
+						});
 
-				buttonRow
-					.createEl("button", {
-						text: "Later",
-					})
-					.addEventListener("click", () => {
-						this.handleScoring(randomCard, "");
-					});
+					buttonRow
+						.createEl("button", {
+							text: "Not Today",
+						})
+						.addEventListener("click", () => {
+							this.handleScoring(randomCard, "");
+						});
 
-				buttonRow
-					.createEl("button", {
-						text: "Not Today",
-					})
-					.addEventListener("click", () => {
-						this.handleScoring(randomCard, "");
-					});
+					buttonRow
+						.createEl("button", {
+							text: "Done",
+						})
+						.addEventListener("click", () => {
+							this.handleScoring(randomCard, "");
+						});
+				}
+				// check:
+				else if (
+					tags.filter((tag) => tag.tag === "#check").length > 0
+				) {
+					// no, kind of, yes
+					buttonRow
+						.createEl("button", {
+							text: "No",
+						})
+						.addEventListener("click", () => {
+							this.handleScoring(randomCard, "");
+						});
 
-				buttonRow
-					.createEl("button", {
-						text: "Done",
-					})
-					.addEventListener("click", () => {
-						this.handleScoring(randomCard, "");
-					});
-			}
-			// check:
-			else if (tags.filter((tag) => tag.tag === "#check").length > 0) {
-				// no, kind of, yes
-				buttonRow
-					.createEl("button", {
-						text: "No",
-					})
-					.addEventListener("click", () => {
-						this.handleScoring(randomCard, "");
-					});
+					buttonRow
+						.createEl("button", {
+							text: "Kind of",
+						})
+						.addEventListener("click", () => {
+							this.handleScoring(randomCard, "");
+						});
 
-				buttonRow
-					.createEl("button", {
-						text: "Kind of",
-					})
-					.addEventListener("click", () => {
-						this.handleScoring(randomCard, "");
+					buttonRow
+						.createEl("button", {
+							text: "Yes",
+						})
+						.addEventListener("click", () => {
+							this.handleScoring(randomCard, "");
+						});
+				}
+				// book or article
+				else if (
+					tags.filter(
+						(tag) => tag.tag === "#book" || tag.tag === "#article"
+					).length > 0
+				) {
+					buttonRow.createEl("span", {
+						text: "Read at a bit:",
 					});
+					// not today, later, done, finished
+					buttonRow
+						.createEl("button", {
+							text: "Not Today",
+						})
+						.addEventListener("click", () => {
+							this.handleScoring(randomCard, "");
+						});
 
-				buttonRow
-					.createEl("button", {
-						text: "Yes",
-					})
-					.addEventListener("click", () => {
-						this.handleScoring(randomCard, "");
-					});
-			}
-			// book or article
-			else if (
-				tags.filter(
-					(tag) => tag.tag === "#book" || tag.tag === "#article"
-				).length > 0
-			) {
-				buttonRow.createEl("span", {
-					text: "Read at a bit:",
-				});
-				// not today, later, done, finished
-				buttonRow
-					.createEl("button", {
-						text: "Not Today",
-					})
-					.addEventListener("click", () => {
-						this.handleScoring(randomCard, "");
-					});
+					buttonRow
+						.createEl("button", {
+							text: "Later",
+						})
+						.addEventListener("click", () => {
+							this.handleScoring(randomCard, "");
+						});
 
-				buttonRow
-					.createEl("button", {
-						text: "Later",
-					})
-					.addEventListener("click", () => {
-						this.handleScoring(randomCard, "");
-					});
+					buttonRow
+						.createEl("button", {
+							text: "Done",
+						})
+						.addEventListener("click", () => {
+							this.handleScoring(randomCard, "");
+						});
 
-				buttonRow
-					.createEl("button", {
-						text: "Done",
-					})
-					.addEventListener("click", () => {
-						this.handleScoring(randomCard, "");
-					});
-
-				buttonRow
-					.createEl("button", {
-						text: "Finished",
-					})
-					.addEventListener("click", () => {
-						this.handleScoring(randomCard, "");
-					});
+					buttonRow
+						.createEl("button", {
+							text: "Finished",
+						})
+						.addEventListener("click", () => {
+							this.handleScoring(randomCard, "");
+						});
+				} else {
+					buttonRow
+						.createEl("button", {
+							text: "Show Next",
+						})
+						.addEventListener("click", () => {
+							this.handleScoring(randomCard, "");
+						});
+				}
 			} else {
+				// if no tag is set denoting the type, handle as 'misc'
 				buttonRow
 					.createEl("button", {
 						text: "Show Next",
