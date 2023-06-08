@@ -63,43 +63,126 @@ export class ExampleModal extends Modal {
 		this.onSubmit = onSubmit;
 	}
 
+	getTypeOfNote(note: TFile) {
+		// loop tags for occurrences of learn, habit, todo, check, misc, book, article
+		// if none found, return misc
+		const tags = this.app.metadataCache.getFileCache(note)?.tags;
+		if (tags) {
+			if (tags.filter((tag) => tag.tag === "#learn").length > 0) {
+				return "learn";
+			} else if (tags.filter((tag) => tag.tag === "#habit").length > 0) {
+				return "habit";
+			} else if (tags.filter((tag) => tag.tag === "#todo").length > 0) {
+				return "todo";
+			} else if (tags.filter((tag) => tag.tag === "#check").length > 0) {
+				return "check";
+			} else if (tags.filter((tag) => tag.tag === "#misc").length > 0) {
+				return "misc";
+			} else if (tags.filter((tag) => tag.tag === "#book").length > 0) {
+				return "book";
+			} else if (
+				tags.filter((tag) => tag.tag === "#article").length > 0
+			) {
+				return "article";
+			}
+		}
+		return "misc";
+	}
+
 	handleScoring(card: TFile, answer: string = "") {
 		// handle card answer
-		// if (cardType === "learn") {
-		// 	let item: SuperMemoItem = {
-		// 		interval: 0,
-		// 		repetition: 0,
-		// 		efactor: 2.5,
-		// 	  };
-		// 	let answerGrade: SuperMemoGrade = 0;
-		// 	if (answer === "correct") {
-		// 		answerGrade = 3;
-		// 	} else if (answer === "easy") {
-		// 		answerGrade = 5;
-		// 	}
-		// 	console.log("item before answer", item);
-		// 	item = supermemo(item, answerGrade);
-		// 	console.log(`item after answer ${answerGrade}`, item);
-		// }
+		const type = this.getTypeOfNote(card);
+		if (type === "learn") {
+			this.app.fileManager.processFrontMatter(card, (frontmatter) => {
+				const interval = frontmatter["interval"] || 0;
+				const repetition = frontmatter["repetition"] || 0;
+				const efactor = frontmatter["efactor"] || 2.5;
 
-		// await this.app.fileManager.processFrontMatter(note, (frontmatter) => {
-		// 	frontmatter["status"] = "In progress";
-		// 	frontmatter["review count"] += 1;
-		// 	delete frontmatter["ignored"];
-		// });
+				let item: SuperMemoItem = {
+					interval: interval,
+					repetition: repetition,
+					efactor: efactor,
+				};
 
-		const dateIn24Hours = new Date();
-		dateIn24Hours.setHours(dateIn24Hours.getHours() + 24);
-		// set frontmatter property dueAt to date in 24 hours
-		this.app.fileManager.processFrontMatter(card, (frontmatter) => {
-			frontmatter["dueAt"] = dateIn24Hours.toISOString();
-		});
+				let answerGrade: SuperMemoGrade = 0;
+				if (answer === "correct") {
+					answerGrade = 3;
+				} else if (answer === "easy") {
+					answerGrade = 5;
+				}
+
+				console.log("item before answer", item);
+				item = supermemo(item, answerGrade);
+				console.log(`item after answer ${answerGrade}`, item);
+
+				frontmatter["interval"] = item.interval;
+				frontmatter["repetition"] = item.repetition;
+				frontmatter["efactor"] = item.efactor;
+				frontmatter["dueAt"] = new Date(
+					new Date().getTime() + item.interval * 24 * 60 * 60 * 1000
+				).toISOString();
+			});
+		} else {
+			const dateIn24Hours = new Date();
+			dateIn24Hours.setHours(dateIn24Hours.getHours() + 24);
+			// set frontmatter property dueAt to date in 24 hours
+			this.app.fileManager.processFrontMatter(card, (frontmatter) => {
+				frontmatter["dueAt"] = dateIn24Hours.toISOString();
+			});
+		}
 
 		this.loadNewCard();
 	}
 
-	loadNewCard() {
+	loadNewCard(lastOpenendNoteName: string = "") {
 		new Notice("Loading new card...");
+
+		let randomCard: TFile;
+
+		if (lastOpenendNoteName) {
+			console.log("last opened note", lastOpenendNoteName);
+			// in this case, load the same card (not actually random)
+			// find note by name
+			const possibleCards = this.markdownFiles.filter((file) => {
+				return file.name === lastOpenendNoteName;
+			});
+			if (possibleCards.length > 0) {
+				randomCard = possibleCards[0];
+			}
+		}
+
+		if (!randomCard) {
+			console.log("no last opened note, getting new random");
+			// get a random card
+			const possibleCards = this.markdownFiles.filter((file) => {
+				// return true;
+				let willBeIncluded = false;
+				const dueAt =
+					app.metadataCache.getFileCache(file)?.frontmatter?.dueAt;
+				if (!dueAt) {
+					willBeIncluded = true;
+				} else {
+					willBeIncluded = dueAt < new Date().toISOString();
+				}
+
+				// exclude cards with the tag #inactive
+				const tags = this.app.metadataCache.getFileCache(file)?.tags;
+				if (tags) {
+					if (
+						tags.filter((tag) => tag.tag === "#inactive").length > 0
+					) {
+						willBeIncluded = false;
+					}
+				}
+				return willBeIncluded;
+			});
+			randomCard =
+				possibleCards[Math.floor(Math.random() * possibleCards.length)];
+		}
+		console.log("openend note", randomCard);
+
+		// save card name to local storage
+		localStorage.setItem("lastOpenendNoteName", randomCard.name);
 
 		const { modalEl } = this;
 		modalEl.empty();
@@ -116,32 +199,6 @@ export class ExampleModal extends Modal {
 		});
 
 		const contentEl = modalEl.createDiv("contentEl");
-
-		// get a random card
-		const possibleCards = this.markdownFiles.filter((file) => {
-			return true;
-			let willBeIncluded = false;
-			const dueAt =
-				app.metadataCache.getFileCache(file)?.frontmatter?.dueAt;
-			if (!dueAt) {
-				willBeIncluded = true;
-			} else {
-				willBeIncluded = dueAt < new Date().toISOString();
-			}
-
-			// exclude cards with the tag #inactive
-			const tags = this.app.metadataCache.getFileCache(file)?.tags;
-			if (tags) {
-				if (tags.filter((tag) => tag.tag === "#inactive").length > 0) {
-					willBeIncluded = false;
-				}
-			}
-			return willBeIncluded;
-		});
-		const randomCard =
-			possibleCards[Math.floor(Math.random() * possibleCards.length)];
-
-		console.log("random card", randomCard);
 
 		// load the content of the random card
 		this.app.vault.read(randomCard).then((content) => {
@@ -375,7 +432,8 @@ export class ExampleModal extends Modal {
 	}
 
 	onOpen() {
-		this.loadNewCard();
+		const lastNote = localStorage.getItem("lastOpenendNoteName") || "";
+		this.loadNewCard(lastNote);
 	}
 
 	onClose() {
