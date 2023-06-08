@@ -57,16 +57,8 @@ export class ExampleModal extends Modal {
 
 	constructor(app: App, onSubmit: (result: string) => void) {
 		super(app);
-		const unfilteredMarkdownFiles = app.vault.getMarkdownFiles();
-		// limit to files that either don't have frontmatter tag 'dueAt' or have a dueAt tag that is in the past
-		this.markdownFiles = unfilteredMarkdownFiles.filter((file) => {
-			const dueAt =
-				app.metadataCache.getFileCache(file)?.frontmatter?.dueAt;
-			if (!dueAt) {
-				return true;
-			}
-			return dueAt < new Date().toISOString();
-		});
+		this.markdownFiles = app.vault.getMarkdownFiles();
+		
 		console.log("amount of due notes", this.markdownFiles.length);
 		this.onSubmit = onSubmit;
 	}
@@ -90,27 +82,22 @@ export class ExampleModal extends Modal {
 		// 	console.log(`item after answer ${answerGrade}`, item);
 		// }
 
+		// await this.app.fileManager.processFrontMatter(note, (frontmatter) => {
+		// 	frontmatter["status"] = "In progress";
+		// 	frontmatter["review count"] += 1;
+		// 	delete frontmatter["ignored"];
+		// });
+
 		const dateIn24Hours = new Date();
 		dateIn24Hours.setHours(dateIn24Hours.getHours() + 24);
 		// set frontmatter property dueAt to date in 24 hours
-		// this.app.metadataCache.getFileCache(card)!.frontmatter!.dueAt = dateIn24Hours.toISOString();
-		const metadata = this.app.metadataCache.getFileCache(card);
 		// check if frontmatter exists, if not create it
-		if (!metadata!.frontmatter) {
-			// Create a new `FrontMatterCache` object
-			const newFrontMatter = {
-				test: "hello",
-			};
+		this.app.fileManager.processFrontMatter(card, (frontmatter) => {
+			// setting frontmatter
+			frontmatter["dueAt"] = dateIn24Hours.toISOString();
+		});
 
-			metadata!.frontmatter = newFrontMatter;
-		} else {
-			// if frontmatter exists, add dueAt property
-			metadata!.frontmatter!.dueAt = dateIn24Hours.toISOString();
-		}
-		// save the metadata
-		this.app.metadataCache = metadata!;
-
-		console.log("metadata now", metadata);
+		// console.log("metadata now", this.app.metadataCache.getFileCache(card));
 
 		this.loadNewCard();
 	}
@@ -123,11 +110,16 @@ export class ExampleModal extends Modal {
 		contentEl.addClass("queue-modal");
 
 		// get a random card
-		const randomCard =
-			this.markdownFiles[
-				// Math.floor(Math.random() * this.markdownFiles.length)
-				0
-			];
+		const randomCard = this.markdownFiles.filter((file) => {
+			const dueAt =
+				app.metadataCache.getFileCache(file)?.frontmatter?.dueAt;
+			if (!dueAt) {
+				return true;
+			}
+			return dueAt < new Date().toISOString();
+		})[Math.floor(Math.random() * this.markdownFiles.length)];
+
+		
 		// load the content of the random card
 		this.app.vault.read(randomCard).then((content) => {
 			if (!content) {
