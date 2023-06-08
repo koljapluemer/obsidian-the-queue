@@ -58,7 +58,7 @@ export class ExampleModal extends Modal {
 	constructor(app: App, onSubmit: (result: string) => void) {
 		super(app);
 		this.markdownFiles = app.vault.getMarkdownFiles();
-		
+
 		console.log("amount of due notes", this.markdownFiles.length);
 		this.onSubmit = onSubmit;
 	}
@@ -128,13 +128,12 @@ export class ExampleModal extends Modal {
 				}
 			}
 			return willBeIncluded;
-			
-		})
-		const randomCard = possibleCards[Math.floor(Math.random() * possibleCards.length)];
+		});
+		const randomCard =
+			possibleCards[Math.floor(Math.random() * possibleCards.length)];
 
 		console.log("random card", randomCard);
 
-		
 		// load the content of the random card
 		this.app.vault.read(randomCard).then((content) => {
 			if (!content) {
@@ -143,8 +142,13 @@ export class ExampleModal extends Modal {
 			}
 			new Notice("Found random card...");
 
+			const splitCard = content.split("---");
+			const front = splitCard[0];
+			const back = splitCard[1];
+			console.log("front", front, "back", back);
+
 			const cardContent = MarkdownPreviewView.renderMarkdown(
-				content,
+				front,
 				contentEl,
 				randomCard.path,
 				this.component
@@ -158,26 +162,41 @@ export class ExampleModal extends Modal {
 			if (tags.filter((tag) => tag.tag === "#learn").length > 0) {
 				buttonRow
 					.createEl("button", {
-						text: "Wrong",
+						text: "Reveal",
 					})
 					.addEventListener("click", () => {
-						this.handleScoring(randomCard, "wrong");
-					});
+						contentEl.empty();
+						MarkdownPreviewView.renderMarkdown(
+							front + "\n---\n" + back,
+							contentEl,
+							randomCard.path,
+							this.component
+						);
+						const buttonRow = contentEl.createDiv("button-row");
 
-				buttonRow
-					.createEl("button", {
-						text: "Correct",
-					})
-					.addEventListener("click", () => {
-						this.handleScoring(randomCard, "correct");
-					});
+						buttonRow
+							.createEl("button", {
+								text: "Wrong",
+							})
+							.addEventListener("click", () => {
+								this.handleScoring(randomCard, "wrong");
+							});
 
-				buttonRow
-					.createEl("button", {
-						text: "Easy",
-					})
-					.addEventListener("click", () => {
-						this.handleScoring(randomCard, "easy");
+						buttonRow
+							.createEl("button", {
+								text: "Correct",
+							})
+							.addEventListener("click", () => {
+								this.handleScoring(randomCard, "correct");
+							});
+
+						buttonRow
+							.createEl("button", {
+								text: "Easy",
+							})
+							.addEventListener("click", () => {
+								this.handleScoring(randomCard, "easy");
+							});
 					});
 			} else if (tags.filter((tag) => tag.tag === "#habit").length > 0) {
 				// not today, do later, done
@@ -273,8 +292,8 @@ export class ExampleModal extends Modal {
 					(tag) => tag.tag === "#book" || tag.tag === "#article"
 				).length > 0
 			) {
-				contentEl.createEl("h3", {
-					text: "Read at a bit :)",
+				buttonRow.createEl("span", {
+					text: "Read at a bit:",
 				});
 				// not today, later, done, finished
 				buttonRow
