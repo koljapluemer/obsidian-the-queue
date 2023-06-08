@@ -93,7 +93,7 @@ export class ExampleModal extends Modal {
 		// handle card answer
 		const type = this.getTypeOfNote(card);
 
-		const answersToPraise = ["yes", "finished", "done", "correct", "easy"];
+		const answersToPraise = ["yes", "finished", "done", "correct", "easy", "completed"];
 		if (answersToPraise.includes(answer)) {
 			new Notice("Good job!");
 		}
@@ -128,6 +128,19 @@ export class ExampleModal extends Modal {
 					new Date().getTime() + item.interval * 24 * 60 * 60 * 1000
 				).toISOString();
 			});
+			// hand case 'finished': delete tag 'book' and 'article' and add 'misc'
+		} else if (answer == "finished") {
+			// TODO: implement setting tag logic :/
+		} else if (answer == "delete" || answer == "completed") {
+			// delete note
+			this.app.vault.delete(card);
+		} else if (answer == "later") {
+			// set dueAt to in 10 minutes
+			const newDate = new Date();
+			newDate.setMinutes(newDate.getMinutes() + 10);
+			this.app.fileManager.processFrontMatter(card, (frontmatter) => {
+				frontmatter["dueAt"] = newDate.toISOString();
+			});
 		} else {
 			const answersWhereIntervalIsAdded = [
 				"not-today",
@@ -143,15 +156,16 @@ export class ExampleModal extends Modal {
 			if (answersWhereIntervalIsAdded.includes(answer)) {
 				// get interval either from frontmatter or set to 1
 				const metadata = this.app.metadataCache.getFileCache(card);
-				const noteInterval =
-					metadata?.frontmatter != undefined
-						? metadata.frontmatter["interval"]
-						: 1;
+				let noteInterval = 1;
+				if (metadata) {
+					if (metadata.frontmatter) {
+						noteInterval = metadata.frontmatter["interval"] || 1;
+					}
+				}
 
 				const newDate = new Date();
-				newDate.setDate(
-					newDate.getDate() + noteInterval
-				);
+				console.log("my interval is", noteInterval);
+				newDate.setDate(newDate.getDate() + noteInterval);
 
 				// set frontmatter property dueAt to date in 24 hours
 				this.app.fileManager.processFrontMatter(card, (frontmatter) => {
@@ -164,7 +178,6 @@ export class ExampleModal extends Modal {
 	}
 
 	loadNewCard(lastOpenendNoteName: string = "") {
-
 		let randomCard: TFile;
 
 		if (lastOpenendNoteName) {
@@ -343,14 +356,6 @@ export class ExampleModal extends Modal {
 
 					buttonRow
 						.createEl("button", {
-							text: "Later",
-						})
-						.addEventListener("click", () => {
-							this.handleScoring(randomCard, "later");
-						});
-
-					buttonRow
-						.createEl("button", {
 							text: "Not Today",
 						})
 						.addEventListener("click", () => {
@@ -359,10 +364,18 @@ export class ExampleModal extends Modal {
 
 					buttonRow
 						.createEl("button", {
-							text: "Done",
+							text: "Later",
 						})
 						.addEventListener("click", () => {
-							this.handleScoring(randomCard, "done");
+							this.handleScoring(randomCard, "later");
+						});
+
+					buttonRow
+						.createEl("button", {
+							text: "Completed",
+						})
+						.addEventListener("click", () => {
+							this.handleScoring(randomCard, "completed");
 						});
 				}
 				// check:
