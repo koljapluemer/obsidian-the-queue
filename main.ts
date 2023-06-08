@@ -123,12 +123,36 @@ export class ExampleModal extends Modal {
 				).toISOString();
 			});
 		} else {
-			const dateIn24Hours = new Date();
-			dateIn24Hours.setHours(dateIn24Hours.getHours() + 24);
-			// set frontmatter property dueAt to date in 24 hours
-			this.app.fileManager.processFrontMatter(card, (frontmatter) => {
-				frontmatter["dueAt"] = dateIn24Hours.toISOString();
-			});
+			const answersWhereIntervalIsAdded = [
+				"not-today",
+				"later",
+				"done",
+				"no",
+				"kind-of",
+				"yes",
+				"finished",
+				"show-next",
+			];
+			const answersToPraise = ["yes", "finished", "done"];
+
+			if (answersWhereIntervalIsAdded.includes(answer)) {
+				// get interval either from frontmatter or set to 1
+				const metadata = this.app.metadataCache.getFileCache(card);
+				const noteInterval =
+					metadata?.frontmatter != undefined
+						? metadata.frontmatter["interval"]
+						: 1;
+
+				const newDate = new Date();
+				newDate.setDate(
+					newDate.getDate() + noteInterval
+				);
+
+				// set frontmatter property dueAt to date in 24 hours
+				this.app.fileManager.processFrontMatter(card, (frontmatter) => {
+					frontmatter["dueAt"] = newDate.toISOString();
+				});
+			}
 		}
 
 		this.loadNewCard();
@@ -283,7 +307,7 @@ export class ExampleModal extends Modal {
 							text: "Not Today",
 						})
 						.addEventListener("click", () => {
-							this.handleScoring(randomCard, "");
+							this.handleScoring(randomCard, "not-today");
 						});
 
 					buttonRow
@@ -291,7 +315,7 @@ export class ExampleModal extends Modal {
 							text: "Later",
 						})
 						.addEventListener("click", () => {
-							this.handleScoring(randomCard, "");
+							this.handleScoring(randomCard, "later");
 						});
 
 					buttonRow
@@ -299,7 +323,7 @@ export class ExampleModal extends Modal {
 							text: "Done",
 						})
 						.addEventListener("click", () => {
-							this.handleScoring(randomCard, "");
+							this.handleScoring(randomCard, "done");
 						});
 
 					// todo
@@ -312,7 +336,7 @@ export class ExampleModal extends Modal {
 							text: "Delete",
 						})
 						.addEventListener("click", () => {
-							this.handleScoring(randomCard, "");
+							this.handleScoring(randomCard, "delete");
 						});
 
 					buttonRow
@@ -320,7 +344,7 @@ export class ExampleModal extends Modal {
 							text: "Later",
 						})
 						.addEventListener("click", () => {
-							this.handleScoring(randomCard, "");
+							this.handleScoring(randomCard, "later");
 						});
 
 					buttonRow
@@ -328,7 +352,7 @@ export class ExampleModal extends Modal {
 							text: "Not Today",
 						})
 						.addEventListener("click", () => {
-							this.handleScoring(randomCard, "");
+							this.handleScoring(randomCard, "not-today");
 						});
 
 					buttonRow
@@ -336,7 +360,7 @@ export class ExampleModal extends Modal {
 							text: "Done",
 						})
 						.addEventListener("click", () => {
-							this.handleScoring(randomCard, "");
+							this.handleScoring(randomCard, "done");
 						});
 				}
 				// check:
@@ -349,7 +373,7 @@ export class ExampleModal extends Modal {
 							text: "No",
 						})
 						.addEventListener("click", () => {
-							this.handleScoring(randomCard, "");
+							this.handleScoring(randomCard, "no");
 						});
 
 					buttonRow
@@ -357,7 +381,7 @@ export class ExampleModal extends Modal {
 							text: "Kind of",
 						})
 						.addEventListener("click", () => {
-							this.handleScoring(randomCard, "");
+							this.handleScoring(randomCard, "kind-of");
 						});
 
 					buttonRow
@@ -365,7 +389,7 @@ export class ExampleModal extends Modal {
 							text: "Yes",
 						})
 						.addEventListener("click", () => {
-							this.handleScoring(randomCard, "");
+							this.handleScoring(randomCard, "yes");
 						});
 				}
 				// book or article
@@ -383,7 +407,7 @@ export class ExampleModal extends Modal {
 							text: "Not Today",
 						})
 						.addEventListener("click", () => {
-							this.handleScoring(randomCard, "");
+							this.handleScoring(randomCard, "not-today");
 						});
 
 					buttonRow
@@ -391,7 +415,7 @@ export class ExampleModal extends Modal {
 							text: "Later",
 						})
 						.addEventListener("click", () => {
-							this.handleScoring(randomCard, "");
+							this.handleScoring(randomCard, "later");
 						});
 
 					buttonRow
@@ -399,7 +423,7 @@ export class ExampleModal extends Modal {
 							text: "Done",
 						})
 						.addEventListener("click", () => {
-							this.handleScoring(randomCard, "");
+							this.handleScoring(randomCard, "done");
 						});
 
 					buttonRow
@@ -407,7 +431,7 @@ export class ExampleModal extends Modal {
 							text: "Finished",
 						})
 						.addEventListener("click", () => {
-							this.handleScoring(randomCard, "");
+							this.handleScoring(randomCard, "finished");
 						});
 				} else {
 					buttonRow
@@ -415,7 +439,7 @@ export class ExampleModal extends Modal {
 							text: "Show Next",
 						})
 						.addEventListener("click", () => {
-							this.handleScoring(randomCard, "");
+							this.handleScoring(randomCard, "show-next");
 						});
 				}
 			} else {
@@ -425,7 +449,7 @@ export class ExampleModal extends Modal {
 						text: "Show Next",
 					})
 					.addEventListener("click", () => {
-						this.handleScoring(randomCard, "");
+						this.handleScoring(randomCard, "show-next");
 					});
 			}
 		});
