@@ -105,9 +105,21 @@ export class ExampleModal extends Modal {
 	loadNewCard() {
 		new Notice("Loading new card...");
 
-		const { contentEl } = this;
-		contentEl.empty();
-		contentEl.addClass("queue-modal");
+		const { modalEl } = this;
+		modalEl.empty();
+		modalEl.addClass("queue-modal");
+
+		const headerEl = modalEl.createDiv("headerEl");
+		// create button to jump to card
+		const jumpToCardButton = headerEl.createEl("button", {
+			text: "Jump to card",
+		});
+		jumpToCardButton.addEventListener("click", () => {
+			this.app.workspace.openLinkText(randomCard.path, "", true);
+			this.close();
+		});
+
+		const contentEl = modalEl.createDiv("contentEl");
 
 		// get a random card
 		const possibleCards = this.markdownFiles.filter((file) => {
