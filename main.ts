@@ -110,7 +110,7 @@ export class ExampleModal extends Modal {
 		contentEl.addClass("queue-modal");
 
 		// get a random card
-		const randomCard = this.markdownFiles.filter((file) => {
+		const possibleCards = this.markdownFiles.filter((file) => {
 			let willBeIncluded = false;
 			const dueAt =
 				app.metadataCache.getFileCache(file)?.frontmatter?.dueAt;
@@ -129,7 +129,10 @@ export class ExampleModal extends Modal {
 			}
 			return willBeIncluded;
 			
-		})[Math.floor(Math.random() * this.markdownFiles.length)];
+		})
+		const randomCard = possibleCards[Math.floor(Math.random() * possibleCards.length)];
+
+		console.log("random card", randomCard);
 
 		
 		// load the content of the random card

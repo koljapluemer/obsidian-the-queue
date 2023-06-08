@@ -13,6 +13,10 @@ If your plugin does not need CSS, delete this file.
     justify-content: space-between;
 }
 
+.queue-modal img {
+    max-height: 50vh;
+}
+
 .queue-modal * {
     /* background: rgba(180, 123, 125, 0.2); */
 }
