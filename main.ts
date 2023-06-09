@@ -305,22 +305,30 @@ export class ExampleModal extends Modal {
 					];
 				// book is treated special, because there is a small list of started books
 				if (randomType === "book") {
-					console.log("executing: picking a book");
-					const dueBooks = this.startedBookNotes.filter((file) => {
-						let willBeIncluded = false;
-						const dueAt =
-							app.metadataCache.getFileCache(file)?.frontmatter
-								?.dueAt;
-						if (!dueAt) {
-							willBeIncluded = true;
-						} else {
-							willBeIncluded = dueAt < new Date().toISOString();
-						}
+					// if there is more than 0 started books, pick one of them
+					if (this.startedBookNotes.length > 0) {
+						console.log("executing: picking a book");
+						const dueBooks = this.startedBookNotes.filter(
+							(file) => {
+								let willBeIncluded = false;
+								const dueAt =
+									app.metadataCache.getFileCache(file)
+										?.frontmatter?.dueAt;
+								if (!dueAt) {
+									willBeIncluded = true;
+								} else {
+									willBeIncluded =
+										dueAt < new Date().toISOString();
+								}
 
-						return willBeIncluded;
-					});
-					randomCard =
-						dueBooks[Math.floor(Math.random() * dueBooks.length)];
+								return willBeIncluded;
+							}
+						);
+						randomCard =
+							dueBooks[
+								Math.floor(Math.random() * dueBooks.length)
+							];
+					}
 				} else {
 					console.log(
 						"executing: picking a random card of type",
@@ -350,7 +358,32 @@ export class ExampleModal extends Modal {
 				}
 			}
 		}
-		console.log("openend note", randomCard);
+		console.log("openend note from type", randomCard);
+		// if we have no more notes, first, try to get any kind of due random note, without consideration of type
+		if (!randomCard) {
+			console.log("executing: picking a random card of any type");
+			const possibleCards = this.markdownFiles.filter((file) => {
+				// return true;
+				let isDue = false;
+				const dueAt =
+					app.metadataCache.getFileCache(file)?.frontmatter?.dueAt;
+				if (!dueAt) {
+					isDue = true;
+				} else {
+					isDue = dueAt < new Date().toISOString();
+				}
+
+				return isDue;
+			});
+			randomCard =
+				possibleCards[Math.floor(Math.random() * possibleCards.length)];
+		}
+		// if card is still undefined, show a message 'No more Notes' and close the modal
+		if (!randomCard) {
+			new Notice("No more notes!");
+			this.close();
+			return;
+		}
 
 		// save card name to local storage
 		localStorage.setItem("lastOpenendNoteName", randomCard.name);
