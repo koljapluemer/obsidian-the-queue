@@ -54,10 +54,52 @@ export class ExampleModal extends Modal {
 	result: string;
 	onSubmit: (result: string) => void;
 	markdownFiles: any[];
+	startedBookNotes: TFile[];
+	priorityNotes: TFile[];
 
 	constructor(app: App, onSubmit: (result: string) => void) {
 		super(app);
-		this.markdownFiles = app.vault.getMarkdownFiles();
+		this.markdownFiles = app.vault.getMarkdownFiles().filter((note) => {
+			let willBeIncluded = true;
+			// exclude cards with the tag #inactive
+			const tags = this.app.metadataCache.getFileCache(note)?.tags;
+			if (tags) {
+				if (tags.filter((tag) => tag.tag === "#inactive").length > 0) {
+					willBeIncluded = false;
+				}
+			}
+			return willBeIncluded;
+		});
+		// get active book notes
+		this.startedBookNotes = this.markdownFiles.filter((note) => {
+			let willBeIncluded = false;
+			// check if its a book, and contains the tag 'started
+			if (this.getTypeOfNote(note) === "book") {
+				const tags = this.app.metadataCache.getFileCache(note)?.tags;
+				if (tags) {
+					if (
+						tags.filter((tag) => tag.tag === "#started").length > 0
+					) {
+						willBeIncluded = true;
+					}
+				}
+			}
+			return willBeIncluded;
+		});
+		console.log("found started book notes", this.startedBookNotes);
+		// get priority notes
+		this.priorityNotes = this.markdownFiles.filter((note) => {
+			let willBeIncluded = false;
+			// check for tag #priority
+			const tags = this.app.metadataCache.getFileCache(note)?.tags;
+			if (tags) {
+				if (tags.filter((tag) => tag.tag === "#priority").length > 0) {
+					willBeIncluded = true;
+				}
+			}
+			return willBeIncluded;
+		});
+		console.log("found priority notes", this.priorityNotes);
 
 		console.log("amount of due notes", this.markdownFiles.length);
 		this.onSubmit = onSubmit;
@@ -93,7 +135,14 @@ export class ExampleModal extends Modal {
 		// handle card answer
 		const type = this.getTypeOfNote(card);
 
-		const answersToPraise = ["yes", "finished", "done", "correct", "easy", "completed"];
+		const answersToPraise = [
+			"yes",
+			"finished",
+			"done",
+			"correct",
+			"easy",
+			"completed",
+		];
 		if (answersToPraise.includes(answer)) {
 			new Notice("Good job!");
 		}
@@ -117,9 +166,9 @@ export class ExampleModal extends Modal {
 					answerGrade = 5;
 				}
 
-				console.log("item before answer", item);
+				// console.log("item before answer", item);
 				item = supermemo(item, answerGrade);
-				console.log(`item after answer ${answerGrade}`, item);
+				// console.log(`item after answer ${answerGrade}`, item);
 
 				frontmatter["interval"] = item.interval;
 				frontmatter["repetition"] = item.repetition;
@@ -130,7 +179,22 @@ export class ExampleModal extends Modal {
 			});
 			// hand case 'finished': delete tag 'book' and 'article' and add 'misc'
 		} else if (answer == "finished") {
-			// TODO: implement setting tag logic :/
+			// remove book and article tags
+			this.app.fileManager.processFrontMatter(card, (frontmatter) => {
+				const tags = frontmatter["tags"] || [];
+				frontmatter["tags"] = tags.filter(
+					(tag: string) => tag !== "#book" && tag !== "#article"
+				);
+			});
+			// also remove the tags from the notes content itself
+			this.app.vault.read(card).then((content) => {
+				// string match #book and #article and remove them
+				let newContent = content
+					.replace(/#book/g, "")
+					.replace(/#article/g, "");
+				newContent += "\n#misc";
+				this.app.vault.modify(card, newContent);
+			});
 		} else if (answer == "delete" || answer == "completed") {
 			// delete note
 			this.app.vault.delete(card);
@@ -164,7 +228,7 @@ export class ExampleModal extends Modal {
 				}
 
 				const newDate = new Date();
-				console.log("my interval is", noteInterval);
+				// console.log("my interval is", noteInterval);
 				newDate.setDate(newDate.getDate() + noteInterval);
 
 				// set frontmatter property dueAt to date in 24 hours
@@ -206,21 +270,12 @@ export class ExampleModal extends Modal {
 					willBeIncluded = dueAt < new Date().toISOString();
 				}
 
-				// exclude cards with the tag #inactive
-				const tags = this.app.metadataCache.getFileCache(file)?.tags;
-				if (tags) {
-					if (
-						tags.filter((tag) => tag.tag === "#inactive").length > 0
-					) {
-						willBeIncluded = false;
-					}
-				}
 				return willBeIncluded;
 			});
 			randomCard =
 				possibleCards[Math.floor(Math.random() * possibleCards.length)];
 		}
-		console.log("openend note", randomCard);
+		// console.log("openend note", randomCard);
 
 		// save card name to local storage
 		localStorage.setItem("lastOpenendNoteName", randomCard.name);
@@ -251,20 +306,18 @@ export class ExampleModal extends Modal {
 
 			// if metadata has property frontmatter, treat differently
 			const metadata = this.app.metadataCache.getFileCache(randomCard);
-			console.log("metadata of note", metadata);
+			// console.log("metadata of note", metadata);
 			let front = "";
 			let back = "";
-			if (metadata?.frontmatter) {
+			// check if frontmatter exists, or if content has more than one ---
+			if (metadata?.frontmatter || splitCard.length > 2) {
 				front = splitCard[2];
 				back = splitCard[3];
-				console.log("frontmatter found; front is", front, "back is", back);
-
 			} else {
 				front = splitCard[0];
 				back = splitCard[1];
-				console.log("no frontmatter found; front is", front, "back is", back);
 			}
-			console.log("front", front, "back", back);
+			// console.log("front", front, "back", back);
 
 			const cardContent = MarkdownPreviewView.renderMarkdown(
 				front,
