@@ -266,7 +266,7 @@ export class ExampleModal extends Modal {
 			}
 		}
 
-		if (!randomCard) {
+		if (!randomCard!) {
 			console.log("no last opened note, getting new random");
 
 			const availableTypes = [
@@ -588,7 +588,4 @@ export class ExampleModal extends Modal {
 		contentEl.empty();
 	}
 }
-	function getTypeOfNote(note: any, TFile: typeof TFile) {
-		throw new Error("Function not implemented.");
-	}
 
