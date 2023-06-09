@@ -159,6 +159,17 @@ export class ExampleModal extends Modal {
 			new Notice("Good job!");
 		}
 
+		// if type is book, check if the tag #started is present, otherwise append it
+		if (type === "book") {
+			// string search in card content
+			this.app.vault.read(card).then((content) => {
+				if (!content.includes("#started")) {
+					const newContent = content + "\n\n#started";
+					this.app.vault.modify(card, newContent);
+				}
+			});
+		}
+
 		if (type === "learn") {
 			this.app.fileManager.processFrontMatter(card, (frontmatter) => {
 				const interval = frontmatter["interval"] || 0;
