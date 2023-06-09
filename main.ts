@@ -87,6 +87,16 @@ export class ExampleModal extends Modal {
 			return willBeIncluded;
 		});
 		console.log("found started book notes", this.startedBookNotes);
+		// if less than 5 books, find a new random book and add it to the list
+		if (this.startedBookNotes.length < 5) {
+			const newBook = this.markdownFiles.filter((note) => {
+				return this.getTypeOfNote(note) === "book" });
+			
+			this.startedBookNotes.push(newBook[Math.floor(Math.random() * newBook.length)]);
+			console.log("added new book, list is now", this.startedBookNotes);
+		}
+
+
 		// get priority notes
 		this.priorityNotes = this.markdownFiles.filter((note) => {
 			let willBeIncluded = false;
@@ -578,3 +588,7 @@ export class ExampleModal extends Modal {
 		contentEl.empty();
 	}
 }
+	function getTypeOfNote(note: any, TFile: typeof TFile) {
+		throw new Error("Function not implemented.");
+	}
+
