@@ -196,7 +196,7 @@ export class ExampleModal extends Modal {
 			console.log("no last opened note, getting new random");
 			// get a random card
 			const possibleCards = this.markdownFiles.filter((file) => {
-				return true;
+				// return true;
 				let willBeIncluded = false;
 				const dueAt =
 					app.metadataCache.getFileCache(file)?.frontmatter?.dueAt;
@@ -251,14 +251,18 @@ export class ExampleModal extends Modal {
 
 			// if metadata has property frontmatter, treat differently
 			const metadata = this.app.metadataCache.getFileCache(randomCard);
+			console.log("metadata of note", metadata);
 			let front = "";
 			let back = "";
 			if (metadata?.frontmatter) {
 				front = splitCard[2];
 				back = splitCard[3];
+				console.log("frontmatter found; front is", front, "back is", back);
+
 			} else {
 				front = splitCard[0];
 				back = splitCard[1];
+				console.log("no frontmatter found; front is", front, "back is", back);
 			}
 			console.log("front", front, "back", back);
 
