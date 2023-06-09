@@ -90,12 +90,14 @@ export class ExampleModal extends Modal {
 		// if less than 5 books, find a new random book and add it to the list
 		if (this.startedBookNotes.length < 5) {
 			const newBook = this.markdownFiles.filter((note) => {
-				return this.getTypeOfNote(note) === "book" });
-			
-			this.startedBookNotes.push(newBook[Math.floor(Math.random() * newBook.length)]);
+				return this.getTypeOfNote(note) === "book";
+			});
+
+			this.startedBookNotes.push(
+				newBook[Math.floor(Math.random() * newBook.length)]
+			);
 			console.log("added new book, list is now", this.startedBookNotes);
 		}
-
 
 		// get priority notes
 		this.priorityNotes = this.markdownFiles.filter((note) => {
@@ -267,66 +269,77 @@ export class ExampleModal extends Modal {
 		}
 
 		if (!randomCard!) {
-			console.log("no last opened note, getting new random");
-
-			const availableTypes = [
-				"learn",
-				"book",
-				"article",
-				"misc",
-				"todo",
-				"habit",
-				"check",
-			];
-			const randomType =
-				availableTypes[
-					Math.floor(Math.random() * availableTypes.length)
-				];
-			// book is treated special, because there is a small list of started books
-			if (randomType === "book") {
-				console.log("executing: picking a book");
-				const dueBooks = this.startedBookNotes.filter((file) => {
-					let willBeIncluded = false;
-					const dueAt =
-						app.metadataCache.getFileCache(file)?.frontmatter
-							?.dueAt;
-					if (!dueAt) {
-						willBeIncluded = true;
-					} else {
-						willBeIncluded = dueAt < new Date().toISOString();
-					}
-
-					return willBeIncluded;
-				});
+			// with 30% chance, pick a priority note
+			if (Math.random() < 0.3) {
+				console.log("executing: picking a priority note");
 				randomCard =
-					dueBooks[Math.floor(Math.random() * dueBooks.length)];
-			} else {
-				console.log("executing: picking a random card of type", randomType);
-				// get a random card
-				const possibleCards = this.markdownFiles.filter((file) => {
-					// return true;
-					let isDue = false;
-					const dueAt =
-						app.metadataCache.getFileCache(file)?.frontmatter
-							?.dueAt;
-					if (!dueAt) {
-						isDue = true;
-					} else {
-						isDue = dueAt < new Date().toISOString();
-					}
-					const isOfCorrectTagType =
-						this.getTypeOfNote(file) === randomType;
-
-					return isOfCorrectTagType && isDue;
-				});
-				randomCard =
-					possibleCards[
-						Math.floor(Math.random() * possibleCards.length)
+					this.priorityNotes[
+						Math.floor(Math.random() * this.priorityNotes.length)
 					];
+			} else {
+				console.log("no last opened note, getting new random");
+
+				const availableTypes = [
+					"learn",
+					"book",
+					"article",
+					"misc",
+					"todo",
+					"habit",
+					"check",
+				];
+				const randomType =
+					availableTypes[
+						Math.floor(Math.random() * availableTypes.length)
+					];
+				// book is treated special, because there is a small list of started books
+				if (randomType === "book") {
+					console.log("executing: picking a book");
+					const dueBooks = this.startedBookNotes.filter((file) => {
+						let willBeIncluded = false;
+						const dueAt =
+							app.metadataCache.getFileCache(file)?.frontmatter
+								?.dueAt;
+						if (!dueAt) {
+							willBeIncluded = true;
+						} else {
+							willBeIncluded = dueAt < new Date().toISOString();
+						}
+
+						return willBeIncluded;
+					});
+					randomCard =
+						dueBooks[Math.floor(Math.random() * dueBooks.length)];
+				} else {
+					console.log(
+						"executing: picking a random card of type",
+						randomType
+					);
+					// get a random card
+					const possibleCards = this.markdownFiles.filter((file) => {
+						// return true;
+						let isDue = false;
+						const dueAt =
+							app.metadataCache.getFileCache(file)?.frontmatter
+								?.dueAt;
+						if (!dueAt) {
+							isDue = true;
+						} else {
+							isDue = dueAt < new Date().toISOString();
+						}
+						const isOfCorrectTagType =
+							this.getTypeOfNote(file) === randomType;
+
+						return isOfCorrectTagType && isDue;
+					});
+					randomCard =
+						possibleCards[
+							Math.floor(Math.random() * possibleCards.length)
+						];
+				}
 			}
-			console.log("openend note:", randomCard);
 		}
-		// console.log("openend note", randomCard);
+		console.log("openend note", randomCard);
 
 		// save card name to local storage
 		localStorage.setItem("lastOpenendNoteName", randomCard.name);
@@ -588,4 +601,3 @@ export class ExampleModal extends Modal {
 		contentEl.empty();
 	}
 }
-
