@@ -241,6 +241,7 @@ export class ExampleModal extends Modal {
 			];
 
 			if (answersWhereIntervalIsAdded.includes(answer)) {
+				console.log("adding interval");
 				// get interval either from frontmatter or set to 1
 				const metadata = this.app.metadataCache.getFileCache(card);
 				let noteInterval = 1;
