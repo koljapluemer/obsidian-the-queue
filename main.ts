@@ -57,8 +57,7 @@ export class ExampleModal extends Modal {
 	startedBookNotes: TFile[];
 	priorityNotes: TFile[];
 
-	constructor(app: App, onSubmit: (result: string) => void) {
-		super(app);
+	loadNotes() {
 		this.markdownFiles = app.vault.getMarkdownFiles().filter((note) => {
 			let willBeIncluded = true;
 			// exclude cards with the tag #inactive
@@ -114,6 +113,10 @@ export class ExampleModal extends Modal {
 		console.log("found priority notes", this.priorityNotes);
 
 		console.log("amount of due notes", this.markdownFiles.length);
+	}
+
+	constructor(app: App, onSubmit: (result: string) => void) {
+		super(app);
 		this.onSubmit = onSubmit;
 	}
 
@@ -255,9 +258,11 @@ export class ExampleModal extends Modal {
 				// console.log("my interval is", noteInterval);
 				newDate.setDate(newDate.getDate() + noteInterval);
 
-				// set frontmatter property dueAt to date in 24 hours
+				// set frontmatter property dueAt to date in 24 hours, dont overwrite other properties
+				// TODO: this is a hack. find out why frontmatter is overwritten?! May not be here, but earlier?
 				this.app.fileManager.processFrontMatter(card, (frontmatter) => {
 					frontmatter["dueAt"] = newDate.toISOString();
+					frontmatter["interval"] = noteInterval;
 				});
 			}
 		}
@@ -266,6 +271,7 @@ export class ExampleModal extends Modal {
 	}
 
 	loadNewCard(lastOpenendNoteName: string = "") {
+		this.loadNotes();
 		let randomCard: TFile;
 
 		if (lastOpenendNoteName) {
@@ -315,14 +321,18 @@ export class ExampleModal extends Modal {
 								const dueAt =
 									app.metadataCache.getFileCache(file)
 										?.frontmatter?.dueAt;
+								console.log("dueAt of card", dueAt);
 								if (!dueAt) {
 									willBeIncluded = true;
 								} else {
 									willBeIncluded =
 										dueAt < new Date().toISOString();
-								}
+									console.log(
+										`dueAt is ${dueAt}, and it's ${new Date().toISOString()}, so willBeIncluded is ${willBeIncluded}`
+									);
 
-								return willBeIncluded;
+									return willBeIncluded;
+								}
 							}
 						);
 						randomCard =
@@ -617,7 +627,22 @@ export class ExampleModal extends Modal {
 				} else {
 					buttonRow
 						.createEl("button", {
-							text: "Show Next",
+							text: "Show Less Often",
+						})
+						.addEventListener("click", () => {
+							this.handleScoring(randomCard, "show-next");
+						});
+							buttonRow
+						.createEl("button", {
+							text: "Ok, Cool",
+						})
+						.addEventListener("click", () => {
+							this.handleScoring(randomCard, "show-next");
+						});
+
+							buttonRow
+						.createEl("button", {
+							text: "Show More Often",
 						})
 						.addEventListener("click", () => {
 							this.handleScoring(randomCard, "show-next");
