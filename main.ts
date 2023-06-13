@@ -69,6 +69,9 @@ export class ExampleModal extends Modal {
 			}
 			return willBeIncluded;
 		});
+		console.log(
+			`not considering due date, there a ${this.markdownFiles.length} notes`
+		);
 		// get active book notes
 		this.startedBookNotes = this.markdownFiles.filter((note) => {
 			let willBeIncluded = false;
@@ -111,8 +114,6 @@ export class ExampleModal extends Modal {
 			return willBeIncluded;
 		});
 		console.log("found priority notes", this.priorityNotes);
-
-		console.log("amount of due notes", this.markdownFiles.length);
 	}
 
 	constructor(app: App, onSubmit: (result: string) => void) {
@@ -290,9 +291,28 @@ export class ExampleModal extends Modal {
 			// with 30% chance, pick a priority note
 			if (Math.random() < 0.3) {
 				console.log("executing: picking a priority note");
+				const duePriorityNotes: TFile[] = this.priorityNotes.filter(
+					(file) => {
+						let willBeIncluded = false;
+						const dueAt =
+							app.metadataCache.getFileCache(file)?.frontmatter
+								?.dueAt;
+						console.log("dueAt of card", dueAt);
+						if (!dueAt) {
+							willBeIncluded = true;
+						} else {
+							willBeIncluded = dueAt < new Date().toISOString();
+							console.log(
+								`dueAt is ${dueAt}, and it's ${new Date().toISOString()}, so willBeIncluded is ${willBeIncluded}`
+							);
+
+							return willBeIncluded;
+						}
+					}
+				);
 				randomCard =
-					this.priorityNotes[
-						Math.floor(Math.random() * this.priorityNotes.length)
+					duePriorityNotes[
+						Math.floor(Math.random() * duePriorityNotes.length)
 					];
 			} else {
 				console.log("no last opened note, getting new random");
@@ -362,6 +382,11 @@ export class ExampleModal extends Modal {
 
 						return isOfCorrectTagType && isDue;
 					});
+					console.log(
+						`of type ${randomType}, there are`,
+						possibleCards.length,
+						"due cards"
+					);
 					randomCard =
 						possibleCards[
 							Math.floor(Math.random() * possibleCards.length)
@@ -632,7 +657,7 @@ export class ExampleModal extends Modal {
 						.addEventListener("click", () => {
 							this.handleScoring(randomCard, "show-next");
 						});
-							buttonRow
+					buttonRow
 						.createEl("button", {
 							text: "Ok, Cool",
 						})
@@ -640,7 +665,7 @@ export class ExampleModal extends Modal {
 							this.handleScoring(randomCard, "show-next");
 						});
 
-							buttonRow
+					buttonRow
 						.createEl("button", {
 							text: "Show More Often",
 						})
