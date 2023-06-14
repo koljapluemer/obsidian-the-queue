@@ -244,7 +244,35 @@ export class ExampleModal extends Modal {
 				"yes",
 				"finished",
 				"show-next",
+				"show-less",
+				"show-more",
 			];
+
+			if (answer == "show-less") {
+				// half interval (minimum 1)
+				const metadata = this.app.metadataCache.getFileCache(card);
+				let noteInterval = 1;
+				if (metadata) {
+					if (metadata.frontmatter) {
+						metadata.frontmatter["interval"] =
+							Math.max(1, metadata.frontmatter["interval"] / 2) ||
+							1;
+					}
+				}
+			} else if (answer == "show-more") {
+				// double interval, max 128
+				const metadata = this.app.metadataCache.getFileCache(card);
+				let noteInterval = 1;
+				if (metadata) {
+					if (metadata.frontmatter) {
+						metadata.frontmatter["interval"] =
+							Math.min(
+								128,
+								metadata.frontmatter["interval"] * 2
+							) || 1;
+					}
+				}
+			}
 
 			if (answersWhereIntervalIsAdded.includes(answer)) {
 				console.log("adding interval");
@@ -657,7 +685,7 @@ export class ExampleModal extends Modal {
 							text: "Show Less Often",
 						})
 						.addEventListener("click", () => {
-							this.handleScoring(randomCard, "show-next");
+							this.handleScoring(randomCard, "show-less");
 						});
 					buttonRow
 						.createEl("button", {
@@ -672,17 +700,32 @@ export class ExampleModal extends Modal {
 							text: "Show More Often",
 						})
 						.addEventListener("click", () => {
-							this.handleScoring(randomCard, "show-next");
+							this.handleScoring(randomCard, "show-more");
 						});
 				}
 			} else {
 				// if no tag is set denoting the type, handle as 'misc'
 				buttonRow
 					.createEl("button", {
-						text: "Show Next",
+						text: "Show Less Often",
+					})
+					.addEventListener("click", () => {
+						this.handleScoring(randomCard, "show-less");
+					});
+				buttonRow
+					.createEl("button", {
+						text: "Ok, Cool",
 					})
 					.addEventListener("click", () => {
 						this.handleScoring(randomCard, "show-next");
+					});
+
+				buttonRow
+					.createEl("button", {
+						text: "Show More Often",
+					})
+					.addEventListener("click", () => {
+						this.handleScoring(randomCard, "show-more");
 					});
 			}
 		});
