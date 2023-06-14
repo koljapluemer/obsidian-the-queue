@@ -168,8 +168,10 @@ export class ExampleModal extends Modal {
 			// string search in card content
 			this.app.vault.read(card).then((content) => {
 				if (!content.includes("#started")) {
-					const newContent = content + "\n\n#started";
-					this.app.vault.modify(card, newContent);
+					if (answer !== "not-today" && answer !== "later") {
+						const newContent = content + "\n\n#started";
+						this.app.vault.modify(card, newContent);
+					}
 				}
 			});
 		}
