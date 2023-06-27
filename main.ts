@@ -280,9 +280,17 @@ export class ExampleModal extends Modal {
 				const metadata = this.app.metadataCache.getFileCache(card);
 				let noteInterval = 1;
 				if (metadata) {
+					console.log("metadata found");
 					if (metadata.frontmatter) {
-						noteInterval = metadata.frontmatter["interval"] || 1;
+						noteInterval = metadata.frontmatter["interval"];
+						console.log(
+							"frontmatter found, note Interval is",
+							noteInterval
+						);
 					}
+				}
+				if (!noteInterval) {
+					noteInterval = 1;
 				}
 
 				const newDate = new Date();
