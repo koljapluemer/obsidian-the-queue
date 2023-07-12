@@ -326,6 +326,7 @@ export class ExampleModal extends Modal {
 		}
 
 		if (!randomCard!) {
+			// TODO: exclude the current note from the random selection
 			// with 30% chance, pick a priority note
 			if (Math.random() < 0.3) {
 				console.log("executing: picking a priority note");
