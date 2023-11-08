@@ -501,6 +501,9 @@ export class ExampleModal extends Modal {
 				back = splitCard[1];
 			}
 			// console.log("front", front, "back", back);
+			// add title of card before front, with a # to make it a title
+			const title = randomCard.name.replace(".md", "");
+			front = `# ${title}\n\n${front}`;
 
 			const cardContent = MarkdownPreviewView.renderMarkdown(
 				front,
