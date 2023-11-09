@@ -56,6 +56,7 @@ export class ExampleModal extends Modal {
 	markdownFiles: any[];
 	startedBookNotes: TFile[];
 	priorityNotes: TFile[];
+	currentQueueNote: TFile;
 
 	loadNotes() {
 		this.markdownFiles = app.vault.getMarkdownFiles().filter((note) => {
@@ -326,12 +327,17 @@ export class ExampleModal extends Modal {
 		}
 
 		if (!randomCard!) {
-			// TODO: exclude the current note from the random selection
 			// with 30% chance, pick a priority note
 			if (Math.random() < 0.3) {
 				console.log("executing: picking a priority note");
 				const duePriorityNotes: TFile[] = this.priorityNotes.filter(
 					(file) => {
+						// exclude the current note from the random selection
+						if (this.currentQueueNote) {
+							if (file.name === this.currentQueueNote.name) {
+								return false;
+							}
+						}
 						let willBeIncluded = false;
 						const dueAt =
 							app.metadataCache.getFileCache(file)?.frontmatter
@@ -376,6 +382,15 @@ export class ExampleModal extends Modal {
 						console.log("executing: picking a book");
 						const dueBooks = this.startedBookNotes.filter(
 							(file) => {
+								// exclude the current note from the random selection
+								if (this.currentQueueNote) {
+									if (
+										file.name ===
+										this.currentQueueNote.name
+									) {
+										return false;
+									}
+								}
 								let willBeIncluded = false;
 								const dueAt =
 									app.metadataCache.getFileCache(file)
@@ -406,7 +421,12 @@ export class ExampleModal extends Modal {
 					);
 					// get a random card
 					const possibleCards = this.markdownFiles.filter((file) => {
-						// return true;
+						// exclude the current note from the random selection
+						if (this.currentQueueNote) {
+							if (file.name === this.currentQueueNote.name) {
+								return false;
+							}
+						}
 						let isDue = false;
 						const dueAt =
 							app.metadataCache.getFileCache(file)?.frontmatter
@@ -438,7 +458,12 @@ export class ExampleModal extends Modal {
 		if (!randomCard) {
 			console.log("executing: picking a random card of any type");
 			const possibleCards = this.markdownFiles.filter((file) => {
-				// return true;
+				// exclude the current note from the random selection
+				if (this.currentQueueNote) {
+					if (file.name === this.currentQueueNote.name) {
+						return false;
+					}
+				}
 				let isDue = false;
 				const dueAt =
 					app.metadataCache.getFileCache(file)?.frontmatter?.dueAt;
@@ -479,6 +504,7 @@ export class ExampleModal extends Modal {
 
 		const contentEl = modalEl.createDiv("contentEl");
 
+		this.currentQueueNote = randomCard;
 		// load the content of the random card
 		this.app.vault.read(randomCard).then((content) => {
 			if (!content) {
