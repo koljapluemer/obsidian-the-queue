@@ -99,7 +99,7 @@ export class ExampleModal extends Modal {
 			this.startedBookNotes.push(
 				newBook[Math.floor(Math.random() * newBook.length)]
 			);
-			console.log("added new book, list is now", this.startedBookNotes);
+			console.warn("added new book, list is now", this.startedBookNotes);
 		}
 
 		// get priority notes
@@ -371,13 +371,15 @@ export class ExampleModal extends Modal {
 					"habit",
 					"check",
 				];
-				const randomType =
-					availableTypes[
-						Math.floor(Math.random() * availableTypes.length)
-					];
+				// const randomType =
+				// 	availableTypes[
+				// 		Math.floor(Math.random() * availableTypes.length)
+				// 	];
+				const randomType = "book";
+
 				// book is treated special, because there is a small list of started books
 				if (randomType === "book") {
-					// if there is more than 0 started books, pick one of them
+					// if there is more than 0 started books, pick one of them (we fill up this list earlier, having none here means no books are in system)
 					if (this.startedBookNotes.length > 0) {
 						console.log("executing: picking a book");
 						const dueBooks = this.startedBookNotes.filter(
@@ -385,9 +387,9 @@ export class ExampleModal extends Modal {
 								// exclude the current note from the random selection
 								if (this.currentQueueNote) {
 									if (
-										file.name ===
-										this.currentQueueNote.name
+										file.name === this.currentQueueNote.name
 									) {
+										console.log('excluding current note')
 										return false;
 									}
 								}
@@ -398,11 +400,12 @@ export class ExampleModal extends Modal {
 								console.log("dueAt of card", dueAt);
 								if (!dueAt) {
 									willBeIncluded = true;
+									console.log('book will be included');
 								} else {
 									willBeIncluded =
 										dueAt < new Date().toISOString();
 									console.log(
-										`dueAt is ${dueAt}, and it's ${new Date().toISOString()}, so willBeIncluded is ${willBeIncluded}`
+										`dueAt is ${dueAt}, and it's ${new Date().toISOString()}, so will BeIncluded is ${willBeIncluded}`
 									);
 
 									return willBeIncluded;
@@ -535,7 +538,7 @@ export class ExampleModal extends Modal {
 				front,
 				contentEl,
 				randomCard.path,
-				this.component
+				Component
 			);
 
 			const tags = this.app.metadataCache.getFileCache(randomCard)!.tags;
