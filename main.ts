@@ -242,10 +242,13 @@ export class TheQueueModal extends Modal {
 			const possibleNotes = this.markdownFiles.filter((file) => {
 				return file.name === lastOpenendNoteName;
 			});
+			console.log('notes for last note', possibleNotes);
 			if (possibleNotes.length > 0) {
 				randomNote = possibleNotes[0];
 			}
-		} else {
+		} 
+		
+		if (!randomNote) {
 			// RANDOM CARD PICK
 			// if no note was loaded, pick a random note
 
