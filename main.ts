@@ -164,6 +164,8 @@ export class ExampleModal extends Modal {
 	}
 
 	handleScoring(card: TFile, answer: string = "") {
+		this.loadNewCard();
+		return;
 		// handle card answer
 		const type = this.getTypeOfNote(card);
 
@@ -336,9 +338,7 @@ export class ExampleModal extends Modal {
 			// for each of the selectionsOfPickableNotes, judge by certain conditions whether she should include them in the card pick
 			let pickableSelections: any = [];
 			if (this.selectionsOfPickableNotes.dueArticles.length > 0) {
-				pickableSelections.push(
-					this.selectionsOfPickableNotes.dueArticles
-				);
+				pickableSelections.push("dueArticles");
 			}
 			// only include new books when we have less than 5 started books
 			if (
@@ -346,56 +346,46 @@ export class ExampleModal extends Modal {
 				this.selectionsOfPickableNotes.startedBooksEvenIfNotDue.length <
 					5
 			) {
-				pickableSelections.push(
-					this.selectionsOfPickableNotes.newBooks
-				);
+				pickableSelections.push("newBooks");
 			}
 			if (this.selectionsOfPickableNotes.dueStartedBooks.length > 0) {
-				pickableSelections.push(
-					this.selectionsOfPickableNotes.dueStartedBooks
-				);
+				pickableSelections.push("dueStartedBooks");
 			}
 			if (this.selectionsOfPickableNotes.dueChecks.length > 0) {
-				pickableSelections.push(
-					this.selectionsOfPickableNotes.dueChecks
-				);
+				pickableSelections.push("dueChecks");
 			}
 			if (this.selectionsOfPickableNotes.dueHabits.length > 0) {
-				pickableSelections.push(
-					this.selectionsOfPickableNotes.dueHabits
-				);
+				pickableSelections.push("dueHabits");
 			}
 			if (this.selectionsOfPickableNotes.dueTodos.length > 0) {
-				pickableSelections.push(
-					this.selectionsOfPickableNotes.dueTodos
-				);
+				pickableSelections.push("dueTodos");
 			}
 			if (
 				this.selectionsOfPickableNotes.newLearns.length > 0 &&
 				newLearnItemsThisSessionCount < 12
 			) {
-				pickableSelections.push(
-					this.selectionsOfPickableNotes.newLearns
-				);
+				pickableSelections.push("newLearns");
 			}
 			if (this.selectionsOfPickableNotes.dueStartedLearns.length > 0) {
-				pickableSelections.push(
-					this.selectionsOfPickableNotes.dueStartedLearns
-				);
+				pickableSelections.push("dueStartedLearns");
 			}
 			if (this.selectionsOfPickableNotes.dueMisc.length > 0) {
-				pickableSelections.push(this.selectionsOfPickableNotes.dueMisc);
+				("dueMisc");
 			}
 			console.log("pickableSelections", pickableSelections);
-			// pick a random selection, then pick a random card from that selection
+			// pick a random selection, then pick a random card from selection of that name
 			if (pickableSelections.length > 0) {
-				const randomSelection =
-					pickableSelections[
-						Math.floor(Math.random() * pickableSelections.length)
-					];
+				const randomSelection = pickableSelections[
+					Math.floor(Math.random() * pickableSelections.length)
+				];
+				console.log("randomSelection", randomSelection);
 				randomCard =
-					randomSelection[
-						Math.floor(Math.random() * randomSelection.length)
+					this.selectionsOfPickableNotes[randomSelection][
+						Math.floor(
+							Math.random() *
+								this.selectionsOfPickableNotes[randomSelection]
+									.length
+						)
 					];
 				console.log("PICKED RANDOM CARD", randomCard);
 			} else {
