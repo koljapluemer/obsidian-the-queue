@@ -3,3 +3,8 @@
 * direly need the excuses/instead-of-card feature
 * see that started tag is removed when book finished
 * add bar to quotes
+
+
+---
+
+* check if this works with fresh vault, and with all kinds of incomplete data!

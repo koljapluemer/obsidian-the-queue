@@ -93,6 +93,7 @@ export class ExampleModal extends Modal {
 			}
 			const metadata = this.app.metadataCache.getFileCache(note);
 			if (metadata?.frontmatter) {
+
 				const qType = metadata.frontmatter["q-type"];
 				if (qType) {
 					if (qTypes[qType]) {
@@ -114,7 +115,8 @@ export class ExampleModal extends Modal {
 			// type can be checked by q-type
 			const metadata = this.app.metadataCache.getFileCache(note);
 			if (metadata?.frontmatter) {
-				const qType = metadata.frontmatter["q-type"];
+				const frontmatter = metadata.frontmatter;
+				const qType = frontmatter["q-type"];
 				// exclude q-type: exclude
 				if (qType === "exclude") {
 					return;
@@ -122,9 +124,9 @@ export class ExampleModal extends Modal {
 				// whether due can be checked by q-data.dueat (format is UNIX timestamp)
 				// dueat property may not exist, check for it
 				let noteIsCurrentlyDue = true;
-				if (metadata.frontmatter["q-data"]?.hasOwnProperty("dueat")) {
+				if (frontmatter["q-data"]?.hasOwnProperty("dueat")) {
 					// dueat format is YYYY-MM-DDTHH:MM:SS, make sure to compare correctly with current time
-					const dueAt = metadata.frontmatter["q-data"]["dueat"];
+					const dueAt = frontmatter["q-data"]["dueat"];
 					const currentTime = new Date().toISOString();
 					noteIsCurrentlyDue = dueAt < currentTime;
 				}
@@ -164,158 +166,78 @@ export class ExampleModal extends Modal {
 	}
 
 	handleScoring(card: TFile, answer: string = "") {
-		this.loadNewCard();
-		return;
-		// handle card answer
-		const type = this.getTypeOfNote(card);
+		// get type from q-type frontmatter property
+		const metadata = this.app.metadataCache.getFileCache(card);
+		const frontmatter = metadata!.frontmatter!;
+		const noteType = frontmatter["q-type"];
 
-		const answersToPraise = [
-			"yes",
-			"finished",
-			"done",
-			"correct",
-			"easy",
-			"completed",
-		];
-		if (answersToPraise.includes(answer)) {
-			new Notice("Good job!");
+		if (noteType === "learn" || noteType === "learn-started") {
+			newLearnItemsThisSessionCount += 1;
+			const interval = frontmatter["interval"] || 1;
+			frontmatter["q-data"]["dueat"] = new Date(
+				new Date().getTime() + 16 * 60 * 60 * 1000 * interval
+			).toISOString();
 		}
 
-		// if type is book, check if the tag #started is present, otherwise append it
-		if (type === "book") {
-			// string search in card content
-			this.app.vault.read(card).then((content) => {
-				if (!content.includes("#started")) {
-					if (answer !== "not-today" && answer !== "later") {
-						const newContent = content + "\n\n#started";
-						this.app.vault.modify(card, newContent);
-					}
-				}
-			});
-		}
-
-		if (type === "learn") {
-			this.app.fileManager.processFrontMatter(card, (frontmatter) => {
-				const interval = frontmatter["interval"] || 0;
-				const repetition = frontmatter["repetition"] || 0;
-				const efactor = frontmatter["efactor"] || 2.5;
-
-				let item: SuperMemoItem = {
-					interval: interval,
-					repetition: repetition,
-					efactor: efactor,
-				};
-
-				let answerGrade: SuperMemoGrade = 0;
-				if (answer === "correct") {
-					answerGrade = 3;
-				} else if (answer === "easy") {
-					answerGrade = 5;
-				}
-
-				item = supermemo(item, answerGrade);
-
-				frontmatter["interval"] = item.interval;
-				frontmatter["repetition"] = item.repetition;
-				frontmatter["efactor"] = item.efactor;
-				frontmatter["dueAt"] = new Date(
-					new Date().getTime() + item.interval * 24 * 60 * 60 * 1000
-				).toISOString();
-			});
-			// hand case 'finished': delete tag 'book' and 'article' and add 'misc'
-		} else if (answer == "finished") {
-			// remove book and article tags
-			this.app.fileManager.processFrontMatter(card, (frontmatter) => {
-				const tags = frontmatter["tags"] || [];
-				frontmatter["tags"] = tags.filter(
-					(tag: string) => tag !== "#book" && tag !== "#article"
-				);
-			});
-			// also remove the tags from the notes content itself
-			this.app.vault.read(card).then((content) => {
-				// string match #book and #article and remove them
-				let newContent = content
-					.replace(/#book/g, "")
-					.replace(/#article/g, "");
-				newContent += "\n#misc";
-				this.app.vault.modify(card, newContent);
-			});
-		} else if (answer == "delete" || answer == "completed") {
-			// delete note
-			this.app.vault.delete(card);
-		} else if (answer == "later") {
-			// set dueAt to in 10 minutes
-			const newDate = new Date();
-			newDate.setMinutes(newDate.getMinutes() + 10);
-			this.app.fileManager.processFrontMatter(card, (frontmatter) => {
-				frontmatter["dueAt"] = newDate.toISOString();
-			});
-		} else {
-			const answersWhereIntervalIsAdded = [
-				"not-today",
-				"later",
-				"done",
-				"no",
-				"kind-of",
-				"yes",
-				"finished",
-				"show-next",
-				"show-less",
-				"show-more",
-			];
-
-			if (answer == "show-less") {
-				// half interval (minimum 1)
-				const metadata = this.app.metadataCache.getFileCache(card);
-				let noteInterval = 1;
-				if (metadata) {
-					if (metadata.frontmatter) {
-						metadata.frontmatter["interval"] =
-							Math.max(1, metadata.frontmatter["interval"] / 2) ||
-							1;
-					}
-				}
-			} else if (answer == "show-more") {
-				// double interval, max 128
-				const metadata = this.app.metadataCache.getFileCache(card);
-				let noteInterval = 1;
-				if (metadata) {
-					if (metadata.frontmatter) {
-						metadata.frontmatter["interval"] =
-							Math.min(
-								128,
-								metadata.frontmatter["interval"] * 2
-							) || 1;
-					}
-				}
-			}
-
-			if (answersWhereIntervalIsAdded.includes(answer)) {
-				// get interval either from frontmatter or set to 1
-				const metadata = this.app.metadataCache.getFileCache(card);
-				let noteInterval = 1;
-				if (metadata) {
-					if (metadata.frontmatter) {
-						noteInterval = metadata.frontmatter["interval"];
-					}
-				}
-				if (!noteInterval) {
-					noteInterval = 1;
-				}
-
-				const newDate = new Date();
-				newDate.setDate(newDate.getDate() + noteInterval);
-
-				// set frontmatter property dueAt to date in 24 hours, dont overwrite other properties
-				// TODO: this is a hack. find out why frontmatter is overwritten?! May not be here, but earlier?
-				this.app.fileManager.processFrontMatter(card, (frontmatter) => {
-					frontmatter["dueAt"] = newDate.toISOString();
-					frontmatter["interval"] = noteInterval;
-				});
+		if (noteType === "book") {
+			frontmatter["q-data"]["dueat"] = new Date(
+				new Date().getTime() + 16 * 60 * 60 * 1000
+			).toISOString();
+			// only convert to started if answer is not "not-today" or "later"
+			if (answer !== "not-today" && answer !== "later") {
+				frontmatter["q-type"] = "book-started";
 			}
 		}
 
-		this.loadNewCard();
+		if (noteType === "book-started") {
+			frontmatter["q-data"]["dueat"] = new Date(
+				new Date().getTime() + 16 * 60 * 60 * 1000
+			).toISOString();
+			// check if finished
+			if (answer === "finished") {
+				frontmatter["q-type"] = "misc";
+			}
+		}
+
+		// article works the same as book-started
+		if (noteType === "article") {
+			frontmatter["q-data"]["dueat"] = new Date(
+				new Date().getTime() + 16 * 60 * 60 * 1000
+			).toISOString();
+			// check if finished
+			if (answer === "finished") {
+				frontmatter["q-type"] = "misc";
+			}
+		}
+
+		if (noteType === "check" || noteType === "habit") {
+			frontmatter["q-data"]["dueat"] = new Date(
+				new Date().getTime() + 16 * 60 * 60 * 1000
+			).toISOString();
+		}
+
+		if (noteType === "todo") {
+			frontmatter["q-data"]["dueat"] = new Date(
+				new Date().getTime() + 16 * 60 * 60 * 1000
+			).toISOString();
+			if (answer === "completed") {
+				frontmatter["q-type"] = "misc";
+			}
+		}
+
+		if (noteType === "misc" || noteType === "" || !noteType) {
+			frontmatter["q-data"]["dueat"] = new Date(
+				new Date().getTime() + 16 * 60 * 60 * 1000
+			).toISOString();
+		}
+
+		// write metadata to file
+		this.app.fileManager.processFrontMatter(card, (frontmatter) => {
+			frontmatter = frontmatter;
+		}
+		);
+
+		this.loadNewCard(card.name);
 	}
 
 	loadNewCard(lastOpenendNoteName: string = "") {
@@ -375,9 +297,10 @@ export class ExampleModal extends Modal {
 			console.log("pickableSelections", pickableSelections);
 			// pick a random selection, then pick a random card from selection of that name
 			if (pickableSelections.length > 0) {
-				const randomSelection = pickableSelections[
-					Math.floor(Math.random() * pickableSelections.length)
-				];
+				const randomSelection =
+					pickableSelections[
+						Math.floor(Math.random() * pickableSelections.length)
+					];
 				console.log("randomSelection", randomSelection);
 				randomCard =
 					this.selectionsOfPickableNotes[randomSelection][
