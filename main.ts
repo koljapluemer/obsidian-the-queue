@@ -93,7 +93,6 @@ export class ExampleModal extends Modal {
 			}
 			const metadata = this.app.metadataCache.getFileCache(note);
 			if (metadata?.frontmatter) {
-
 				const qType = metadata.frontmatter["q-type"];
 				if (qType) {
 					if (qTypes[qType]) {
@@ -165,11 +164,13 @@ export class ExampleModal extends Modal {
 		);
 	}
 
-	handleScoring(card: TFile, answer: string = "") {
+	async handleScoring(card: TFile, answer: string = "") {
+		console.log("scoring card", card.name, "with answer", answer);
 		// get type from q-type frontmatter property
 		const metadata = this.app.metadataCache.getFileCache(card);
 		const frontmatter = metadata!.frontmatter!;
 		const noteType = frontmatter["q-type"];
+		console.log("noteType", noteType);
 
 		if (noteType === "learn" || noteType === "learn-started") {
 			newLearnItemsThisSessionCount += 1;
@@ -201,6 +202,7 @@ export class ExampleModal extends Modal {
 
 		// article works the same as book-started
 		if (noteType === "article") {
+			console.log("scoring article now");
 			frontmatter["q-data"]["dueat"] = new Date(
 				new Date().getTime() + 16 * 60 * 60 * 1000
 			).toISOString();
@@ -208,6 +210,7 @@ export class ExampleModal extends Modal {
 			if (answer === "finished") {
 				frontmatter["q-type"] = "misc";
 			}
+			
 		}
 
 		if (noteType === "check" || noteType === "habit") {
@@ -232,9 +235,12 @@ export class ExampleModal extends Modal {
 		}
 
 		// write metadata to file
-		this.app.fileManager.processFrontMatter(card, (frontmatter) => {
-			frontmatter = frontmatter;
-		}
+		console.log("frontmatter is now", frontmatter);
+		const noteContent = await this.app.vault.read(card);
+		await this.app.vault.modify(
+			card,
+			`---\n${JSON.stringify(frontmatter)}\n---`
+			+ noteContent.split("---")[2]
 		);
 
 		this.loadNewCard(card.name);
@@ -315,6 +321,7 @@ export class ExampleModal extends Modal {
 				// pop up a notice that there are no more cards to review (close modal)
 				new Notice("No more cards to review!");
 				this.close();
+				return;
 			}
 		}
 
@@ -339,7 +346,11 @@ export class ExampleModal extends Modal {
 
 		const contentEl = modalEl.createDiv("contentEl");
 
-		this.currentQueueNote = randomCard;
+		this.currentQueueNote = randomCard!;
+		const cardType =
+			this.app.metadataCache!.getFileCache(randomCard)!.frontmatter![
+				"q-type"
+			];
 		// load the content of the random card
 		this.app.vault.read(randomCard).then((content) => {
 			if (!content) {
@@ -372,211 +383,177 @@ export class ExampleModal extends Modal {
 				Component
 			);
 
-			const tags = this.app.metadataCache.getFileCache(randomCard)!.tags;
-
 			const buttonRow = contentEl.createDiv("button-row");
 			// check if the property tag: "#learn" exists in nested object tags
-			if (tags) {
-				if (tags.filter((tag) => tag.tag === "#learn").length > 0) {
-					buttonRow
-						.createEl("button", {
-							text: "Reveal",
-						})
-						.addEventListener("click", () => {
-							contentEl.empty();
-							MarkdownPreviewView.renderMarkdown(
-								front + "\n---\n" + back,
-								contentEl,
-								randomCard.path,
-								this.component
-							);
-							const buttonRow = contentEl.createDiv("button-row");
+			if (cardType === "learn" || cardType === "learn-started") {
+				buttonRow
+					.createEl("button", {
+						text: "Reveal",
+					})
+					.addEventListener("click", () => {
+						contentEl.empty();
+						MarkdownPreviewView.renderMarkdown(
+							front + "\n---\n" + back,
+							contentEl,
+							randomCard.path,
+							this.component
+						);
+						const buttonRow = contentEl.createDiv("button-row");
 
-							buttonRow
-								.createEl("button", {
-									text: "Wrong",
-								})
-								.addEventListener("click", () => {
-									this.handleScoring(randomCard, "wrong");
-								});
+						buttonRow
+							.createEl("button", {
+								text: "Wrong",
+							})
+							.addEventListener("click", () => {
+								this.handleScoring(randomCard, "wrong");
+							});
 
-							buttonRow
-								.createEl("button", {
-									text: "Correct",
-								})
-								.addEventListener("click", () => {
-									this.handleScoring(randomCard, "correct");
-								});
+						buttonRow
+							.createEl("button", {
+								text: "Correct",
+							})
+							.addEventListener("click", () => {
+								this.handleScoring(randomCard, "correct");
+							});
 
-							buttonRow
-								.createEl("button", {
-									text: "Easy",
-								})
-								.addEventListener("click", () => {
-									this.handleScoring(randomCard, "easy");
-								});
-						});
-				} else if (
-					tags.filter((tag) => tag.tag === "#habit").length > 0
-				) {
-					// not today, do later, done
-					buttonRow
-						.createEl("button", {
-							text: "Not Today",
-						})
-						.addEventListener("click", () => {
-							this.handleScoring(randomCard, "not-today");
-						});
-
-					buttonRow
-						.createEl("button", {
-							text: "Later",
-						})
-						.addEventListener("click", () => {
-							this.handleScoring(randomCard, "later");
-						});
-
-					buttonRow
-						.createEl("button", {
-							text: "Done",
-						})
-						.addEventListener("click", () => {
-							this.handleScoring(randomCard, "done");
-						});
-
-					// todo
-				} else if (
-					tags.filter((tag) => tag.tag === "#todo").length > 0
-				) {
-					// delete, later, not today, done
-					buttonRow
-						.createEl("button", {
-							text: "Delete",
-						})
-						.addEventListener("click", () => {
-							this.handleScoring(randomCard, "delete");
-						});
-
-					buttonRow
-						.createEl("button", {
-							text: "Not Today",
-						})
-						.addEventListener("click", () => {
-							this.handleScoring(randomCard, "not-today");
-						});
-
-					buttonRow
-						.createEl("button", {
-							text: "Later",
-						})
-						.addEventListener("click", () => {
-							this.handleScoring(randomCard, "later");
-						});
-
-					buttonRow
-						.createEl("button", {
-							text: "Completed",
-						})
-						.addEventListener("click", () => {
-							this.handleScoring(randomCard, "completed");
-						});
-				}
-				// check:
-				else if (
-					tags.filter((tag) => tag.tag === "#check").length > 0
-				) {
-					// no, kind of, yes
-					buttonRow
-						.createEl("button", {
-							text: "No",
-						})
-						.addEventListener("click", () => {
-							this.handleScoring(randomCard, "no");
-						});
-
-					buttonRow
-						.createEl("button", {
-							text: "Kind of",
-						})
-						.addEventListener("click", () => {
-							this.handleScoring(randomCard, "kind-of");
-						});
-
-					buttonRow
-						.createEl("button", {
-							text: "Yes",
-						})
-						.addEventListener("click", () => {
-							this.handleScoring(randomCard, "yes");
-						});
-				}
-				// book or article
-				else if (
-					tags.filter(
-						(tag) => tag.tag === "#book" || tag.tag === "#article"
-					).length > 0
-				) {
-					buttonRow.createEl("span", {
-						text: "Read at a bit:",
+						buttonRow
+							.createEl("button", {
+								text: "Easy",
+							})
+							.addEventListener("click", () => {
+								this.handleScoring(randomCard, "easy");
+							});
 					});
-					// not today, later, done, finished
-					buttonRow
-						.createEl("button", {
-							text: "Not Today",
-						})
-						.addEventListener("click", () => {
-							this.handleScoring(randomCard, "not-today");
-						});
+			} else if (cardType === "habit") {
+				// not today, do later, done
+				buttonRow
+					.createEl("button", {
+						text: "Not Today",
+					})
+					.addEventListener("click", () => {
+						this.handleScoring(randomCard, "not-today");
+					});
 
-					buttonRow
-						.createEl("button", {
-							text: "Later",
-						})
-						.addEventListener("click", () => {
-							this.handleScoring(randomCard, "later");
-						});
+				buttonRow
+					.createEl("button", {
+						text: "Later",
+					})
+					.addEventListener("click", () => {
+						this.handleScoring(randomCard, "later");
+					});
 
-					buttonRow
-						.createEl("button", {
-							text: "Done",
-						})
-						.addEventListener("click", () => {
-							this.handleScoring(randomCard, "done");
-						});
+				buttonRow
+					.createEl("button", {
+						text: "Done",
+					})
+					.addEventListener("click", () => {
+						this.handleScoring(randomCard, "done");
+					});
 
-					buttonRow
-						.createEl("button", {
-							text: "Finished",
-						})
-						.addEventListener("click", () => {
-							this.handleScoring(randomCard, "finished");
-						});
-				} else {
-					buttonRow
-						.createEl("button", {
-							text: "Show Less Often",
-						})
-						.addEventListener("click", () => {
-							this.handleScoring(randomCard, "show-less");
-						});
-					buttonRow
-						.createEl("button", {
-							text: "Ok, Cool",
-						})
-						.addEventListener("click", () => {
-							this.handleScoring(randomCard, "show-next");
-						});
+				// todo
+			} else if (cardType === "todo") {
+				// delete, later, not today, done
+				buttonRow
+					.createEl("button", {
+						text: "Delete",
+					})
+					.addEventListener("click", () => {
+						this.handleScoring(randomCard, "delete");
+					});
 
-					buttonRow
-						.createEl("button", {
-							text: "Show More Often",
-						})
-						.addEventListener("click", () => {
-							this.handleScoring(randomCard, "show-more");
-						});
-				}
+				buttonRow
+					.createEl("button", {
+						text: "Not Today",
+					})
+					.addEventListener("click", () => {
+						this.handleScoring(randomCard, "not-today");
+					});
+
+				buttonRow
+					.createEl("button", {
+						text: "Later",
+					})
+					.addEventListener("click", () => {
+						this.handleScoring(randomCard, "later");
+					});
+
+				buttonRow
+					.createEl("button", {
+						text: "Completed",
+					})
+					.addEventListener("click", () => {
+						this.handleScoring(randomCard, "completed");
+					});
+			}
+			// check:
+			else if (cardType === "check") {
+				// no, kind of, yes
+				buttonRow
+					.createEl("button", {
+						text: "No",
+					})
+					.addEventListener("click", () => {
+						this.handleScoring(randomCard, "no");
+					});
+
+				buttonRow
+					.createEl("button", {
+						text: "Kind of",
+					})
+					.addEventListener("click", () => {
+						this.handleScoring(randomCard, "kind-of");
+					});
+
+				buttonRow
+					.createEl("button", {
+						text: "Yes",
+					})
+					.addEventListener("click", () => {
+						this.handleScoring(randomCard, "yes");
+					});
+			}
+			// book or article
+			else if (
+				cardType === "book" ||
+				cardType === "book-started" ||
+				cardType === "article"
+			) {
+				buttonRow.createEl("span", {
+					text: "Read at a bit:",
+				});
+				// not today, later, done, finished
+				buttonRow
+					.createEl("button", {
+						text: "Not Today",
+					})
+					.addEventListener("click", () => {
+						this.handleScoring(randomCard, "not-today");
+					});
+
+				buttonRow
+					.createEl("button", {
+						text: "Later",
+					})
+					.addEventListener("click", () => {
+						this.handleScoring(randomCard, "later");
+					});
+
+				buttonRow
+					.createEl("button", {
+						text: "Done",
+					})
+					.addEventListener("click", () => {
+						this.handleScoring(randomCard, "done");
+					});
+
+				buttonRow
+					.createEl("button", {
+						text: "Finished",
+					})
+					.addEventListener("click", () => {
+						this.handleScoring(randomCard, "finished");
+					});
 			} else {
-				// if no tag is set denoting the type, handle as 'misc'
 				buttonRow
 					.createEl("button", {
 						text: "Show Less Often",
