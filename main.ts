@@ -154,7 +154,6 @@ export class TheQueueModal extends Modal {
 				}
 			}
 		});
-
 	}
 
 	async handleScoring(note: TFile, answer: string = "") {
@@ -200,7 +199,6 @@ export class TheQueueModal extends Modal {
 			if (answer === "finished") {
 				frontmatter["q-type"] = "misc";
 			}
-			
 		}
 
 		if (noteType === "check" || noteType === "habit") {
@@ -225,12 +223,11 @@ export class TheQueueModal extends Modal {
 		}
 
 		// write metadata to file
-		const noteContent = await this.app.vault.read(note);
-		await this.app.vault.modify(
-			note,
-			`---\n${JSON.stringify(frontmatter)}\n---`
-			+ noteContent.split("---")[2]
-		);
+		const newFrontMatter = frontmatter;
+		app.fileManager.processFrontMatter(note, (frontmatter) => {
+			frontmatter["q-data"] = newFrontMatter["q-data"];
+			frontmatter["q-type"] = newFrontMatter["q-type"];
+		});
 
 		this.loadNewNote();
 	}
