@@ -73,6 +73,23 @@ export class ExampleModal extends Modal {
 		console.log(
 			`not considering due date, there a ${this.markdownFiles.length} notes`
 		);
+		// log how often values for the q-type frontmatter property occur in the notes
+		let qTypes: any = {};
+		this.markdownFiles.forEach((note) => {
+			const metadata = this.app.metadataCache.getFileCache(note);
+			if (metadata?.frontmatter) {
+				const qType = metadata.frontmatter["q-type"];
+				if (qType) {
+					if (qTypes[qType]) {
+						qTypes[qType] += 1;
+					} else {
+						qTypes[qType] = 1;
+					}
+				}
+			}
+		});
+		console.log("qTypes:", qTypes);
+
 		// get active book notes
 		this.startedBookNotes = this.markdownFiles.filter((note) => {
 			let willBeIncluded = false;
@@ -389,7 +406,7 @@ export class ExampleModal extends Modal {
 									if (
 										file.name === this.currentQueueNote.name
 									) {
-										console.log('excluding current note')
+										console.log("excluding current note");
 										return false;
 									}
 								}
@@ -400,7 +417,7 @@ export class ExampleModal extends Modal {
 								console.log("dueAt of card", dueAt);
 								if (!dueAt) {
 									willBeIncluded = true;
-									console.log('book will be included');
+									console.log("book will be included");
 								} else {
 									willBeIncluded =
 										dueAt < new Date().toISOString();
