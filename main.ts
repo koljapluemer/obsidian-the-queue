@@ -17,18 +17,18 @@ import { supermemo, SuperMemoItem, SuperMemoGrade } from "supermemo";
 
 // Remember to rename these classes and interfaces!
 
-interface MyPluginSettings {
+interface TheQueueSettings {
 	mySetting: string;
 }
 
-const DEFAULT_SETTINGS: MyPluginSettings = {
+const DEFAULT_SETTINGS: TheQueueSettings = {
 	mySetting: "default",
 };
 
 let newLearnItemsThisSessionCount = 0;
 
-export default class MyPlugin extends Plugin {
-	settings: MyPluginSettings;
+export default class TheQueue extends Plugin {
+	settings: TheQueueSettings;
 
 	async onload() {
 		// This creates an icon in the left ribbon.
@@ -38,9 +38,7 @@ export default class MyPlugin extends Plugin {
 			(evt: MouseEvent) => {
 				// Called when the user clicks the icon.
 				// new SampleModal(this.app).open();
-				new ExampleModal(this.app, (result) => {
-					new Notice(`Hello, ${result}!`);
-				}).open();
+				new TheQueueModal(this.app).open();
 			}
 		);
 		// Perform additional things with the ribbon
@@ -50,7 +48,7 @@ export default class MyPlugin extends Plugin {
 	onunload() {}
 }
 
-export class ExampleModal extends Modal {
+export class TheQueueModal extends Modal {
 	component: Component;
 
 	result: string;
@@ -76,7 +74,7 @@ export class ExampleModal extends Modal {
 	loadNotes() {
 		this.markdownFiles = app.vault.getMarkdownFiles().filter((note) => {
 			let willBeIncluded = true;
-			// exclude cards with the tag #inactive
+			// exclude notes with the tag #inactive
 			const tags = this.app.metadataCache.getFileCache(note)?.tags;
 			if (tags) {
 				if (tags.filter((tag) => tag.tag === "#inactive").length > 0) {
@@ -103,7 +101,6 @@ export class ExampleModal extends Modal {
 				}
 			}
 		});
-		console.log("qTypes:", qTypes);
 
 		this.markdownFiles.forEach((note) => {
 			// check if markdown file, otherwise skip:
@@ -158,19 +155,13 @@ export class ExampleModal extends Modal {
 			}
 		});
 
-		console.log(
-			"selectionsOfPickableNotes",
-			this.selectionsOfPickableNotes
-		);
 	}
 
-	async handleScoring(card: TFile, answer: string = "") {
-		console.log("scoring card", card.name, "with answer", answer);
+	async handleScoring(note: TFile, answer: string = "") {
 		// get type from q-type frontmatter property
-		const metadata = this.app.metadataCache.getFileCache(card);
+		const metadata = this.app.metadataCache.getFileCache(note);
 		const frontmatter = metadata!.frontmatter!;
 		const noteType = frontmatter["q-type"];
-		console.log("noteType", noteType);
 
 		if (noteType === "learn" || noteType === "learn-started") {
 			newLearnItemsThisSessionCount += 1;
@@ -202,7 +193,6 @@ export class ExampleModal extends Modal {
 
 		// article works the same as book-started
 		if (noteType === "article") {
-			console.log("scoring article now");
 			frontmatter["q-data"]["dueat"] = new Date(
 				new Date().getTime() + 16 * 60 * 60 * 1000
 			).toISOString();
@@ -235,35 +225,34 @@ export class ExampleModal extends Modal {
 		}
 
 		// write metadata to file
-		console.log("frontmatter is now", frontmatter);
-		const noteContent = await this.app.vault.read(card);
+		const noteContent = await this.app.vault.read(note);
 		await this.app.vault.modify(
-			card,
+			note,
 			`---\n${JSON.stringify(frontmatter)}\n---`
 			+ noteContent.split("---")[2]
 		);
 
-		this.loadNewCard(card.name);
+		this.loadNewNote();
 	}
 
-	loadNewCard(lastOpenendNoteName: string = "") {
+	loadNewNote(lastOpenendNoteName: string = "") {
 		this.loadNotes();
-		let randomCard: TFile;
+		let randomNote: TFile;
 
 		if (lastOpenendNoteName) {
-			// in this case, load the same card (not actually random)
+			// in this case, load the same note (not actually random)
 			// find note by name
-			const possibleCards = this.markdownFiles.filter((file) => {
+			const possibleNotes = this.markdownFiles.filter((file) => {
 				return file.name === lastOpenendNoteName;
 			});
-			if (possibleCards.length > 0) {
-				randomCard = possibleCards[0];
+			if (possibleNotes.length > 0) {
+				randomNote = possibleNotes[0];
 			}
 		} else {
 			// RANDOM CARD PICK
-			// if no card was loaded, pick a random card
+			// if no note was loaded, pick a random note
 
-			// for each of the selectionsOfPickableNotes, judge by certain conditions whether she should include them in the card pick
+			// for each of the selectionsOfPickableNotes, judge by certain conditions whether she should include them in the note pick
 			let pickableSelections: any = [];
 			if (this.selectionsOfPickableNotes.dueArticles.length > 0) {
 				pickableSelections.push("dueArticles");
@@ -300,15 +289,13 @@ export class ExampleModal extends Modal {
 			if (this.selectionsOfPickableNotes.dueMisc.length > 0) {
 				("dueMisc");
 			}
-			console.log("pickableSelections", pickableSelections);
-			// pick a random selection, then pick a random card from selection of that name
+			// pick a random selection, then pick a random note from selection of that name
 			if (pickableSelections.length > 0) {
 				const randomSelection =
 					pickableSelections[
 						Math.floor(Math.random() * pickableSelections.length)
 					];
-				console.log("randomSelection", randomSelection);
-				randomCard =
+				randomNote =
 					this.selectionsOfPickableNotes[randomSelection][
 						Math.floor(
 							Math.random() *
@@ -316,10 +303,9 @@ export class ExampleModal extends Modal {
 									.length
 						)
 					];
-				console.log("PICKED RANDOM CARD", randomCard);
 			} else {
-				// pop up a notice that there are no more cards to review (close modal)
-				new Notice("No more cards to review!");
+				// pop up a notice that there are no more notes to review (close modal)
+				new Notice("No more notes to review!");
 				this.close();
 				return;
 			}
@@ -327,65 +313,63 @@ export class ExampleModal extends Modal {
 
 		// RENDER FUNCTION
 
-		// save card name to local storage
-		localStorage.setItem("lastOpenendNoteName", randomCard.name);
+		// save note name to local storage
+		localStorage.setItem("lastOpenendNoteName", randomNote.name);
 
 		const { modalEl } = this;
 		modalEl.empty();
 		modalEl.addClass("queue-modal");
 
 		const headerEl = modalEl.createDiv("headerEl");
-		// create button to jump to card
-		const jumpToCardButton = headerEl.createEl("button", {
-			text: "Jump to card",
+		// create button to jump to note
+		const jumpToNoteButton = headerEl.createEl("button", {
+			text: "Jump to note",
 		});
-		jumpToCardButton.addEventListener("click", () => {
-			this.app.workspace.openLinkText(randomCard.path, "", true);
+		jumpToNoteButton.addEventListener("click", () => {
+			this.app.workspace.openLinkText(randomNote.path, "", true);
 			this.close();
 		});
 
 		const contentEl = modalEl.createDiv("contentEl");
 
-		this.currentQueueNote = randomCard!;
-		const cardType =
-			this.app.metadataCache!.getFileCache(randomCard)!.frontmatter![
+		this.currentQueueNote = randomNote!;
+		const noteType =
+			this.app.metadataCache!.getFileCache(randomNote)!.frontmatter![
 				"q-type"
 			];
-		// load the content of the random card
-		this.app.vault.read(randomCard).then((content) => {
+		// load the content of the random note
+		this.app.vault.read(randomNote).then((content) => {
 			if (!content) {
 				return;
 			}
-			const splitCard = content.split("---");
+			const splitNote = content.split("---");
 
 			// if metadata has property frontmatter, treat differently
-			const metadata = this.app.metadataCache.getFileCache(randomCard);
-			// console.log("metadata of note", metadata);
+			const metadata = this.app.metadataCache.getFileCache(randomNote);
 			let front = "";
 			let back = "";
 			// check if frontmatter exists, or if content has more than one ---
-			if (metadata?.frontmatter || splitCard.length > 2) {
-				front = splitCard[2];
-				back = splitCard[3];
+			if (metadata?.frontmatter || splitNote.length > 2) {
+				front = splitNote[2];
+				back = splitNote[3];
 			} else {
-				front = splitCard[0];
-				back = splitCard[1];
+				front = splitNote[0];
+				back = splitNote[1];
 			}
-			// console.log("front", front, "back", back);
-			// add title of card before front, with a # to make it a title
-			const title = randomCard.name.replace(".md", "");
+			// add title of note before front, with a # to make it a title
+			const title = randomNote.name.replace(".md", "");
 			front = `# ${title}\n\n${front}`;
 
-			const cardContent = MarkdownPreviewView.renderMarkdown(
+			const noteContent = MarkdownPreviewView.renderMarkdown(
 				front,
 				contentEl,
-				randomCard.path,
+				randomNote.path,
 				Component
 			);
 
 			const buttonRow = contentEl.createDiv("button-row");
 			// check if the property tag: "#learn" exists in nested object tags
-			if (cardType === "learn" || cardType === "learn-started") {
+			if (noteType === "learn" || noteType === "learn-started") {
 				buttonRow
 					.createEl("button", {
 						text: "Reveal",
@@ -395,7 +379,7 @@ export class ExampleModal extends Modal {
 						MarkdownPreviewView.renderMarkdown(
 							front + "\n---\n" + back,
 							contentEl,
-							randomCard.path,
+							randomNote.path,
 							this.component
 						);
 						const buttonRow = contentEl.createDiv("button-row");
@@ -405,7 +389,7 @@ export class ExampleModal extends Modal {
 								text: "Wrong",
 							})
 							.addEventListener("click", () => {
-								this.handleScoring(randomCard, "wrong");
+								this.handleScoring(randomNote, "wrong");
 							});
 
 						buttonRow
@@ -413,7 +397,7 @@ export class ExampleModal extends Modal {
 								text: "Correct",
 							})
 							.addEventListener("click", () => {
-								this.handleScoring(randomCard, "correct");
+								this.handleScoring(randomNote, "correct");
 							});
 
 						buttonRow
@@ -421,17 +405,17 @@ export class ExampleModal extends Modal {
 								text: "Easy",
 							})
 							.addEventListener("click", () => {
-								this.handleScoring(randomCard, "easy");
+								this.handleScoring(randomNote, "easy");
 							});
 					});
-			} else if (cardType === "habit") {
+			} else if (noteType === "habit") {
 				// not today, do later, done
 				buttonRow
 					.createEl("button", {
 						text: "Not Today",
 					})
 					.addEventListener("click", () => {
-						this.handleScoring(randomCard, "not-today");
+						this.handleScoring(randomNote, "not-today");
 					});
 
 				buttonRow
@@ -439,7 +423,7 @@ export class ExampleModal extends Modal {
 						text: "Later",
 					})
 					.addEventListener("click", () => {
-						this.handleScoring(randomCard, "later");
+						this.handleScoring(randomNote, "later");
 					});
 
 				buttonRow
@@ -447,18 +431,18 @@ export class ExampleModal extends Modal {
 						text: "Done",
 					})
 					.addEventListener("click", () => {
-						this.handleScoring(randomCard, "done");
+						this.handleScoring(randomNote, "done");
 					});
 
 				// todo
-			} else if (cardType === "todo") {
+			} else if (noteType === "todo") {
 				// delete, later, not today, done
 				buttonRow
 					.createEl("button", {
 						text: "Delete",
 					})
 					.addEventListener("click", () => {
-						this.handleScoring(randomCard, "delete");
+						this.handleScoring(randomNote, "delete");
 					});
 
 				buttonRow
@@ -466,7 +450,7 @@ export class ExampleModal extends Modal {
 						text: "Not Today",
 					})
 					.addEventListener("click", () => {
-						this.handleScoring(randomCard, "not-today");
+						this.handleScoring(randomNote, "not-today");
 					});
 
 				buttonRow
@@ -474,7 +458,7 @@ export class ExampleModal extends Modal {
 						text: "Later",
 					})
 					.addEventListener("click", () => {
-						this.handleScoring(randomCard, "later");
+						this.handleScoring(randomNote, "later");
 					});
 
 				buttonRow
@@ -482,18 +466,18 @@ export class ExampleModal extends Modal {
 						text: "Completed",
 					})
 					.addEventListener("click", () => {
-						this.handleScoring(randomCard, "completed");
+						this.handleScoring(randomNote, "completed");
 					});
 			}
 			// check:
-			else if (cardType === "check") {
+			else if (noteType === "check") {
 				// no, kind of, yes
 				buttonRow
 					.createEl("button", {
 						text: "No",
 					})
 					.addEventListener("click", () => {
-						this.handleScoring(randomCard, "no");
+						this.handleScoring(randomNote, "no");
 					});
 
 				buttonRow
@@ -501,7 +485,7 @@ export class ExampleModal extends Modal {
 						text: "Kind of",
 					})
 					.addEventListener("click", () => {
-						this.handleScoring(randomCard, "kind-of");
+						this.handleScoring(randomNote, "kind-of");
 					});
 
 				buttonRow
@@ -509,14 +493,14 @@ export class ExampleModal extends Modal {
 						text: "Yes",
 					})
 					.addEventListener("click", () => {
-						this.handleScoring(randomCard, "yes");
+						this.handleScoring(randomNote, "yes");
 					});
 			}
 			// book or article
 			else if (
-				cardType === "book" ||
-				cardType === "book-started" ||
-				cardType === "article"
+				noteType === "book" ||
+				noteType === "book-started" ||
+				noteType === "article"
 			) {
 				buttonRow.createEl("span", {
 					text: "Read at a bit:",
@@ -527,7 +511,7 @@ export class ExampleModal extends Modal {
 						text: "Not Today",
 					})
 					.addEventListener("click", () => {
-						this.handleScoring(randomCard, "not-today");
+						this.handleScoring(randomNote, "not-today");
 					});
 
 				buttonRow
@@ -535,7 +519,7 @@ export class ExampleModal extends Modal {
 						text: "Later",
 					})
 					.addEventListener("click", () => {
-						this.handleScoring(randomCard, "later");
+						this.handleScoring(randomNote, "later");
 					});
 
 				buttonRow
@@ -543,7 +527,7 @@ export class ExampleModal extends Modal {
 						text: "Done",
 					})
 					.addEventListener("click", () => {
-						this.handleScoring(randomCard, "done");
+						this.handleScoring(randomNote, "done");
 					});
 
 				buttonRow
@@ -551,7 +535,7 @@ export class ExampleModal extends Modal {
 						text: "Finished",
 					})
 					.addEventListener("click", () => {
-						this.handleScoring(randomCard, "finished");
+						this.handleScoring(randomNote, "finished");
 					});
 			} else {
 				buttonRow
@@ -559,14 +543,14 @@ export class ExampleModal extends Modal {
 						text: "Show Less Often",
 					})
 					.addEventListener("click", () => {
-						this.handleScoring(randomCard, "show-less");
+						this.handleScoring(randomNote, "show-less");
 					});
 				buttonRow
 					.createEl("button", {
 						text: "Ok, Cool",
 					})
 					.addEventListener("click", () => {
-						this.handleScoring(randomCard, "show-next");
+						this.handleScoring(randomNote, "show-next");
 					});
 
 				buttonRow
@@ -574,7 +558,7 @@ export class ExampleModal extends Modal {
 						text: "Show More Often",
 					})
 					.addEventListener("click", () => {
-						this.handleScoring(randomCard, "show-more");
+						this.handleScoring(randomNote, "show-more");
 					});
 			}
 		});
@@ -582,7 +566,7 @@ export class ExampleModal extends Modal {
 
 	onOpen() {
 		const lastNote = localStorage.getItem("lastOpenendNoteName") || "";
-		this.loadNewCard(lastNote);
+		this.loadNewNote(lastNote);
 	}
 
 	onClose() {
