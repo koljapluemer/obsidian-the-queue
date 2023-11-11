@@ -25,8 +25,6 @@ const DEFAULT_SETTINGS: MyPluginSettings = {
 	mySetting: "default",
 };
 
-let newLearnItemsThisSessionCount = 0;
-
 export default class MyPlugin extends Plugin {
 	settings: MyPluginSettings;
 
@@ -60,19 +58,6 @@ export class ExampleModal extends Modal {
 	priorityNotes: TFile[];
 	currentQueueNote: TFile;
 
-	selectionsOfPickableNotes: any = {
-		dueArticles: [],
-		newBooks: [],
-		dueStartedBooks: [],
-		startedBooksEvenIfNotDue: [],
-		dueChecks: [],
-		dueHabits: [],
-		dueTodos: [],
-		newLearns: [],
-		dueStartedLearns: [],
-		dueMisc: [],
-	};
-
 	loadNotes() {
 		this.markdownFiles = app.vault.getMarkdownFiles().filter((note) => {
 			let willBeIncluded = true;
@@ -88,9 +73,6 @@ export class ExampleModal extends Modal {
 		// log how often values for the q-type frontmatter property occur in the notes
 		let qTypes: any = {};
 		this.markdownFiles.forEach((note) => {
-			if (note.extension !== "md") {
-				return;
-			}
 			const metadata = this.app.metadataCache.getFileCache(note);
 			if (metadata?.frontmatter) {
 				const qType = metadata.frontmatter["q-type"];
@@ -105,6 +87,17 @@ export class ExampleModal extends Modal {
 		});
 		console.log("qTypes:", qTypes);
 
+		let selectionsOfPickableNotes: any = {
+			dueArticles: [],
+			newBooks: [],
+			dueStartedBooks: [],
+			dueChecks: [],
+			dueHabits: [],
+			dueTodos: [],
+			newLearns: [],
+			dueStartedLearns: [],
+			dueMisc: [],
+		};
 		this.markdownFiles.forEach((note) => {
 			// check if markdown file, otherwise skip:
 			if (note.extension !== "md") {
@@ -127,40 +120,106 @@ export class ExampleModal extends Modal {
 					const dueAt = metadata.frontmatter["q-data"]["dueat"];
 					const currentTime = new Date().toISOString();
 					noteIsCurrentlyDue = dueAt < currentTime;
+					
 				}
 				if (qType === "article" && noteIsCurrentlyDue) {
-					this.selectionsOfPickableNotes.dueArticles.push(note);
+					selectionsOfPickableNotes.dueArticles.push(note);
 				} else if (qType === "book-started") {
 					if (noteIsCurrentlyDue) {
-						this.selectionsOfPickableNotes.dueStartedBooks.push(
-							note
-						);
+						selectionsOfPickableNotes.dueStartedBooks.push(note);
 					}
-					this.selectionsOfPickableNotes.startedBooksEvenIfNotDue.push(
-						note
-					);
 				} else if (qType === "book") {
-					this.selectionsOfPickableNotes.newBooks.push(note);
+					selectionsOfPickableNotes.newBooks.push(note);
 				} else if (qType === "check" && noteIsCurrentlyDue) {
-					this.selectionsOfPickableNotes.dueChecks.push(note);
+					selectionsOfPickableNotes.dueChecks.push(note);
 				} else if (qType === "habit" && noteIsCurrentlyDue) {
-					this.selectionsOfPickableNotes.dueHabits.push(note);
+					selectionsOfPickableNotes.dueHabits.push(note);
 				} else if (qType === "todo" && noteIsCurrentlyDue) {
-					this.selectionsOfPickableNotes.dueTodos.push(note);
+					selectionsOfPickableNotes.dueTodos.push(note);
 				} else if (qType === "learn-started" && noteIsCurrentlyDue) {
-					this.selectionsOfPickableNotes.dueStartedLearns.push(note);
+					selectionsOfPickableNotes.dueStartedLearns.push(note);
 				} else if (qType === "learn") {
-					this.selectionsOfPickableNotes.newLearns.push(note);
+					selectionsOfPickableNotes.newLearns.push(note);
 				} else if (noteIsCurrentlyDue) {
-					this.selectionsOfPickableNotes.dueMisc.push(note);
+					selectionsOfPickableNotes.dueMisc.push(note);
 				}
 			}
 		});
 
-		console.log(
-			"selectionsOfPickableNotes",
-			this.selectionsOfPickableNotes
-		);
+		console.log("selectionsOfPickableNotes", selectionsOfPickableNotes);
+
+		// get active book notes
+		this.startedBookNotes = this.markdownFiles.filter((note) => {
+			let willBeIncluded = false;
+			// check if its a book, and contains the tag 'started
+			if (this.getTypeOfNote(note) === "book") {
+				const tags = this.app.metadataCache.getFileCache(note)?.tags;
+				if (tags) {
+					if (
+						tags.filter((tag) => tag.tag === "#started").length > 0
+					) {
+						willBeIncluded = true;
+					}
+				}
+			}
+			return willBeIncluded;
+		});
+		// if less than 5 books, find a new random book and add it to the list
+		if (this.startedBookNotes.length < 5) {
+			const newBook = this.markdownFiles.filter((note) => {
+				return this.getTypeOfNote(note) === "book";
+			});
+
+			this.startedBookNotes.push(
+				newBook[Math.floor(Math.random() * newBook.length)]
+			);
+			console.warn("added new book, list is now", this.startedBookNotes);
+		}
+
+		// get priority notes
+		this.priorityNotes = this.markdownFiles.filter((note) => {
+			let willBeIncluded = false;
+			// check for tag #priority
+			const tags = this.app.metadataCache.getFileCache(note)?.tags;
+			if (tags) {
+				if (tags.filter((tag) => tag.tag === "#priority").length > 0) {
+					willBeIncluded = true;
+				}
+			}
+			return willBeIncluded;
+		});
+		console.log("found priority notes", this.priorityNotes);
+	}
+
+	constructor(app: App, onSubmit: (result: string) => void) {
+		super(app);
+		this.onSubmit = onSubmit;
+	}
+
+	getTypeOfNote(note: TFile) {
+		// loop tags for occurrences of learn, habit, todo, check, misc, book, article
+		// if none found, return misc
+		const tags = this.app.metadataCache.getFileCache(note)?.tags;
+		if (tags) {
+			if (tags.filter((tag) => tag.tag === "#learn").length > 0) {
+				return "learn";
+			} else if (tags.filter((tag) => tag.tag === "#habit").length > 0) {
+				return "habit";
+			} else if (tags.filter((tag) => tag.tag === "#todo").length > 0) {
+				return "todo";
+			} else if (tags.filter((tag) => tag.tag === "#check").length > 0) {
+				return "check";
+			} else if (tags.filter((tag) => tag.tag === "#misc").length > 0) {
+				return "misc";
+			} else if (tags.filter((tag) => tag.tag === "#book").length > 0) {
+				return "book";
+			} else if (
+				tags.filter((tag) => tag.tag === "#article").length > 0
+			) {
+				return "article";
+			}
+		}
+		return "misc";
 	}
 
 	handleScoring(card: TFile, answer: string = "") {
@@ -329,83 +388,145 @@ export class ExampleModal extends Modal {
 			if (possibleCards.length > 0) {
 				randomCard = possibleCards[0];
 			}
-		} else {
-			// RANDOM CARD PICK
-			// if no card was loaded, pick a random card
-
-			// for each of the selectionsOfPickableNotes, judge by certain conditions whether she should include them in the card pick
-			let pickableSelections: any = [];
-			if (this.selectionsOfPickableNotes.dueArticles.length > 0) {
-				pickableSelections.push(
-					this.selectionsOfPickableNotes.dueArticles
-				);
-			}
-			// only include new books when we have less than 5 started books
-			if (
-				this.selectionsOfPickableNotes.newBooks.length > 0 &&
-				this.selectionsOfPickableNotes.startedBooksEvenIfNotDue.length <
-					5
-			) {
-				pickableSelections.push(
-					this.selectionsOfPickableNotes.newBooks
-				);
-			}
-			if (this.selectionsOfPickableNotes.dueStartedBooks.length > 0) {
-				pickableSelections.push(
-					this.selectionsOfPickableNotes.dueStartedBooks
-				);
-			}
-			if (this.selectionsOfPickableNotes.dueChecks.length > 0) {
-				pickableSelections.push(
-					this.selectionsOfPickableNotes.dueChecks
-				);
-			}
-			if (this.selectionsOfPickableNotes.dueHabits.length > 0) {
-				pickableSelections.push(
-					this.selectionsOfPickableNotes.dueHabits
-				);
-			}
-			if (this.selectionsOfPickableNotes.dueTodos.length > 0) {
-				pickableSelections.push(
-					this.selectionsOfPickableNotes.dueTodos
-				);
-			}
-			if (
-				this.selectionsOfPickableNotes.newLearns.length > 0 &&
-				newLearnItemsThisSessionCount < 12
-			) {
-				pickableSelections.push(
-					this.selectionsOfPickableNotes.newLearns
-				);
-			}
-			if (this.selectionsOfPickableNotes.dueStartedLearns.length > 0) {
-				pickableSelections.push(
-					this.selectionsOfPickableNotes.dueStartedLearns
-				);
-			}
-			if (this.selectionsOfPickableNotes.dueMisc.length > 0) {
-				pickableSelections.push(this.selectionsOfPickableNotes.dueMisc);
-			}
-			console.log("pickableSelections", pickableSelections);
-			// pick a random selection, then pick a random card from that selection
-			if (pickableSelections.length > 0) {
-				const randomSelection =
-					pickableSelections[
-						Math.floor(Math.random() * pickableSelections.length)
-					];
-				randomCard =
-					randomSelection[
-						Math.floor(Math.random() * randomSelection.length)
-					];
-				console.log("PICKED RANDOM CARD", randomCard);
-			} else {
-				// pop up a notice that there are no more cards to review (close modal)
-				new Notice("No more cards to review!");
-				this.close();
-			}
 		}
 
-		// RENDER FUNCTION
+		if (!randomCard!) {
+			// with 30% chance, pick a priority note
+			if (Math.random() < 0.3) {
+				const duePriorityNotes: TFile[] = this.priorityNotes.filter(
+					(file) => {
+						// exclude the current note from the random selection
+						if (this.currentQueueNote) {
+							if (file.name === this.currentQueueNote.name) {
+								return false;
+							}
+						}
+						let willBeIncluded = false;
+						const dueAt =
+							app.metadataCache.getFileCache(file)?.frontmatter
+								?.dueAt;
+						if (!dueAt) {
+							willBeIncluded = true;
+						} else {
+							willBeIncluded = dueAt < new Date().toISOString();
+
+							return willBeIncluded;
+						}
+					}
+				);
+				randomCard =
+					duePriorityNotes[
+						Math.floor(Math.random() * duePriorityNotes.length)
+					];
+			} else {
+
+				const availableTypes = [
+					"learn",
+					"book",
+					"article",
+					"misc",
+					"todo",
+					"habit",
+					"check",
+				];
+				// const randomType =
+				// 	availableTypes[
+				// 		Math.floor(Math.random() * availableTypes.length)
+				// 	];
+				const randomType = "book";
+
+				// book is treated special, because there is a small list of started books
+				if (randomType === "book") {
+					// if there is more than 0 started books, pick one of them (we fill up this list earlier, having none here means no books are in system)
+					if (this.startedBookNotes.length > 0) {
+						const dueBooks = this.startedBookNotes.filter(
+							(file) => {
+								// exclude the current note from the random selection
+								if (this.currentQueueNote) {
+									if (
+										file.name === this.currentQueueNote.name
+									) {
+										return false;
+									}
+								}
+								let willBeIncluded = false;
+								const dueAt =
+									app.metadataCache.getFileCache(file)
+										?.frontmatter?.dueAt;
+								if (!dueAt) {
+									willBeIncluded = true;
+								} else {
+									willBeIncluded =
+										dueAt < new Date().toISOString();
+
+									return willBeIncluded;
+								}
+							}
+						);
+						randomCard =
+							dueBooks[
+								Math.floor(Math.random() * dueBooks.length)
+							];
+					}
+				} else {
+					// get a random card
+					const possibleCards = this.markdownFiles.filter((file) => {
+						// exclude the current note from the random selection
+						if (this.currentQueueNote) {
+							if (file.name === this.currentQueueNote.name) {
+								return false;
+							}
+						}
+						let isDue = false;
+						const dueAt =
+							app.metadataCache.getFileCache(file)?.frontmatter
+								?.dueAt;
+						if (!dueAt) {
+							isDue = true;
+						} else {
+							isDue = dueAt < new Date().toISOString();
+						}
+						const isOfCorrectTagType =
+							this.getTypeOfNote(file) === randomType;
+
+						return isOfCorrectTagType && isDue;
+					});
+					randomCard =
+						possibleCards[
+							Math.floor(Math.random() * possibleCards.length)
+						];
+				}
+			}
+		}
+		// if we have no more notes, first, try to get any kind of due random note, without consideration of type
+		if (!randomCard) {
+			const possibleCards = this.markdownFiles.filter((file) => {
+				// exclude the current note from the random selection
+				if (this.currentQueueNote) {
+					if (file.name === this.currentQueueNote.name) {
+						return false;
+					}
+				}
+				let isDue = false;
+				const dueAt =
+					app.metadataCache.getFileCache(file)?.frontmatter?.dueAt;
+				if (!dueAt) {
+					isDue = true;
+				} else {
+					isDue = dueAt < new Date().toISOString();
+				}
+
+				return isDue;
+			});
+			randomCard =
+				possibleCards[Math.floor(Math.random() * possibleCards.length)];
+		}
+		// if card is still undefined, show a message 'No more Notes' and close the modal
+		if (!randomCard) {
+			new Notice("No more notes!");
+			this.close();
+			return;
+		}
 
 		// save card name to local storage
 		localStorage.setItem("lastOpenendNoteName", randomCard.name);
