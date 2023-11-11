@@ -70,9 +70,6 @@ export class ExampleModal extends Modal {
 			}
 			return willBeIncluded;
 		});
-		console.log(
-			`not considering due date, there a ${this.markdownFiles.length} notes`
-		);
 		// log how often values for the q-type frontmatter property occur in the notes
 		let qTypes: any = {};
 		this.markdownFiles.forEach((note) => {
@@ -90,6 +87,67 @@ export class ExampleModal extends Modal {
 		});
 		console.log("qTypes:", qTypes);
 
+		let selectionsOfPickableNotes: any = {
+			dueArticles: [],
+			newBooks: [],
+			dueStartedBooks: [],
+			dueChecks: [],
+			dueHabits: [],
+			dueTodos: [],
+			newLearns: [],
+			dueStartedLearns: [],
+			dueMisc: [],
+		};
+		this.markdownFiles.forEach((note) => {
+			// check if markdown file, otherwise skip:
+			if (note.extension !== "md") {
+				return;
+			}
+			// series of conditionals to fit into one of the above categories
+			// type can be checked by q-type
+			const metadata = this.app.metadataCache.getFileCache(note);
+			if (metadata?.frontmatter) {
+				const qType = metadata.frontmatter["q-type"];
+				// exclude q-type: exclude
+				if (qType === "exclude") {
+					return;
+				}
+				// whether due can be checked by q-data.dueat (format is UNIX timestamp)
+				// dueat property may not exist, check for it
+				let noteIsCurrentlyDue = true;
+				if (metadata.frontmatter["q-data"]?.hasOwnProperty("dueat")) {
+					// dueat format is YYYY-MM-DDTHH:MM:SS, make sure to compare correctly with current time
+					const dueAt = metadata.frontmatter["q-data"]["dueat"];
+					const currentTime = new Date().toISOString();
+					noteIsCurrentlyDue = dueAt < currentTime;
+					
+				}
+				if (qType === "article" && noteIsCurrentlyDue) {
+					selectionsOfPickableNotes.dueArticles.push(note);
+				} else if (qType === "book-started") {
+					if (noteIsCurrentlyDue) {
+						selectionsOfPickableNotes.dueStartedBooks.push(note);
+					}
+				} else if (qType === "book") {
+					selectionsOfPickableNotes.newBooks.push(note);
+				} else if (qType === "check" && noteIsCurrentlyDue) {
+					selectionsOfPickableNotes.dueChecks.push(note);
+				} else if (qType === "habit" && noteIsCurrentlyDue) {
+					selectionsOfPickableNotes.dueHabits.push(note);
+				} else if (qType === "todo" && noteIsCurrentlyDue) {
+					selectionsOfPickableNotes.dueTodos.push(note);
+				} else if (qType === "learn-started" && noteIsCurrentlyDue) {
+					selectionsOfPickableNotes.dueStartedLearns.push(note);
+				} else if (qType === "learn") {
+					selectionsOfPickableNotes.newLearns.push(note);
+				} else if (noteIsCurrentlyDue) {
+					selectionsOfPickableNotes.dueMisc.push(note);
+				}
+			}
+		});
+
+		console.log("selectionsOfPickableNotes", selectionsOfPickableNotes);
+
 		// get active book notes
 		this.startedBookNotes = this.markdownFiles.filter((note) => {
 			let willBeIncluded = false;
@@ -106,7 +164,6 @@ export class ExampleModal extends Modal {
 			}
 			return willBeIncluded;
 		});
-		console.log("found started book notes", this.startedBookNotes);
 		// if less than 5 books, find a new random book and add it to the list
 		if (this.startedBookNotes.length < 5) {
 			const newBook = this.markdownFiles.filter((note) => {
@@ -213,9 +270,7 @@ export class ExampleModal extends Modal {
 					answerGrade = 5;
 				}
 
-				// console.log("item before answer", item);
 				item = supermemo(item, answerGrade);
-				// console.log(`item after answer ${answerGrade}`, item);
 
 				frontmatter["interval"] = item.interval;
 				frontmatter["repetition"] = item.repetition;
@@ -293,18 +348,12 @@ export class ExampleModal extends Modal {
 			}
 
 			if (answersWhereIntervalIsAdded.includes(answer)) {
-				console.log("adding interval");
 				// get interval either from frontmatter or set to 1
 				const metadata = this.app.metadataCache.getFileCache(card);
 				let noteInterval = 1;
 				if (metadata) {
-					console.log("metadata found");
 					if (metadata.frontmatter) {
 						noteInterval = metadata.frontmatter["interval"];
-						console.log(
-							"frontmatter found, note Interval is",
-							noteInterval
-						);
 					}
 				}
 				if (!noteInterval) {
@@ -312,7 +361,6 @@ export class ExampleModal extends Modal {
 				}
 
 				const newDate = new Date();
-				// console.log("my interval is", noteInterval);
 				newDate.setDate(newDate.getDate() + noteInterval);
 
 				// set frontmatter property dueAt to date in 24 hours, dont overwrite other properties
@@ -332,7 +380,6 @@ export class ExampleModal extends Modal {
 		let randomCard: TFile;
 
 		if (lastOpenendNoteName) {
-			console.log("last opened note", lastOpenendNoteName);
 			// in this case, load the same card (not actually random)
 			// find note by name
 			const possibleCards = this.markdownFiles.filter((file) => {
@@ -346,7 +393,6 @@ export class ExampleModal extends Modal {
 		if (!randomCard!) {
 			// with 30% chance, pick a priority note
 			if (Math.random() < 0.3) {
-				console.log("executing: picking a priority note");
 				const duePriorityNotes: TFile[] = this.priorityNotes.filter(
 					(file) => {
 						// exclude the current note from the random selection
@@ -359,14 +405,10 @@ export class ExampleModal extends Modal {
 						const dueAt =
 							app.metadataCache.getFileCache(file)?.frontmatter
 								?.dueAt;
-						console.log("dueAt of card", dueAt);
 						if (!dueAt) {
 							willBeIncluded = true;
 						} else {
 							willBeIncluded = dueAt < new Date().toISOString();
-							console.log(
-								`dueAt is ${dueAt}, and it's ${new Date().toISOString()}, so willBeIncluded is ${willBeIncluded}`
-							);
 
 							return willBeIncluded;
 						}
@@ -377,7 +419,6 @@ export class ExampleModal extends Modal {
 						Math.floor(Math.random() * duePriorityNotes.length)
 					];
 			} else {
-				console.log("no last opened note, getting new random");
 
 				const availableTypes = [
 					"learn",
@@ -398,7 +439,6 @@ export class ExampleModal extends Modal {
 				if (randomType === "book") {
 					// if there is more than 0 started books, pick one of them (we fill up this list earlier, having none here means no books are in system)
 					if (this.startedBookNotes.length > 0) {
-						console.log("executing: picking a book");
 						const dueBooks = this.startedBookNotes.filter(
 							(file) => {
 								// exclude the current note from the random selection
@@ -406,7 +446,6 @@ export class ExampleModal extends Modal {
 									if (
 										file.name === this.currentQueueNote.name
 									) {
-										console.log("excluding current note");
 										return false;
 									}
 								}
@@ -414,16 +453,11 @@ export class ExampleModal extends Modal {
 								const dueAt =
 									app.metadataCache.getFileCache(file)
 										?.frontmatter?.dueAt;
-								console.log("dueAt of card", dueAt);
 								if (!dueAt) {
 									willBeIncluded = true;
-									console.log("book will be included");
 								} else {
 									willBeIncluded =
 										dueAt < new Date().toISOString();
-									console.log(
-										`dueAt is ${dueAt}, and it's ${new Date().toISOString()}, so will BeIncluded is ${willBeIncluded}`
-									);
 
 									return willBeIncluded;
 								}
@@ -435,10 +469,6 @@ export class ExampleModal extends Modal {
 							];
 					}
 				} else {
-					console.log(
-						"executing: picking a random card of type",
-						randomType
-					);
 					// get a random card
 					const possibleCards = this.markdownFiles.filter((file) => {
 						// exclude the current note from the random selection
@@ -461,11 +491,6 @@ export class ExampleModal extends Modal {
 
 						return isOfCorrectTagType && isDue;
 					});
-					console.log(
-						`of type ${randomType}, there are`,
-						possibleCards.length,
-						"due cards"
-					);
 					randomCard =
 						possibleCards[
 							Math.floor(Math.random() * possibleCards.length)
@@ -473,10 +498,8 @@ export class ExampleModal extends Modal {
 				}
 			}
 		}
-		console.log("openend note from type", randomCard);
 		// if we have no more notes, first, try to get any kind of due random note, without consideration of type
 		if (!randomCard) {
-			console.log("executing: picking a random card of any type");
 			const possibleCards = this.markdownFiles.filter((file) => {
 				// exclude the current note from the random selection
 				if (this.currentQueueNote) {
@@ -528,7 +551,6 @@ export class ExampleModal extends Modal {
 		// load the content of the random card
 		this.app.vault.read(randomCard).then((content) => {
 			if (!content) {
-				console.log("No content found...");
 				return;
 			}
 			const splitCard = content.split("---");
