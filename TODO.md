@@ -11,7 +11,6 @@
 
 * improve block quote CSS
 * see that the deck name is used
-* adapt all the intervals to the correct ones
 * at least for habit, stop the 16h hack and go for 4am (?)
-* plug in the nice SR
 * document how the program works lol
+* currently, SR uses halflife to as interval. That's trash. But [ebisu](https://github.com/fasiha/ebisu.js) works different to my current paradigm, you're supposed to calculate recall probabilities and then pick the most urgent one, so yes, implement this, but be ready for some more implementation effort.

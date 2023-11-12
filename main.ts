@@ -14,6 +14,8 @@ import {
 } from "obsidian";
 
 import { supermemo, SuperMemoItem, SuperMemoGrade } from "supermemo";
+import * as ebisu from "ebisu-js";
+
 
 // Remember to rename these classes and interfaces!
 
@@ -166,8 +168,19 @@ export class TheQueueModal extends Modal {
 
 		if (noteType === "learn" || noteType === "learn-started") {
 			newLearnItemsThisSessionCount += 1;
+			// let model = frontmatter["q-data"]["model"] || ebisu.defaultModel(24);
+			let model =  ebisu.defaultModel(24);
+			const lastSeen = frontmatter["q-data"]["last-seen"] || new Date().toISOString();
+			// score: wrong = 0, correct = 1, easy = 2
+			const score = answer === "wrong" ? 0 : answer === "correct" ? 1 : 2;
+			// elapsed in h
+			const elapsed = (new Date().getTime() - new Date(lastSeen).getTime()) / 1000 / 60 / 60;
+			model = ebisu.updateRecall(model, score, 2, Math.max(elapsed, 0.01));
+			frontmatter["q-data"]["model"] = model;
+			frontmatter["q-data"]["last-seen"] = new Date().toISOString();
+			const newHalflifeInHours = frontmatter["q-data"]["model"][2]
 			frontmatter["q-data"]["dueat"] = new Date(
-				new Date().getTime() + 16 * 60 * 60 * 1000 * interval
+				new Date().getTime() + 1000 * 60 * 60 * newHalflifeInHours
 			).toISOString();
 		}
 
