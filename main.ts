@@ -71,6 +71,7 @@ export class TheQueueModal extends Modal {
 		dueMisc: [],
 	};
 
+
 	loadNotes() {
 		this.markdownFiles = app.vault.getMarkdownFiles().filter((note) => {
 			let willBeIncluded = true;
@@ -161,19 +162,27 @@ export class TheQueueModal extends Modal {
 		const metadata = this.app.metadataCache.getFileCache(note);
 		const frontmatter = metadata!.frontmatter!;
 		const noteType = frontmatter["q-type"];
+		let interval = frontmatter["interval"] || 1;
 
 		if (noteType === "learn" || noteType === "learn-started") {
 			newLearnItemsThisSessionCount += 1;
-			const interval = frontmatter["interval"] || 1;
 			frontmatter["q-data"]["dueat"] = new Date(
 				new Date().getTime() + 16 * 60 * 60 * 1000 * interval
 			).toISOString();
 		}
 
+		// note: "book" means *unstarted* book
 		if (noteType === "book") {
-			frontmatter["q-data"]["dueat"] = new Date(
-				new Date().getTime() + 16 * 60 * 60 * 1000
-			).toISOString();
+			// if later, set in 10m
+			if (answer === "later") {
+				frontmatter["q-data"]["dueat"] = new Date(
+					new Date().getTime() + 10 * 60 * 1000
+				).toISOString();
+			} else {
+				frontmatter["q-data"]["dueat"] = new Date(
+					new Date().getTime() + 16 * 60 * 60 * 1000
+				).toISOString();
+			}
 			// only convert to started if answer is not "not-today" or "later"
 			if (answer !== "not-today" && answer !== "later") {
 				frontmatter["q-type"] = "book-started";
@@ -181,9 +190,15 @@ export class TheQueueModal extends Modal {
 		}
 
 		if (noteType === "book-started") {
-			frontmatter["q-data"]["dueat"] = new Date(
-				new Date().getTime() + 16 * 60 * 60 * 1000
-			).toISOString();
+			if (answer === "later") {
+				frontmatter["q-data"]["dueat"] = new Date(
+					new Date().getTime() + 10 * 60 * 1000
+				).toISOString();
+			} else {
+				frontmatter["q-data"]["dueat"] = new Date(
+					new Date().getTime() + 16 * 60 * 60 * 1000
+				).toISOString();
+			}
 			// check if finished
 			if (answer === "finished") {
 				frontmatter["q-type"] = "misc";
@@ -192,25 +207,39 @@ export class TheQueueModal extends Modal {
 
 		// article works the same as book-started
 		if (noteType === "article") {
-			frontmatter["q-data"]["dueat"] = new Date(
-				new Date().getTime() + 16 * 60 * 60 * 1000
-			).toISOString();
+			if (answer === "later") {
+				frontmatter["q-data"]["dueat"] = new Date(
+					new Date().getTime() + 10 * 60 * 1000
+				).toISOString();
+			} else {
+				frontmatter["q-data"]["dueat"] = new Date(
+					new Date().getTime() + 16 * 60 * 60 * 1000
+				).toISOString();
+			}
 			// check if finished
 			if (answer === "finished") {
 				frontmatter["q-type"] = "misc";
 			}
 		}
 
-		if (noteType === "check" || noteType === "habit") {
-			frontmatter["q-data"]["dueat"] = new Date(
-				new Date().getTime() + 16 * 60 * 60 * 1000
-			).toISOString();
+		if (noteType === "check" || noteType === "habit" || noteType === "todo") {
+			if (answer === "later") {
+				frontmatter["q-data"]["dueat"] = new Date(
+					new Date().getTime() + 10 * 60 * 1000
+				).toISOString();
+			} else if (answer === "not-today") {
+				frontmatter["q-data"]["dueat"] = new Date(
+					new Date().getTime() + 16 * 60 * 60 * 1000
+				).toISOString();
+			} else {
+				frontmatter["q-data"]["dueat"] = new Date(
+					new Date().getTime() + 16 * 60 * 60 * 1000 * interval
+				).toISOString();
+			}
 		}
 
+		// just handle the special case of todo being completed (due is handled in the condition before)
 		if (noteType === "todo") {
-			frontmatter["q-data"]["dueat"] = new Date(
-				new Date().getTime() + 16 * 60 * 60 * 1000
-			).toISOString();
 			if (answer === "completed") {
 				// delete note
 				await this.app.vault.trash(note);
@@ -218,8 +247,15 @@ export class TheQueueModal extends Modal {
 		}
 
 		if (noteType === "misc" || noteType === "" || !noteType) {
+			// if show less, double interval, max 365
+			// if show more, halve interval, min 1
+			if (answer === "show-less") {
+				interval = Math.min(interval * 2, 365);
+			} else if (answer === "show-more") {
+				interval = Math.max(interval / 2, 1);
+			}
 			frontmatter["q-data"]["dueat"] = new Date(
-				new Date().getTime() + 16 * 60 * 60 * 1000
+				new Date().getTime() + 16 * 60 * 60 * 1000 * interval
 			).toISOString();
 		}
 
@@ -228,6 +264,7 @@ export class TheQueueModal extends Modal {
 		app.fileManager.processFrontMatter(note, (frontmatter) => {
 			frontmatter["q-data"] = newFrontMatter["q-data"];
 			frontmatter["q-type"] = newFrontMatter["q-type"];
+			frontmatter["interval"] = interval;
 		});
 
 		this.loadNewNote();
@@ -246,8 +283,8 @@ export class TheQueueModal extends Modal {
 			if (possibleNotes.length > 0) {
 				randomNote = possibleNotes[0];
 			}
-		} 
-		
+		}
+
 		if (!randomNote) {
 			// RANDOM CARD PICK
 			// if no note was loaded, pick a random note
@@ -287,7 +324,7 @@ export class TheQueueModal extends Modal {
 				pickableSelections.push("dueStartedLearns");
 			}
 			if (this.selectionsOfPickableNotes.dueMisc.length > 0) {
-				("dueMisc");
+				pickableSelections.push("dueMisc");
 			}
 			// pick a random selection, then pick a random note from selection of that name
 			if (pickableSelections.length > 0) {
