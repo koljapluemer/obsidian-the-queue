@@ -212,7 +212,8 @@ export class TheQueueModal extends Modal {
 				new Date().getTime() + 16 * 60 * 60 * 1000
 			).toISOString();
 			if (answer === "completed") {
-				frontmatter["q-type"] = "misc";
+				// delete note
+				await this.app.vault.trash(note);
 			}
 		}
 
