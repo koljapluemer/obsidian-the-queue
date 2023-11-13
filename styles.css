@@ -16,3 +16,9 @@
     align-items: center;
     gap: 10px;
 }
+
+.queue-modal blockquote {
+    border-left: 2px gray solid;
+    margin-left: 0;
+    padding-left: 20px;
+}
