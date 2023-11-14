@@ -164,7 +164,7 @@ export class TheQueueModal extends Modal {
 		const metadata = this.app.metadataCache.getFileCache(note);
 		const frontmatter = metadata!.frontmatter!;
 		const noteType = frontmatter["q-type"];
-		let interval = frontmatter["interval"] || 1;
+		let interval = frontmatter["q-interval"] || frontmatter["interval"] || 1;
 
 		if (noteType === "learn" || noteType === "learn-started") {
 			newLearnItemsThisSessionCount += 1;
@@ -277,7 +277,7 @@ export class TheQueueModal extends Modal {
 		app.fileManager.processFrontMatter(note, (frontmatter) => {
 			frontmatter["q-data"] = newFrontMatter["q-data"];
 			frontmatter["q-type"] = newFrontMatter["q-type"];
-			frontmatter["interval"] = interval;
+			frontmatter["q-interval"] = interval;
 		});
 
 		this.loadNewNote();
