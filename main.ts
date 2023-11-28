@@ -17,6 +17,8 @@ import {
 import { supermemo, SuperMemoItem, SuperMemoGrade } from "supermemo";
 import * as ebisu from "ebisu-js";
 
+let keywordFilter = "all-notes";
+
 // Remember to rename these classes and interfaces!
 
 interface TheQueueSettings {
@@ -48,7 +50,6 @@ class QueueSettingsModal extends Modal {
 				});
 			}
 		});
-		console.log("Keywords", allKeywords);
 		let { contentEl } = this;
 		contentEl.empty();
 		contentEl.createEl("h2", { text: "Filter Queue" });
@@ -65,10 +66,10 @@ class QueueSettingsModal extends Modal {
 		const allNotesInput = allNotesWrapper.createEl("input", {
 			type: "radio",
 			value: "all-notes",
-			checked: true,
 		});
 		// set name property to q-keyword, so that only one can be selected at a time
 		allNotesInput.name = "q-keyword";
+		allNotesInput.checked = keywordFilter === "all-notes";
 		const allNotesLabel = allNotesWrapper.createEl("label", {
 			text: "All Notes",
 		});
@@ -82,11 +83,16 @@ class QueueSettingsModal extends Modal {
 				value: keyword,
 			});
 			keywordInput.name = "q-keyword";
+			keywordInput.checked = keywordFilter === keyword;
 			const keywordLabel = keywordWrapper.createEl("label", {
 				text: keyword,
 			});
 		});
-	
+
+		// on change, set keywordFilter to the value of the selected radio button
+		radioGroup.addEventListener("change", (evt) => {
+			keywordFilter = (evt.target as HTMLInputElement).value;
+		});
 	}
 
 	onClose() {
@@ -182,6 +188,16 @@ export class TheQueueModal extends Modal {
 				// exclude q-type: exclude
 				if (qType === "exclude") {
 					return;
+				}
+				// if keywordFilter is not "all-notes", check if note has that keyword
+				if (keywordFilter !== "all-notes") {
+					if (!frontmatter["q-keywords"]) {
+						return;
+					} else if (
+						!frontmatter["q-keywords"].includes(keywordFilter)
+					) {
+						return;
+					}
 				}
 				// whether due can be checked by q-data.dueat (format is UNIX timestamp)
 				// dueat property may not exist, check for it
