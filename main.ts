@@ -149,27 +149,45 @@ export class TheQueueModal extends Modal {
 				} else if (qType === "todo" && noteIsCurrentlyDue) {
 					this.selectionsOfPickableNotes.dueTodos.push(note);
 				} else if (qType === "learn-started") {
-					// var predictedRecall = ebisu.predictRecall(model, elapsed, true);
-					const model = frontmatter["q-data"]["model"];
-					const elapsedTime =
-						(new Date().getTime() -
-							new Date(
-								frontmatter["q-data"]["last-seen"]
-							).getTime()) /
-						1000 /
-						60 /
-						60;
-					const predictedRecall = ebisu.predictRecall(
-						model,
-						elapsedTime,
-						true
-					);
-					// this is an array of one, containing only the note with the lowest predicted recall
-					// we have this as [] so it's consistent with the other selections
-					if (predictedRecall < lowestPredictedRecall) {
-						lowestPredictedRecall = predictedRecall;
-						this.selectionsOfPickableNotes.startedLearnNoteMostCloseToForgetting =
-							[note];
+					try {
+						// var predictedRecall = ebisu.predictRecall(model, elapsed, true);
+						const model = frontmatter["q-data"]["model"];
+						const elapsedTime =
+							(new Date().getTime() -
+								new Date(
+									frontmatter["q-data"]["last-seen"]
+								).getTime()) /
+							1000 /
+							60 /
+							60;
+
+						const predictedRecall = ebisu.predictRecall(
+							model,
+							elapsedTime,
+							true
+						);
+						// this is an array of one, containing only the note with the lowest predicted recall
+						// we have this as [] so it's consistent with the other selections
+						if (predictedRecall < lowestPredictedRecall) {
+							lowestPredictedRecall = predictedRecall;
+							this.selectionsOfPickableNotes.startedLearnNoteMostCloseToForgetting =
+								[note];
+						}
+					} catch (error) {
+						// purge q-data and set note back to learn q-type
+						frontmatter["q-data"] = {};
+						frontmatter["q-type"] = "learn";
+						// write metadata to file
+						const newFrontMatter = frontmatter;
+						app.fileManager.processFrontMatter(
+							note,
+							(frontmatter) => {
+								frontmatter["q-data"] =
+									newFrontMatter["q-data"];
+								frontmatter["q-type"] =
+									newFrontMatter["q-type"];
+							}
+						);
 					}
 				} else if (qType === "learn") {
 					this.selectionsOfPickableNotes.newLearns.push(note);
@@ -195,12 +213,12 @@ export class TheQueueModal extends Modal {
 			// check if q-data exists and is a dict, otherwise create it
 
 			newLearnItemsThisSessionCount += 1;
-			// assume stuff will be remembered for different kinds of interval, depending on score 
+			// assume stuff will be remembered for different kinds of interval, depending on score
 			// wrong = 10s, correct = 2h, easy = 1d
 			// give the time in hours!
 			let model;
 			if (answer === "wrong") {
-				model = ebisu.defaultModel(1 / 3600 * 10);
+				model = ebisu.defaultModel((1 / 3600) * 10);
 			} else if (answer === "correct") {
 				model = ebisu.defaultModel(2);
 			} else {
@@ -452,7 +470,7 @@ export class TheQueueModal extends Modal {
 				text: metadata?.frontmatter?.["q-topic"] || "",
 			});
 			topicLabel.id = "modal-topic";
-			
+
 			// create button to jump to note
 			const jumpToNoteButton = headerEl.createEl("button", {
 				text: "🖉",
