@@ -68,7 +68,7 @@ export class TheQueueModal extends Modal {
 		dueHabits: [],
 		dueTodos: [],
 		newLearns: [],
-		dueStartedLearns: [],
+		startedLearnNoteMostCloseToForgetting: [],
 		dueMisc: [],
 	};
 
@@ -102,6 +102,8 @@ export class TheQueueModal extends Modal {
 				}
 			}
 		});
+
+		let lowestPredictedRecall = 1;
 
 		this.markdownFiles.forEach((note) => {
 			// check if markdown file, otherwise skip:
@@ -146,8 +148,29 @@ export class TheQueueModal extends Modal {
 					this.selectionsOfPickableNotes.dueHabits.push(note);
 				} else if (qType === "todo" && noteIsCurrentlyDue) {
 					this.selectionsOfPickableNotes.dueTodos.push(note);
-				} else if (qType === "learn-started" && noteIsCurrentlyDue) {
-					this.selectionsOfPickableNotes.dueStartedLearns.push(note);
+				} else if (qType === "learn-started") {
+					// var predictedRecall = ebisu.predictRecall(model, elapsed, true);
+					const model = frontmatter["q-data"]["model"];
+					const elapsedTime =
+						(new Date().getTime() -
+							new Date(
+								frontmatter["q-data"]["last-seen"]
+							).getTime()) /
+						1000 /
+						60 /
+						60;
+					const predictedRecall = ebisu.predictRecall(
+						model,
+						elapsedTime,
+						true
+					);
+					// this is an array of one, containing only the note with the lowest predicted recall
+					// we have this as [] so it's consistent with the other selections
+					if (predictedRecall < lowestPredictedRecall) {
+						lowestPredictedRecall = predictedRecall;
+						this.selectionsOfPickableNotes.startedLearnNoteMostCloseToForgetting =
+							[note];
+					}
 				} else if (qType === "learn") {
 					this.selectionsOfPickableNotes.newLearns.push(note);
 				} else if (noteIsCurrentlyDue) {
@@ -168,38 +191,39 @@ export class TheQueueModal extends Modal {
 			frontmatter["q-data"] = {};
 		}
 
-		if (noteType === "learn" || noteType === "learn-started") {
+		if (noteType === "learn") {
 			// check if q-data exists and is a dict, otherwise create it
 
 			newLearnItemsThisSessionCount += 1;
 			// assume stuff will be remembered for 10 seconds (but unit is still hours)
 			let model = ebisu.defaultModel((1 / 3600) * 10);
 
-			let lastSeen;
-			if (frontmatter["q-data"]) {
-				if (frontmatter["q-data"]["last-seen"]) {
-					lastSeen = frontmatter["q-data"]["last-seen"];
-				}
-			}
-			if (lastSeen) {
-				// score: wrong = 0, correct = 1, easy = 2
-				const score =
-					answer === "wrong" ? 0 : answer === "correct" ? 1 : 2;
-				// elapsed in h
-				const elapsed =
-					(new Date().getTime() - new Date(lastSeen).getTime()) /
-					1000 /
-					60 /
-					60;
-				model = ebisu.updateRecall(
-					model,
-					score,
-					2,
-					Math.max(elapsed, 0.01)
-				);
-			}
-			console.log("q-data", frontmatter["q-data"]);
 			frontmatter["q-data"]["model"] = model;
+			frontmatter["q-data"]["last-seen"] = new Date().toISOString();
+			frontmatter["q-type"] = "learn-started";
+		}
+
+		// learning cards that we have seen before
+		// TODO: make stuff like this robust against metadata being broken/missing (and think about what to even do)
+		if (noteType === "learn-started") {
+			const lastSeen = frontmatter["q-data"]["last-seen"];
+			const model = frontmatter["q-data"]["model"];
+
+			// score: wrong = 0, correct = 1, easy = 2
+			const score = answer === "wrong" ? 0 : answer === "correct" ? 1 : 2;
+			// elapsed in h
+			const elapsed =
+				(new Date().getTime() - new Date(lastSeen).getTime()) /
+				1000 /
+				60 /
+				60;
+			const newModel = ebisu.updateRecall(
+				model,
+				score,
+				2,
+				Math.max(elapsed, 0.01)
+			);
+			frontmatter["q-data"]["model"] = newModel;
 			frontmatter["q-data"]["last-seen"] = new Date().toISOString();
 		}
 
@@ -278,7 +302,7 @@ export class TheQueueModal extends Modal {
 		if (noteType === "todo") {
 			if (answer === "completed") {
 				// delete note
-				await this.app.vault.trash(note);
+				await this.app.vault.trash(note, true);
 			}
 		}
 
@@ -356,8 +380,13 @@ export class TheQueueModal extends Modal {
 			) {
 				pickableSelections.push("newLearns");
 			}
-			if (this.selectionsOfPickableNotes.dueStartedLearns.length > 0) {
-				pickableSelections.push("dueStartedLearns");
+			if (
+				this.selectionsOfPickableNotes
+					.startedLearnNoteMostCloseToForgetting.length > 0
+			) {
+				pickableSelections.push(
+					"startedLearnNoteMostCloseToForgetting"
+				);
 			}
 			if (this.selectionsOfPickableNotes.dueMisc.length > 0) {
 				pickableSelections.push("dueMisc");
