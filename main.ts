@@ -164,12 +164,13 @@ export class TheQueueModal extends Modal {
 		const noteType = frontmatter["q-type"];
 		let interval =
 			frontmatter["q-interval"] || frontmatter["interval"] || 1;
+		if (!frontmatter["q-data"]) {
+			frontmatter["q-data"] = {};
+		}
 
 		if (noteType === "learn" || noteType === "learn-started") {
 			// check if q-data exists and is a dict, otherwise create it
-			if (!frontmatter["q-data"]) {
-				frontmatter["q-data"] = {};
-			}
+
 			newLearnItemsThisSessionCount += 1;
 			// assume stuff will be remembered for 10 seconds (but unit is still hours)
 			let model = ebisu.defaultModel((1 / 3600) * 10);
@@ -197,7 +198,7 @@ export class TheQueueModal extends Modal {
 					Math.max(elapsed, 0.01)
 				);
 			}
-			console.log('q-data', frontmatter["q-data"])
+			console.log("q-data", frontmatter["q-data"]);
 			frontmatter["q-data"]["model"] = model;
 			frontmatter["q-data"]["last-seen"] = new Date().toISOString();
 		}
