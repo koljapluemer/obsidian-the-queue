@@ -334,6 +334,29 @@ export class TheQueueModal extends Modal {
 			}
 		}
 
+		// if it's habit, or todo, and the answer is not-today, create an excuse/alternative note
+		if (
+			(noteType === "habit" || noteType === "todo") &&
+			answer === "not-today"
+		) {
+			// create a new note with the name of the note, and the content of the note
+			// add date in format 'yy-mm-dd' to the name, to avoid name conflicts
+			const alternativeNote = await this.app.vault.create(
+				note.name.replace(".md", " - ") +
+					" Alternative" +
+					" " +
+					new Date().toISOString().slice(0, 10) +
+					".md",
+				`---\nq-type: ${noteType}\nq-interval: ${interval}\n---\n\nA smaller version of the note [[${note.name.replace(
+					".md",
+					""
+				)}]]: \n\n### What are the reasons for being unwilling to do the parent task right now? \n\n\n### What is a step that you can do right now? \n\n`
+			);
+			// open note and close modal
+			this.app.workspace.openLinkText(alternativeNote.path, "", true);
+			this.close();
+		}
+
 		// just handle the special case of todo being completed (due is handled in the condition before)
 		if (noteType === "todo") {
 			if (answer === "completed") {
