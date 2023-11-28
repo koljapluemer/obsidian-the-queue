@@ -11,6 +11,7 @@ import {
 	Component,
 	TFile,
 	FrontMatterCache,
+	setIcon,
 } from "obsidian";
 
 import { supermemo, SuperMemoItem, SuperMemoGrade } from "supermemo";
@@ -28,22 +29,84 @@ const DEFAULT_SETTINGS: TheQueueSettings = {
 
 let newLearnItemsThisSessionCount = 0;
 
+// define QueueSettingsModal:
+class QueueSettingsModal extends Modal {
+	constructor(app: App) {
+		super(app);
+	}
+
+	onOpen() {
+		// loop through all notes, and generate a set from all found values in the q-keywords frontmatter list property
+		const allKeywords = new Set();
+
+		const allNotes = this.app.vault.getMarkdownFiles();
+		allNotes.forEach((note) => {
+			const metadata = this.app.metadataCache.getFileCache(note);
+			if (metadata?.frontmatter?.["q-keywords"]) {
+				metadata?.frontmatter?.["q-keywords"].forEach((keyword) => {
+					allKeywords.add(keyword);
+				});
+			}
+		});
+		console.log("Keywords", allKeywords);
+		let { contentEl } = this;
+		contentEl.empty();
+		contentEl.createEl("h2", { text: "Filter Queue" });
+		// add more text to describe
+		contentEl.createEl("p", {
+			text: "Show only notes with q-keyword:",
+		});
+		// make a radio button group with all the keywords
+		const radioGroup = contentEl.createDiv("queue-settings-radio-group");
+		// first, make an 'all notes' option (input first, then label) [RADIO BUTTON!!!]
+		const allNotesWrapper = radioGroup.createDiv(
+			"queue-settings-radio-wrapper"
+		);
+		const allNotesInput = allNotesWrapper.createEl("input", {
+			type: "radio",
+			value: "all-notes",
+			checked: true,
+		});
+		// set name property to q-keyword, so that only one can be selected at a time
+		allNotesInput.name = "q-keyword";
+		const allNotesLabel = allNotesWrapper.createEl("label", {
+			text: "All Notes",
+		});
+		// then, make an option for each keyword
+		allKeywords.forEach((keyword) => {
+			const keywordWrapper = radioGroup.createDiv(
+				"queue-settings-radio-wrapper"
+			);
+			const keywordInput = keywordWrapper.createEl("input", {
+				type: "radio",
+				value: keyword,
+			});
+			keywordInput.name = "q-keyword";
+			const keywordLabel = keywordWrapper.createEl("label", {
+				text: keyword,
+			});
+		});
+	
+	}
+
+	onClose() {
+		let { contentEl } = this;
+		contentEl.empty();
+	}
+}
+
 export default class TheQueue extends Plugin {
 	settings: TheQueueSettings;
 
 	async onload() {
 		// This creates an icon in the left ribbon.
-		const ribbonIconEl = this.addRibbonIcon(
+		const queueInstantIconEl = this.addRibbonIcon(
 			"dice",
-			"Queue",
+			"Instant Queue",
 			(evt: MouseEvent) => {
-				// Called when the user clicks the icon.
-				// new SampleModal(this.app).open();
 				new TheQueueModal(this.app).open();
 			}
 		);
-		// Perform additional things with the ribbon
-		ribbonIconEl.addClass("my-plugin-ribbon-class");
 	}
 
 	onunload() {}
@@ -513,16 +576,22 @@ export class TheQueueModal extends Modal {
 			topicLabel.id = "modal-topic";
 
 			// create button to jump to note
-			const jumpToNoteButton = headerEl.createEl("button", {
-				text: "🖉",
-			});
+			const jumpToNoteButton = headerEl.createEl("button", {});
+			setIcon(jumpToNoteButton, "pencil");
 			jumpToNoteButton.addEventListener("click", () => {
 				this.app.workspace.openLinkText(randomNote.path, "", true);
 				this.close();
 			});
-			const closeModalButton = headerEl.createEl("button", {
-				text: "✖",
+			// button to open queue settings dialog
+			const queueSettingsButton = headerEl.createEl("button", {});
+			setIcon(queueSettingsButton, "settings");
+			// on click open QueueSettingsModal
+			queueSettingsButton.addEventListener("click", () => {
+				new QueueSettingsModal(this.app).open();
 			});
+
+			const closeModalButton = headerEl.createEl("button", {});
+			setIcon(closeModalButton, "cross");
 			closeModalButton.addEventListener("click", () => {
 				this.close();
 			});

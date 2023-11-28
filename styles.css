@@ -33,3 +33,9 @@
     font-variant: small-caps;
     flex-grow: 1;
 }
+
+.queue-settings-radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
