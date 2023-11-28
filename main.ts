@@ -195,8 +195,17 @@ export class TheQueueModal extends Modal {
 			// check if q-data exists and is a dict, otherwise create it
 
 			newLearnItemsThisSessionCount += 1;
-			// assume stuff will be remembered for 10 seconds (but unit is still hours)
-			let model = ebisu.defaultModel((1 / 3600) * 10);
+			// assume stuff will be remembered for different kinds of interval, depending on score 
+			// wrong = 10s, correct = 2h, easy = 1d
+			// give the time in hours!
+			let model;
+			if (answer === "wrong") {
+				model = ebisu.defaultModel(1 / 3600 * 10);
+			} else if (answer === "correct") {
+				model = ebisu.defaultModel(2);
+			} else {
+				model = ebisu.defaultModel(24);
+			}
 
 			frontmatter["q-data"]["model"] = model;
 			frontmatter["q-data"]["last-seen"] = new Date().toISOString();
