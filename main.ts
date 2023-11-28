@@ -16,7 +16,6 @@ import {
 import { supermemo, SuperMemoItem, SuperMemoGrade } from "supermemo";
 import * as ebisu from "ebisu-js";
 
-
 // Remember to rename these classes and interfaces!
 
 interface TheQueueSettings {
@@ -72,7 +71,6 @@ export class TheQueueModal extends Modal {
 		dueStartedLearns: [],
 		dueMisc: [],
 	};
-
 
 	loadNotes() {
 		this.markdownFiles = app.vault.getMarkdownFiles().filter((note) => {
@@ -164,24 +162,44 @@ export class TheQueueModal extends Modal {
 		const metadata = this.app.metadataCache.getFileCache(note);
 		const frontmatter = metadata!.frontmatter!;
 		const noteType = frontmatter["q-type"];
-		let interval = frontmatter["q-interval"] || frontmatter["interval"] || 1;
+		let interval =
+			frontmatter["q-interval"] || frontmatter["interval"] || 1;
 
 		if (noteType === "learn" || noteType === "learn-started") {
+			// check if q-data exists and is a dict, otherwise create it
+			if (!frontmatter["q-data"]) {
+				frontmatter["q-data"] = {};
+			}
 			newLearnItemsThisSessionCount += 1;
-			// let model = frontmatter["q-data"]["model"] || ebisu.defaultModel(24);
-			let model =  ebisu.defaultModel(24);
-			const lastSeen = frontmatter["q-data"]["last-seen"] || new Date().toISOString();
-			// score: wrong = 0, correct = 1, easy = 2
-			const score = answer === "wrong" ? 0 : answer === "correct" ? 1 : 2;
-			// elapsed in h
-			const elapsed = (new Date().getTime() - new Date(lastSeen).getTime()) / 1000 / 60 / 60;
-			model = ebisu.updateRecall(model, score, 2, Math.max(elapsed, 0.01));
+			// assume stuff will be remembered for 10 seconds (but unit is still hours)
+			let model = ebisu.defaultModel((1 / 3600) * 10);
+
+			let lastSeen;
+			if (frontmatter["q-data"]) {
+				if (frontmatter["q-data"]["last-seen"]) {
+					lastSeen = frontmatter["q-data"]["last-seen"];
+				}
+			}
+			if (lastSeen) {
+				// score: wrong = 0, correct = 1, easy = 2
+				const score =
+					answer === "wrong" ? 0 : answer === "correct" ? 1 : 2;
+				// elapsed in h
+				const elapsed =
+					(new Date().getTime() - new Date(lastSeen).getTime()) /
+					1000 /
+					60 /
+					60;
+				model = ebisu.updateRecall(
+					model,
+					score,
+					2,
+					Math.max(elapsed, 0.01)
+				);
+			}
+			console.log('q-data', frontmatter["q-data"])
 			frontmatter["q-data"]["model"] = model;
 			frontmatter["q-data"]["last-seen"] = new Date().toISOString();
-			const newHalflifeInHours = frontmatter["q-data"]["model"][2]
-			frontmatter["q-data"]["dueat"] = new Date(
-				new Date().getTime() + 1000 * 60 * 60 * newHalflifeInHours
-			).toISOString();
 		}
 
 		// note: "book" means *unstarted* book
@@ -235,7 +253,11 @@ export class TheQueueModal extends Modal {
 			}
 		}
 
-		if (noteType === "check" || noteType === "habit" || noteType === "todo") {
+		if (
+			noteType === "check" ||
+			noteType === "habit" ||
+			noteType === "todo"
+		) {
 			if (answer === "later") {
 				frontmatter["q-data"]["dueat"] = new Date(
 					new Date().getTime() + 10 * 60 * 1000
