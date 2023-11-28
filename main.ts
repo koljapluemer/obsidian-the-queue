@@ -350,7 +350,7 @@ export class TheQueueModal extends Modal {
 				`---\nq-type: ${noteType}\nq-interval: ${interval}\n---\n\nA smaller version of the note [[${note.name.replace(
 					".md",
 					""
-				)}]]: \n\n### What are the reasons for being unwilling to do the parent task right now? \n\n\n### What is a step that you can do right now? \n\n`
+				)}]] (also consider modifying or deleting the parent): \n\n### What are the reasons for being unwilling to do the parent task right now? \n\n\n### What is a step that you can do right now? \n\n`
 			);
 			// open note and close modal
 			this.app.workspace.openLinkText(alternativeNote.path, "", true);
