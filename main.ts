@@ -209,6 +209,15 @@ export class TheQueueModal extends Modal {
 			frontmatter["q-data"] = {};
 		}
 
+		// save to localstorage q-log
+		const qLog = JSON.parse(localStorage.getItem("q-log")!);
+		qLog.push({
+			noteName: note.name,
+			answer: answer,
+			time: new Date().toISOString(),
+		});
+		localStorage.setItem("q-log", JSON.stringify(qLog));
+
 		if (noteType === "learn") {
 			// check if q-data exists and is a dict, otherwise create it
 
@@ -745,6 +754,10 @@ export class TheQueueModal extends Modal {
 	onOpen() {
 		const lastNote = localStorage.getItem("lastOpenendNoteName") || "";
 		this.loadNewNote(lastNote);
+
+		if (!localStorage.getItem("q-log")) {
+			localStorage.setItem("q-log", JSON.stringify([]));
+		}
 	}
 
 	onClose() {
