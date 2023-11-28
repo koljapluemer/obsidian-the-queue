@@ -422,18 +422,6 @@ export class TheQueueModal extends Modal {
 		modalEl.empty();
 		modalEl.addClass("queue-modal");
 
-		const headerEl = modalEl.createDiv("headerEl");
-		// create button to jump to note
-		const jumpToNoteButton = headerEl.createEl("button", {
-			text: "Jump to note",
-		});
-		jumpToNoteButton.addEventListener("click", () => {
-			this.app.workspace.openLinkText(randomNote.path, "", true);
-			this.close();
-		});
-
-		const contentEl = modalEl.createDiv("contentEl");
-
 		this.currentQueueNote = randomNote!;
 		const noteType =
 			this.app.metadataCache!.getFileCache(randomNote)!.frontmatter![
@@ -444,10 +432,39 @@ export class TheQueueModal extends Modal {
 			if (!content) {
 				return;
 			}
+			const metadata = this.app.metadataCache.getFileCache(randomNote);
+
+			// HEADER
+			const headerEl = modalEl.createDiv("headerEl");
+
+			// use q-topic frontmatter property if it exists, otherwise empty
+			// give id #modal-topic to make it easy to style
+			const topicLabel = headerEl.createEl("span", {
+				text: metadata?.frontmatter?.["q-topic"] || "",
+			});
+			topicLabel.id = "modal-topic";
+			
+			// create button to jump to note
+			const jumpToNoteButton = headerEl.createEl("button", {
+				text: "🖉",
+			});
+			jumpToNoteButton.addEventListener("click", () => {
+				this.app.workspace.openLinkText(randomNote.path, "", true);
+				this.close();
+			});
+			const closeModalButton = headerEl.createEl("button", {
+				text: "✖",
+			});
+			closeModalButton.addEventListener("click", () => {
+				this.close();
+			});
+
+			// MAIN CONTENT
+			const contentEl = modalEl.createDiv("contentEl");
+
 			const splitNote = content.split("---");
 
 			// if metadata has property frontmatter, treat differently
-			const metadata = this.app.metadataCache.getFileCache(randomNote);
 			let front = "";
 			let back = "";
 			// check if frontmatter exists, or if content has more than one ---
