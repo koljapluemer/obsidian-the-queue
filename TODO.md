@@ -8,11 +8,15 @@
 * bring back the *excuses* or/and *what would you be willing to do instead*
 * implement priority
 * handle the fact that notes may be dirty in a million trillion ways (validate cards, essentially), and have elegant fallbacks
+* log data somehow (if only for self-analysis)
+    * does not have to be in note metadata, I *can* filedump (or even just localstorage, I do have a browser essentially) 
 
 ## Small Scale
 
-* see that the deck name is used
 * at least for habit, stop the 16h hack and go for 4am (?)
 * document how the program works lol
-* currently, SR uses halflife to as interval. That's trash. But [ebisu](https://github.com/fasiha/ebisu.js) works different to my current paradigm, you're supposed to calculate recall probabilities and then pick the most urgent one, so yes, implement this, but be ready for some more implementation effort.
 - shit is being selected that is definitely not due (not just the same card again) [argh]
+* there is a function to only allow 12 new learn cards per session, however that resets when the modal is closed (which is all the time)
+    * make a smarter function here: 
+        1. some kind of running head array storing the time of the last n new learn cards 
+        2. then see how many of those are w/in a critical time period

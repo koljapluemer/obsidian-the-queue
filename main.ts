@@ -217,12 +217,21 @@ export class TheQueueModal extends Modal {
 			// wrong = 10s, correct = 2h, easy = 1d
 			// give the time in hours!
 			let model;
-			if (answer === "wrong") {
-				model = ebisu.defaultModel((1 / 3600) * 10);
-			} else if (answer === "correct") {
-				model = ebisu.defaultModel(2);
+			// but first, we check if there is "earlier dirt": an "interval" or "q-interval" property, hinting at old SM stuff:
+			if (frontmatter["interval"] || frontmatter["q-interval"]) {
+				// if so, use that property as halflife for the model:
+				const halflife =
+					frontmatter["interval"] || frontmatter["q-interval"];
+				model = ebisu.defaultModel(halflife * 24);
 			} else {
-				model = ebisu.defaultModel(24);
+				// elsewise, we use the actual scoring and our guessed initial values
+				if (answer === "wrong") {
+					model = ebisu.defaultModel((1 / 3600) * 10);
+				} else if (answer === "correct") {
+					model = ebisu.defaultModel(2);
+				} else {
+					model = ebisu.defaultModel(24);
+				}
 			}
 
 			frontmatter["q-data"]["model"] = model;
