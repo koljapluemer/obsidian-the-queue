@@ -210,7 +210,7 @@ export class TheQueueModal extends Modal {
 				}
 				if (qType === "article" && noteIsCurrentlyDue) {
 					this.selectionsOfPickableNotes.dueArticles.push(note);
-				} else if (qType === "book-started") {
+				} else if (qType === "book-started" && noteIsCurrentlyDue) {
 					if (noteIsCurrentlyDue) {
 						this.selectionsOfPickableNotes.dueStartedBooks.push(
 							note

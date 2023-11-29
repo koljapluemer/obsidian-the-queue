@@ -15,8 +15,9 @@
 
 * at least for habit, stop the 16h hack and go for 4am (?)
 * document how the program works lol
-- shit is being selected that is definitely not due (not just the same card again) [argh]
+- shit is being selected that is definitely not due - check if this is now fixed, maybe it was just books (condition missing there)
 * there is a function to only allow 12 new learn cards per session, however that resets when the modal is closed (which is all the time)
     * make a smarter function here: 
         1. some kind of running head array storing the time of the last n new learn cards 
         2. then see how many of those are w/in a critical time period
+* when queue is filtered, sometimes it takes a note selection or two until effects show up (?!)
