@@ -207,6 +207,7 @@ export class TheQueueModal extends Modal {
 					const dueAt = frontmatter["q-data"]["dueat"];
 					const currentTime = new Date().toISOString();
 					noteIsCurrentlyDue = dueAt < currentTime;
+					// console.log(`note: ${note.name} is due: ${noteIsCurrentlyDue}`);
 				}
 				if (qType === "article" && noteIsCurrentlyDue) {
 					this.selectionsOfPickableNotes.dueArticles.push(note);
@@ -416,8 +417,9 @@ export class TheQueueModal extends Modal {
 					new Date().getTime() + 16 * 60 * 60 * 1000
 				).toISOString();
 			} else {
+				// calculate 24h a day, except for the last day, which should only last 16h
 				frontmatter["q-data"]["dueat"] = new Date(
-					new Date().getTime() + 16 * 60 * 60 * 1000 * interval
+					new Date().getTime() + 24 * 60 * 60 * 1000 * (interval-1) + 16 * 60 * 60 * 1000
 				).toISOString();
 			}
 		}
