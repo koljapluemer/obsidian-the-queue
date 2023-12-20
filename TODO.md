@@ -16,8 +16,12 @@
 * at least for habit, stop the 16h hack and go for 4am (?)
 * document how the program works lol
 - shit is being selected that is definitely not due - check if this is now fixed, maybe it was just books (condition missing there)
+    - may be because stuff is async, including the function that filters cards that are due?
+        - would also explain why the queue filter is also working, but delayed...
 * there is a function to only allow 12 new learn cards per session, however that resets when the modal is closed (which is all the time)
     * make a smarter function here: 
         1. some kind of running head array storing the time of the last n new learn cards 
         2. then see how many of those are w/in a critical time period
 * when queue is filtered, sometimes it takes a note selection or two until effects show up (?!)
+* keywordFilter not being updated instantly, but on reloading reopening?! 
+    - core problem is I don't understand js variables, lmao

@@ -464,7 +464,7 @@ export class TheQueueModal extends Modal {
 				interval = Math.max(interval / 2, 1);
 			}
 			frontmatter["q-data"]["dueat"] = new Date(
-				new Date().getTime() + 16 * 60 * 60 * 1000 * interval
+				new Date().getTime() + 24 * 60 * 60 * 1000 * (interval - 1) + 16 * 60 * 60 * 1000
 			).toISOString();
 		}
 
@@ -600,9 +600,11 @@ export class TheQueueModal extends Modal {
 				this.app.workspace.openLinkText(randomNote.path, "", true);
 				this.close();
 			});
-			// button to open queue settings dialog
-			const queueSettingsButton = headerEl.createEl("button", {});
-			setIcon(queueSettingsButton, "settings");
+			// button to open queue settings dialog (add filter to button, but override if its default)
+			const queueSettingsButton = headerEl.createEl("button", { text:  keywordFilter});
+			if (keywordFilter === "all-notes") {
+				setIcon(queueSettingsButton, "filter");
+			}
 			// on click open QueueSettingsModal
 			queueSettingsButton.addEventListener("click", () => {
 				new QueueSettingsModal(this.app).open();
