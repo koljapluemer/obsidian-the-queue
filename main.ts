@@ -143,7 +143,6 @@ export class TheQueueModal extends Modal {
 	startedLearnNotesWithHalflifeLessThanADay: TFile[] = [];
 
 	loadNotes() {
-
 		// reset arrays
 		this.selectionsOfPickableNotes = {
 			dueArticles: [],
@@ -156,7 +155,7 @@ export class TheQueueModal extends Modal {
 			newLearns: [],
 			startedLearnNoteMostCloseToForgetting: [],
 			dueMisc: [],
-		}
+		};
 		this.startedLearnNotesWithHalflifeLessThanADay = [];
 
 		// get all nodes, exclude inactive notes
@@ -231,7 +230,7 @@ export class TheQueueModal extends Modal {
 				}
 				if (qType === "article" && noteIsCurrentlyDue) {
 					this.selectionsOfPickableNotes.dueArticles.push(note);
-				} else if (qType === "book-started" && noteIsCurrentlyDue) {
+				} else if (qType === "book-started") {
 					if (noteIsCurrentlyDue) {
 						this.selectionsOfPickableNotes.dueStartedBooks.push(
 							note
@@ -540,6 +539,10 @@ export class TheQueueModal extends Modal {
 					5
 			) {
 				pickableSelections.push("newBooks");
+			} else {
+				console.log(
+					`not picking new books, because we have ${this.selectionsOfPickableNotes.startedBooksEvenIfNotDue.length} started books (or no new books)`
+				);
 			}
 			if (this.selectionsOfPickableNotes.dueStartedBooks.length > 0) {
 				pickableSelections.push("dueStartedBooks");

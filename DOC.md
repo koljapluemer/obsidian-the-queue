@@ -27,3 +27,9 @@ The stochastical model for SR that I'm exploring
 ### something called `supermemo`
 
 I'm not using this; but I think I tried?
+
+## Misc
+
+### Learn Selection
+
+- new learn cards (type `learn`, not `learn-started`) are not allowed in queue when there are more than 5 existing cards with half life less than 24
