@@ -5,6 +5,8 @@
     1. take out the obsidian surroundings
     2. unrandomize the random
 
+    1. or: start unit testing what can be tested easily with [this guide](https://www.freecodecamp.org/news/how-to-start-unit-testing-javascript/)
+
 * maybe the *excuses* or/and *what would you be willing to do instead*
 * implement priority
 * handle the fact that notes may be dirty in a million trillion ways (validate cards, essentially), and have elegant fallbacks

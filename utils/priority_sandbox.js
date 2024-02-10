@@ -29,7 +29,8 @@ function selectRandomCard(cards) {
     const sortedCards = cards.sort((a, b) => b.priority - a.priority);
     const randomValue = Math.random();
     // (e^x - 1) / (e - 1)
-    const pdfValueNormalized = (Math.exp(randomValue) - 1) / (Math.E - 1);
+    // (could put a different pdf, in that case replace all `Math.exp`)
+    const pdfValueNormalized = (Math.exp(randomValue) - Math.exp(0)) / (Math.exp(1) - Math.exp(0));
     const amountOfCards = sortedCards.length;
     const indexToSelect = Math.floor(pdfValueNormalized * amountOfCards);
     return sortedCards[indexToSelect];

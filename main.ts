@@ -29,8 +29,6 @@ const DEFAULT_SETTINGS: TheQueueSettings = {
 	mySetting: "default",
 };
 
-let newLearnItemsThisSessionCount = 0;
-
 // define QueueSettingsModal:
 class QueueSettingsModal extends Modal {
 	constructor(app: App) {
@@ -141,7 +139,29 @@ export class TheQueueModal extends Modal {
 		dueMisc: [],
 	};
 
+	// only tracking this to know whether to pick new learn notes
+	startedLearnNotesWithHalflifeLessThanADay: TFile[] = [];
+
 	loadNotes() {
+
+		// reset arrays
+		this.selectionsOfPickableNotes = {
+			dueArticles: [],
+			newBooks: [],
+			dueStartedBooks: [],
+			startedBooksEvenIfNotDue: [],
+			dueChecks: [],
+			dueHabits: [],
+			dueTodos: [],
+			newLearns: [],
+			startedLearnNoteMostCloseToForgetting: [],
+			dueMisc: [],
+		}
+		this.startedLearnNotesWithHalflifeLessThanADay = [];
+
+		// get all nodes, exclude inactive notes
+		// TODO: make a toggle in settings deciding whether you want this
+		// because alternatively, everything without q-type may be ignored
 		this.markdownFiles = app.vault.getMarkdownFiles().filter((note) => {
 			let willBeIncluded = true;
 			// exclude notes with the tag #inactive
@@ -253,6 +273,13 @@ export class TheQueueModal extends Modal {
 							this.selectionsOfPickableNotes.startedLearnNoteMostCloseToForgetting =
 								[note];
 						}
+
+						// if note has a halflife of less than a day, add to array
+						if (model[2] < 24) {
+							this.startedLearnNotesWithHalflifeLessThanADay.push(
+								note
+							);
+						}
 					} catch (error) {
 						// purge q-data and set note back to learn q-type
 						frontmatter["q-data"] = {};
@@ -301,7 +328,6 @@ export class TheQueueModal extends Modal {
 		if (noteType === "learn") {
 			// check if q-data exists and is a dict, otherwise create it
 
-			newLearnItemsThisSessionCount += 1;
 			// assume stuff will be remembered for different kinds of interval, depending on score
 			// wrong = 10s, correct = 2h, easy = 1d
 			// give the time in hours!
@@ -419,7 +445,9 @@ export class TheQueueModal extends Modal {
 			} else {
 				// calculate 24h a day, except for the last day, which should only last 16h
 				frontmatter["q-data"]["dueat"] = new Date(
-					new Date().getTime() + 24 * 60 * 60 * 1000 * (interval-1) + 16 * 60 * 60 * 1000
+					new Date().getTime() +
+						24 * 60 * 60 * 1000 * (interval - 1) +
+						16 * 60 * 60 * 1000
 				).toISOString();
 			}
 		}
@@ -464,7 +492,9 @@ export class TheQueueModal extends Modal {
 				interval = Math.max(interval / 2, 1);
 			}
 			frontmatter["q-data"]["dueat"] = new Date(
-				new Date().getTime() + 24 * 60 * 60 * 1000 * (interval - 1) + 16 * 60 * 60 * 1000
+				new Date().getTime() +
+					24 * 60 * 60 * 1000 * (interval - 1) +
+					16 * 60 * 60 * 1000
 			).toISOString();
 		}
 
@@ -523,12 +553,17 @@ export class TheQueueModal extends Modal {
 			if (this.selectionsOfPickableNotes.dueTodos.length > 0) {
 				pickableSelections.push("dueTodos");
 			}
-			if (
-				this.selectionsOfPickableNotes.newLearns.length > 0 &&
-				newLearnItemsThisSessionCount < 12
-			) {
-				pickableSelections.push("newLearns");
+			// only allow new learns when we have less than 5 started learns with halflife less than a day
+			if (this.startedLearnNotesWithHalflifeLessThanADay.length < 5) {
+				if (this.selectionsOfPickableNotes.newLearns.length > 0) {
+					pickableSelections.push("newLearns");
+				}
+			} else {
+				console.log(
+					`not picking new learns, because we have ${this.startedLearnNotesWithHalflifeLessThanADay.length} started learns with halflife less than a day`
+				);
 			}
+
 			if (
 				this.selectionsOfPickableNotes
 					.startedLearnNoteMostCloseToForgetting.length > 0
@@ -601,7 +636,9 @@ export class TheQueueModal extends Modal {
 				this.close();
 			});
 			// button to open queue settings dialog (add filter to button, but override if its default)
-			const queueSettingsButton = headerEl.createEl("button", { text:  keywordFilter});
+			const queueSettingsButton = headerEl.createEl("button", {
+				text: keywordFilter,
+			});
 			if (keywordFilter === "all-notes") {
 				setIcon(queueSettingsButton, "filter");
 			}
