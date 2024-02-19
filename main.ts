@@ -546,15 +546,19 @@ export class TheQueueModal extends Modal {
 			}
 			if (this.selectionsOfPickableNotes.dueStartedBooks.length > 0) {
 				pickableSelections.push("dueStartedBooks");
+				console.info(`Nr of started books that are due: ${this.selectionsOfPickableNotes.dueStartedBooks.length}`);
 			}
 			if (this.selectionsOfPickableNotes.dueChecks.length > 0) {
 				pickableSelections.push("dueChecks");
+				console.info(`Nr of check-ins that are due: ${this.selectionsOfPickableNotes.dueChecks.length}`);
 			}
 			if (this.selectionsOfPickableNotes.dueHabits.length > 0) {
 				pickableSelections.push("dueHabits");
+				console.info(`Nr of habits that are due: ${this.selectionsOfPickableNotes.dueHabits.length}`);
 			}
 			if (this.selectionsOfPickableNotes.dueTodos.length > 0) {
 				pickableSelections.push("dueTodos");
+				console.info(`Nr of todos that are due: ${this.selectionsOfPickableNotes.dueTodos.length}`);
 			}
 			// only allow new learns when we have less than 5 started learns with halflife less than a day
 			if (this.startedLearnNotesWithHalflifeLessThanADay.length < 5) {
@@ -562,8 +566,8 @@ export class TheQueueModal extends Modal {
 					pickableSelections.push("newLearns");
 				}
 			} else {
-				console.log(
-					`not picking new learns, because we have ${this.startedLearnNotesWithHalflifeLessThanADay.length} started learns with halflife less than a day`
+				console.info(
+					`not picking new learn cards, because we have ${this.startedLearnNotesWithHalflifeLessThanADay.length} started learn cards with halflife of less than a day`
 				);
 			}
 

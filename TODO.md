@@ -28,3 +28,8 @@
 * at least for habit, stop the 16h hack and go for 4am (?)
     - core problem is I don't understand js variables, lmao
 * some error when completing todos (todo is deleted, but it causes lag and error msg)
+- make *Show Less Often* influence prio, not interval
+- when note is renamed when editing from q, there is an error msg when reopening
+    - does nothing bad but not elegant either
+- *Marta*: filter breaks if `q-keywords` exist but is not a list
+    - also, allow filter by directory after all?

@@ -13,6 +13,10 @@
     margin: 0;
 }
 
+.queue-modal ul {
+    margin: 6px inherit;
+}
+
 .button-row {
     display: flex;
     flex-direction: row;
