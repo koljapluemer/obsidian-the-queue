@@ -142,7 +142,7 @@ export class TheQueueModal extends Modal {
 	};
 
 	// only tracking this to know whether to pick new learn notes
-	startedLearnNotesWithHalflifeLessThanADay: TFile[] = [];
+	reasonablyRepeatableLearnNotesCounter = 0;
 
 	loadNotes() {
 		// reset arrays
@@ -158,7 +158,6 @@ export class TheQueueModal extends Modal {
 			startedLearnNoteMostCloseToForgetting: [],
 			dueMisc: [],
 		};
-		this.startedLearnNotesWithHalflifeLessThanADay = [];
 
 		// get all nodes, exclude inactive notes
 		// TODO: make a toggle in settings deciding whether you want this
@@ -194,6 +193,7 @@ export class TheQueueModal extends Modal {
 		});
 
 		let lowestPredictedRecall = 1;
+		this.reasonablyRepeatableLearnNotesCounter = 0;
 
 		this.markdownFiles.forEach((note) => {
 			// check if markdown file, otherwise skip:
@@ -228,7 +228,6 @@ export class TheQueueModal extends Modal {
 					const dueAt = frontmatter["q-data"]["dueat"];
 					const currentTime = new Date().toISOString();
 					noteIsCurrentlyDue = dueAt < currentTime;
-					// console.log(`note: ${note.name} is due: ${noteIsCurrentlyDue}`);
 				}
 				if (qType === "article" && noteIsCurrentlyDue) {
 					this.selectionsOfPickableNotes.dueArticles.push(note);
@@ -269,17 +268,19 @@ export class TheQueueModal extends Modal {
 						);
 						// this is an array of one, containing only the note with the lowest predicted recall
 						// we have this as [] so it's consistent with the other selections
-						if (predictedRecall < lowestPredictedRecall) {
-							lowestPredictedRecall = predictedRecall;
-							this.selectionsOfPickableNotes.startedLearnNoteMostCloseToForgetting =
-								[note];
-						}
 
-						// if note has a halflife of less than a day, add to array
-						if (model[2] < 24) {
-							this.startedLearnNotesWithHalflifeLessThanADay.push(
-								note
-							);
+						// TODO: magic number
+						// exclude notes with a recall so high that rep is useless rn
+						console.info(note.name, predictedRecall);
+						if (predictedRecall < 0.95) {
+							this.reasonablyRepeatableLearnNotesCounter += 1;
+
+							if (predictedRecall < lowestPredictedRecall) {
+
+								lowestPredictedRecall = predictedRecall;
+								this.selectionsOfPickableNotes.startedLearnNoteMostCloseToForgetting =
+									[note];
+							}
 						}
 					} catch (error) {
 						// purge q-data and set note back to learn q-type
@@ -304,6 +305,10 @@ export class TheQueueModal extends Modal {
 				}
 			}
 		});
+		console.info(
+			"Nr. of learn cards worth repeating: ",
+			this.reasonablyRepeatableLearnNotesCounter
+		);
 	}
 
 	handleScoring(note: TFile, answer: string = "") {
@@ -543,9 +548,9 @@ export class TheQueueModal extends Modal {
 			) {
 				pickableSelections.push("newBooks");
 			} else {
-				console.log(
-					`not picking new books, because we have ${this.selectionsOfPickableNotes.startedBooksEvenIfNotDue.length} started books (or no new books)`
-				);
+				// console.info(
+				// 	`not picking new books, because we have ${this.selectionsOfPickableNotes.startedBooksEvenIfNotDue.length} started books (or no new books)`
+				// );
 			}
 			if (this.selectionsOfPickableNotes.dueStartedBooks.length > 0) {
 				pickableSelections.push("dueStartedBooks");
@@ -572,13 +577,13 @@ export class TheQueueModal extends Modal {
 				);
 			}
 			// only allow new learns when we have less than 5 started learns with halflife less than a day
-			if (this.startedLearnNotesWithHalflifeLessThanADay.length < 5) {
+			if (this.reasonablyRepeatableLearnNotesCounter < 5) {
 				if (this.selectionsOfPickableNotes.newLearns.length > 0) {
 					pickableSelections.push("newLearns");
 				}
 			} else {
 				console.info(
-					`not picking new learn cards, because we have ${this.startedLearnNotesWithHalflifeLessThanADay.length} started learn cards with halflife of less than a day`
+					`not picking new learn cards, because we have ${this.reasonablyRepeatableLearnNotesCounter} started learn cards with halflife of less than a day`
 				);
 			}
 
@@ -599,6 +604,7 @@ export class TheQueueModal extends Modal {
 					pickableSelections[
 						Math.floor(Math.random() * pickableSelections.length)
 					];
+				console.info(`Picking from: ${randomSelection}`);
 				randomNote =
 					this.selectionsOfPickableNotes[randomSelection][
 						Math.floor(
@@ -926,7 +932,7 @@ class QueueSettingsTab extends PluginSettingTab {
 		// Data reset button
 
 		new Setting(containerEl)
-			.setName("Logging Data")
+			.setName("Logging Data!")
 			.addButton((button) =>
 				button.setButtonText("Export Logs").onClick(() => {
 					const log = localStorage.getItem(`q-log-${app.appId}`);

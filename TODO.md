@@ -22,6 +22,7 @@
     - could hide away in a variable in q-data.model or something
 - calendar functionality
     - start with birthdays
+- elegant way to handle first-time learn cards
 
 ## Small Scale
 
