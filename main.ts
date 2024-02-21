@@ -111,6 +111,8 @@ export default class TheQueue extends Plugin {
 				new TheQueueModal(this.app).open();
 			}
 		);
+		// add settings tab
+		this.addSettingTab(new QueueSettingsTab(this.app, this));
 	}
 
 	onunload() {}
@@ -321,7 +323,7 @@ export class TheQueueModal extends Modal {
 			noteName: note.name,
 			answer: answer,
 			time: new Date().toISOString(),
-			noteMetadata: frontmatter
+			noteMetadata: frontmatter,
 		});
 		localStorage.setItem(`q-log-${app.appId}`, JSON.stringify(qLog));
 
@@ -547,19 +549,27 @@ export class TheQueueModal extends Modal {
 			}
 			if (this.selectionsOfPickableNotes.dueStartedBooks.length > 0) {
 				pickableSelections.push("dueStartedBooks");
-				console.info(`Nr of started books that are due: ${this.selectionsOfPickableNotes.dueStartedBooks.length}`);
+				console.info(
+					`Nr of started books that are due: ${this.selectionsOfPickableNotes.dueStartedBooks.length}`
+				);
 			}
 			if (this.selectionsOfPickableNotes.dueChecks.length > 0) {
 				pickableSelections.push("dueChecks");
-				console.info(`Nr of check-ins that are due: ${this.selectionsOfPickableNotes.dueChecks.length}`);
+				console.info(
+					`Nr of check-ins that are due: ${this.selectionsOfPickableNotes.dueChecks.length}`
+				);
 			}
 			if (this.selectionsOfPickableNotes.dueHabits.length > 0) {
 				pickableSelections.push("dueHabits");
-				console.info(`Nr of habits that are due: ${this.selectionsOfPickableNotes.dueHabits.length}`);
+				console.info(
+					`Nr of habits that are due: ${this.selectionsOfPickableNotes.dueHabits.length}`
+				);
 			}
 			if (this.selectionsOfPickableNotes.dueTodos.length > 0) {
 				pickableSelections.push("dueTodos");
-				console.info(`Nr of todos that are due: ${this.selectionsOfPickableNotes.dueTodos.length}`);
+				console.info(
+					`Nr of todos that are due: ${this.selectionsOfPickableNotes.dueTodos.length}`
+				);
 			}
 			// only allow new learns when we have less than 5 started learns with halflife less than a day
 			if (this.startedLearnNotesWithHalflifeLessThanADay.length < 5) {
@@ -897,5 +907,32 @@ export class TheQueueModal extends Modal {
 	onClose() {
 		let { contentEl } = this;
 		contentEl.empty();
+	}
+}
+
+class QueueSettingsTab extends PluginSettingTab {
+	plugin: TheQueue;
+
+	constructor(app: App, plugin: TheQueue) {
+		super(app, plugin);
+		this.plugin = plugin;
+	}
+
+	display(): void {
+		const { containerEl } = this;
+		containerEl.empty();
+
+		// Data export button (export q-log from localstorage as json)
+		new Setting(containerEl).setName("Logging Data").addButton((button) =>
+			button.setButtonText("Export Logs").onClick(() => {
+				const log = localStorage.getItem(`q-log-${app.appId}`);
+				const blob = new Blob([log], { type: "application/json" });
+				const url = URL.createObjectURL(blob);
+				const a = document.createElement("a");
+				a.href = url;
+				a.download = `q-log-${app.appId}.json`;
+				a.click();
+			})
+		);
 	}
 }
