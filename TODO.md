@@ -20,6 +20,8 @@
 - implement leech check
     - could use my existing log to kickstart with a little bit of scripting
     - could hide away in a variable in q-data.model or something
+- calendar functionality
+    - start with birthdays
 
 ## Small Scale
 
@@ -33,3 +35,6 @@
     - does nothing bad but not elegant either
 - *Marta*: filter breaks if `q-keywords` exist but is not a list
     - also, allow filter by directory after all?
+- *Marta*: Skip trivially easy cards
+    - first, improve tracking and do an hour of cramming with some small dataset
+-move excuses to card itself

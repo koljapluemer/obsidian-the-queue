@@ -304,7 +304,7 @@ export class TheQueueModal extends Modal {
 		});
 	}
 
-	async handleScoring(note: TFile, answer: string = "") {
+	handleScoring(note: TFile, answer: string = "") {
 		// get type from q-type frontmatter property
 		const metadata = this.app.metadataCache.getFileCache(note);
 		const frontmatter = metadata!.frontmatter!;
@@ -321,6 +321,7 @@ export class TheQueueModal extends Modal {
 			noteName: note.name,
 			answer: answer,
 			time: new Date().toISOString(),
+			noteMetadata: frontmatter
 		});
 		localStorage.setItem("q-log", JSON.stringify(qLog));
 
@@ -458,7 +459,7 @@ export class TheQueueModal extends Modal {
 		) {
 			// create a new note with the name of the note, and the content of the note
 			// add date in format 'yy-mm-dd' to the name, to avoid name conflicts
-			const alternativeNote = await this.app.vault.create(
+			const alternativeNote = this.app.vault.create(
 				note.name.replace(".md", " - ") +
 					" Alternative" +
 					" " +
@@ -478,7 +479,7 @@ export class TheQueueModal extends Modal {
 		if (noteType === "todo") {
 			if (answer === "completed") {
 				// delete note
-				await this.app.vault.trash(note, true);
+				this.app.vault.trash(note, true);
 			}
 		}
 
