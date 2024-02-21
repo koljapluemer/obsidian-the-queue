@@ -271,8 +271,8 @@ export class TheQueueModal extends Modal {
 
 						// TODO: magic number
 						// exclude notes with a recall so high that rep is useless rn
-						console.info(note.name, predictedRecall);
-						if (predictedRecall < 0.95) {
+						// console.info(note.name, predictedRecall);
+						if (predictedRecall < 0.8) {
 							this.reasonablyRepeatableLearnNotesCounter += 1;
 
 							if (predictedRecall < lowestPredictedRecall) {
@@ -576,14 +576,19 @@ export class TheQueueModal extends Modal {
 					`Nr of todos that are due: ${this.selectionsOfPickableNotes.dueTodos.length}`
 				);
 			}
-			// only allow new learns when we have less than 5 started learns with halflife less than a day
-			if (this.reasonablyRepeatableLearnNotesCounter < 5) {
+			// only allow new learns when we have less than n started learns with halflife less than a day
+			if (this.reasonablyRepeatableLearnNotesCounter < 10) {
+				console.info(
+					`picking new learn cards, because we have ${this.reasonablyRepeatableLearnNotesCounter} started learn cards with halflife of less than a day.`
+				);
 				if (this.selectionsOfPickableNotes.newLearns.length > 0) {
 					pickableSelections.push("newLearns");
+				} else {
+					console.info('actually, we have no new learn cards')
 				}
 			} else {
 				console.info(
-					`not picking new learn cards, because we have ${this.reasonablyRepeatableLearnNotesCounter} started learn cards with halflife of less than a day`
+					`not picking new learn cards, because we have ${this.reasonablyRepeatableLearnNotesCounter} started learn cards with halflife of less than a day.`
 				);
 			}
 

@@ -39,3 +39,5 @@
 - *Marta*: Skip trivially easy cards
     - first, improve tracking and do an hour of cramming with some small dataset
 -move excuses to card itself
+- account for the case that learn cards are really easy, but we don't have new learn cards 
+    - in that case we may want to learn some easy cards, or maybe not
