@@ -7,9 +7,6 @@
 
     1. or: start unit testing what can be tested easily with [this guide](https://www.freecodecamp.org/news/how-to-start-unit-testing-javascript/)
 
-* maybe the *excuses* or/and *what would you be willing to do instead*
-    - am I happy with the current implementation?
-        - guess I don't like that the card becomes an actual `habit`
 * implement priority
     - started in `utils/priority_sandbox.py` (project with Nate)
 * handle the fact that notes may be dirty in a million trillion ways (validate cards, essentially), and have elegant fallbacks
@@ -23,6 +20,9 @@
 - calendar functionality
     - start with birthdays
 - elegant way to handle first-time learn cards
+- implement house cleaning into the-q
+    - *adopt this orphan* would be an obvious start...
+    - or a regex or whatever or a `[[]]` or a `#` with *this needs improvement*
 
 ## Small Scale
 
@@ -38,6 +38,5 @@
     - also, allow filter by directory after all?
 - *Marta*: Skip trivially easy cards
     - first, improve tracking and do an hour of cramming with some small dataset
--move excuses to card itself
 - account for the case that learn cards are really easy, but we don't have new learn cards 
     - in that case we may want to learn some easy cards, or maybe not
