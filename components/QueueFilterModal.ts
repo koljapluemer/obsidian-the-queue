@@ -2,7 +2,7 @@ import { App, Modal, Setting } from "obsidian";
 
 // define QueueFilterModal:
 export default class QueueFilterModal extends Modal {
-	keywordFilter: string;
+	keywordFilter: string = "All Notes";
 
 	onSubmit: (keywordFilter: string) => void;
 
@@ -22,7 +22,6 @@ export default class QueueFilterModal extends Modal {
 			if (keywordsProperty) {
 				// check type of keywordsProperty
 				const typeOfKeywordsProperty = typeof keywordsProperty;
-				console.info("Type", typeOfKeywordsProperty);
 				// if it's an array, loop through, if it's a string, add it to the set
 				if (Array.isArray(keywordsProperty)) {
 					keywordsProperty.forEach((keyword: String) => {
@@ -49,6 +48,7 @@ export default class QueueFilterModal extends Modal {
 				allKeywords.forEach((keyword) => {
 					dropdown.addOption(keyword, keyword);
 				});
+                dropdown.setValue(this.keywordFilter);
 				dropdown.onChange((value) => {
 					this.keywordFilter = value;
 				});
@@ -56,6 +56,7 @@ export default class QueueFilterModal extends Modal {
 			.addButton((button) =>
 				button.setButtonText("Filter").onClick(() => {
 					this.close();
+                    console.log('about to submit with keywordFilter:', this.keywordFilter);
 					this.onSubmit(this.keywordFilter);
 				})
 			);

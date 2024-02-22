@@ -37,3 +37,4 @@
 - deal with the weird global variables
     - especially the one that saves a setting that should be accessible anyways
 - add notices
+- optional: pass current keyword filter into QueueFilterModal so that it can be preselected
