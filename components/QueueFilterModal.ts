@@ -2,13 +2,13 @@ import { App, Modal, Setting } from "obsidian";
 
 // define QueueFilterModal:
 export default class QueueFilterModal extends Modal {
-	keywordFilter: string = "all-notes";
+	keywordFilter: string;
 
 	onSubmit: (keywordFilter: string) => void;
 
-	constructor(app: App) {
+	constructor(app: App, onSubmit: (keywordFilter: string) => void) {
 		super(app);
-		this.onSubmit = this.onSubmit;
+		this.onSubmit = onSubmit;
 	}
 
 	onOpen() {
@@ -40,50 +40,25 @@ export default class QueueFilterModal extends Modal {
 		contentEl.createEl("p", {
 			text: "Show only notes with q-keyword:",
 		});
-		// make a radio button group with all the keywords
-		const radioGroup = contentEl.createDiv("queue-settings-radio-group");
-		// first, make an 'all notes' option (input first, then label) [RADIO BUTTON!!!]
-		const allNotesWrapper = radioGroup.createDiv(
-			"queue-settings-radio-wrapper"
-		);
-		const allNotesInput = allNotesWrapper.createEl("input", {
-			type: "radio",
-			value: "all-notes",
-		});
-		// set name property to q-keyword, so that only one can be selected at a time
-		allNotesInput.name = "q-keyword";
-		allNotesInput.checked = this.keywordFilter === "all-notes";
-		const allNotesLabel = allNotesWrapper.createEl("label", {
-			text: "All Notes",
-		});
-		// then, make an option for each keyword
-		allKeywords.forEach((keyword) => {
-			const keywordWrapper = radioGroup.createDiv(
-				"queue-settings-radio-wrapper"
-			);
-			const keywordInput = keywordWrapper.createEl("input", {
-				type: "radio",
-				value: keyword,
-			});
-			keywordInput.name = "q-keyword";
-			keywordInput.checked = this.keywordFilter === keyword;
-			const keywordLabel = keywordWrapper.createEl("label", {
-				text: keyword,
-			});
-		});
 
-		// on change, set keywordFilter to the value of the selected radio button
-		radioGroup.addEventListener("change", (evt) => {
-			this.keywordFilter = (evt.target as HTMLInputElement).value;
-		});
-
-		// add a submit button via the Setting API
-		new Setting(contentEl).setName("Filter Queue").addButton((button) =>
-			button.setButtonText("Filter").onClick(() => {
-				this.onSubmit(this.keywordFilter);
-				this.close();
+		// make a radio button group with all the keywords found, plus an "All Notes" option
+		new Setting(contentEl)
+			.setName("Filter by Keyword")
+			.addDropdown((dropdown) => {
+				dropdown.addOption("All Notes", "All Notes");
+				allKeywords.forEach((keyword) => {
+					dropdown.addOption(keyword, keyword);
+				});
+				dropdown.onChange((value) => {
+					this.keywordFilter = value;
+				});
 			})
-		);
+			.addButton((button) =>
+				button.setButtonText("Filter").onClick(() => {
+					this.close();
+					this.onSubmit(this.keywordFilter);
+				})
+			);
 	}
 
 	onClose() {

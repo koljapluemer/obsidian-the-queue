@@ -40,7 +40,7 @@ export default class TheQueueModal extends Modal {
 		dueMisc: [],
 	};
 
-	keywordFilter: string = "all-notes";
+	keywordFilter: string = "All Notes";
 
 	// only tracking this to know whether to pick new learn notes
 	reasonablyRepeatableLearnNotesCounter = 0;
@@ -111,8 +111,8 @@ export default class TheQueueModal extends Modal {
 				if (qType === "exclude") {
 					return;
 				}
-				// if keywordFilter is not "all-notes", check if note has that keyword
-				if (this.keywordFilter !== "all-notes") {
+				// if keywordFilter is not "All Notes", check if note has that keyword
+				if (this.keywordFilter !== "All Notes") {
 					if (!frontmatter["q-keywords"]) {
 						return;
 					} else if (
@@ -543,7 +543,7 @@ export default class TheQueueModal extends Modal {
 			const queueSettingsButton = headerEl.createEl("button", {
 				text: this.keywordFilter,
 			});
-			if (this.keywordFilter === "all-notes") {
+			if (this.keywordFilter === "All Notes") {
 				setIcon(queueSettingsButton, "filter");
 			}
 			// on click open QueueFilterModal
