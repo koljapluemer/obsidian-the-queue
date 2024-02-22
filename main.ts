@@ -42,14 +42,14 @@ class QueueSettingsModal extends Modal {
 		const allNotes = this.app.vault.getMarkdownFiles();
 		allNotes.forEach((note) => {
 			const metadata = this.app.metadataCache.getFileCache(note);
-			const keywordsProperty = metadata?.frontmatter?.["q-keywords"]
+			const keywordsProperty = metadata?.frontmatter?.["q-keywords"];
 			if (keywordsProperty) {
 				// check type of keywordsProperty
 				const typeOfKeywordsProperty = typeof keywordsProperty;
 				console.info("Type", typeOfKeywordsProperty);
 				// if it's an array, loop through, if it's a string, add it to the set
 				if (Array.isArray(keywordsProperty)) {
-					keywordsProperty.forEach((keyword:String) => {
+					keywordsProperty.forEach((keyword: String) => {
 						allKeywords.add(keyword);
 					});
 				} else if (typeof keywordsProperty === "string") {
@@ -285,26 +285,17 @@ export class TheQueueModal extends Modal {
 							this.reasonablyRepeatableLearnNotesCounter += 1;
 
 							if (predictedRecall < lowestPredictedRecall) {
-
 								lowestPredictedRecall = predictedRecall;
 								this.selectionsOfPickableNotes.startedLearnNoteMostCloseToForgetting =
 									[note];
 							}
 						}
 					} catch (error) {
-						// purge q-data and set note back to learn q-type
-						frontmatter["q-data"] = {};
-						frontmatter["q-type"] = "learn";
-						// write metadata to file
-						const newFrontMatter = frontmatter;
-						app.fileManager.processFrontMatter(
-							note,
-							(frontmatter) => {
-								frontmatter["q-data"] =
-									newFrontMatter["q-data"];
-								frontmatter["q-type"] =
-									newFrontMatter["q-type"];
-							}
+						console.error(
+							"Error while calculating predicted recall for note \n ",
+							note.name,
+							"\n:\n",
+							error
 						);
 					}
 				} else if (qType === "learn") {
@@ -348,23 +339,17 @@ export class TheQueueModal extends Modal {
 			// wrong = 10s, correct = 2h, easy = 1d
 			// give the time in hours!
 			let model;
-			// but first, we check if there is "earlier dirt": an "interval" or "q-interval" property, hinting at old SM stuff:
-			if (frontmatter["interval"] || frontmatter["q-interval"]) {
-				// if so, use that property as halflife for the model:
-				const halflife =
-					frontmatter["interval"] || frontmatter["q-interval"];
-				model = ebisu.defaultModel(halflife * 24);
+			// use initial scoring and (with guessed initial halflifes)
+			if (answer === "wrong") {
+				// 12 minutes
+				model = ebisu.defaultModel(0.2);
+			} else if (answer === "correct") {
+				// 2h
+				model = ebisu.defaultModel(2);
 			} else {
-				// elsewise, we use the actual scoring and our guessed initial values
-				if (answer === "wrong") {
-					model = ebisu.defaultModel((1 / 3600) * 10);
-				} else if (answer === "correct") {
-					model = ebisu.defaultModel(2);
-				} else {
-					model = ebisu.defaultModel(24);
-				}
+				// 1d
+				model = ebisu.defaultModel(24);
 			}
-
 			frontmatter["q-data"]["model"] = model;
 			frontmatter["q-data"]["last-seen"] = new Date().toISOString();
 			frontmatter["q-type"] = "learn-started";
@@ -482,7 +467,6 @@ export class TheQueueModal extends Modal {
 			// go to note; close modal
 			this.app.workspace.openLinkText(note.path, "", true);
 			this.close();
-			
 		}
 
 		// just handle the special case of todo being completed (due is handled in the condition before)
@@ -587,7 +571,7 @@ export class TheQueueModal extends Modal {
 				if (this.selectionsOfPickableNotes.newLearns.length > 0) {
 					pickableSelections.push("newLearns");
 				} else {
-					console.info('actually, we have no new learn cards')
+					console.info("actually, we have no new learn cards");
 				}
 			} else {
 				console.info(
