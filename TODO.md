@@ -34,8 +34,6 @@
 - make *Show Less Often* influence prio, not interval
 - when note is renamed when editing from q, there is an error msg when reopening
     - does nothing bad but not elegant either
-- *Marta*: filter breaks if `q-keywords` exist but is not a list
-    - also, allow filter by directory after all?
 - *Marta*: Skip trivially easy cards
     - first, improve tracking and do an hour of cramming with some small dataset
 - account for the case that learn cards are really easy, but we don't have new learn cards 

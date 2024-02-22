@@ -42,10 +42,19 @@ class QueueSettingsModal extends Modal {
 		const allNotes = this.app.vault.getMarkdownFiles();
 		allNotes.forEach((note) => {
 			const metadata = this.app.metadataCache.getFileCache(note);
-			if (metadata?.frontmatter?.["q-keywords"]) {
-				metadata?.frontmatter?.["q-keywords"].forEach((keyword) => {
-					allKeywords.add(keyword);
-				});
+			const keywordsProperty = metadata?.frontmatter?.["q-keywords"]
+			if (keywordsProperty) {
+				// check type of keywordsProperty
+				const typeOfKeywordsProperty = typeof keywordsProperty;
+				console.info("Type", typeOfKeywordsProperty);
+				// if it's an array, loop through, if it's a string, add it to the set
+				if (Array.isArray(keywordsProperty)) {
+					keywordsProperty.forEach((keyword:String) => {
+						allKeywords.add(keyword);
+					});
+				} else if (typeof keywordsProperty === "string") {
+					allKeywords.add(keywordsProperty);
+				}
 			}
 		});
 		let { contentEl } = this;
@@ -271,7 +280,7 @@ export class TheQueueModal extends Modal {
 
 						// TODO: magic number
 						// exclude notes with a recall so high that rep is useless rn
-						// console.info(note.name, predictedRecall);
+						console.info(note.name, predictedRecall);
 						if (predictedRecall < 0.8) {
 							this.reasonablyRepeatableLearnNotesCounter += 1;
 
