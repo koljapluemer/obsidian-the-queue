@@ -36,3 +36,4 @@
     - in that case we may want to learn some easy cards, or maybe not
 - deal with the weird global variables
     - especially the one that saves a setting that should be accessible anyways
+- add notices
