@@ -23,10 +23,6 @@
 - implement house cleaning into the-q
     - *adopt this orphan* would be an obvious start...
     - or a regex or whatever or a `[[]]` or a `#` with *this needs improvement*
-
-## Small Scale
-
-
 * check for wrong q-label `book` - some random internet links that are new have it, may be the bookmark importer
 * at least for habit, stop the 16h hack and go for 4am (?)
     - core problem is I don't understand js variables, lmao
@@ -38,3 +34,5 @@
     - first, improve tracking and do an hour of cramming with some small dataset
 - account for the case that learn cards are really easy, but we don't have new learn cards 
     - in that case we may want to learn some easy cards, or maybe not
+- deal with the weird global variables
+    - especially the one that saves a setting that should be accessible anyways

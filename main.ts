@@ -18,19 +18,10 @@ import { supermemo, SuperMemoItem, SuperMemoGrade } from "supermemo";
 import * as ebisu from "ebisu-js";
 
 let keywordFilter = "all-notes";
+let desiredRecallThreshold: number;
 
-// Remember to rename these classes and interfaces!
-
-interface TheQueueSettings {
-	mySetting: string;
-}
-
-const DEFAULT_SETTINGS: TheQueueSettings = {
-	mySetting: "default",
-};
-
-// define QueueSettingsModal:
-class QueueSettingsModal extends Modal {
+// define QueueFilterModal:
+class QueueFilterModal extends Modal {
 	constructor(app: App) {
 		super(app);
 	}
@@ -108,6 +99,14 @@ class QueueSettingsModal extends Modal {
 	}
 }
 
+interface TheQueueSettings {
+	desiredRecallThreshold: number;
+}
+
+const DEFAULT_SETTINGS: Partial<TheQueueSettings> = {
+	desiredRecallThreshold: 0.8,
+};
+
 export default class TheQueue extends Plugin {
 	settings: TheQueueSettings;
 
@@ -121,14 +120,34 @@ export default class TheQueue extends Plugin {
 			}
 		);
 		// add settings tab
+		await this.loadSettings();
 		this.addSettingTab(new QueueSettingsTab(this.app, this));
 	}
 
 	onunload() {}
+
+	async loadSettings() {
+		this.settings = Object.assign(
+			{},
+			DEFAULT_SETTINGS,
+			await this.loadData()
+		);
+		desiredRecallThreshold = this.settings.desiredRecallThreshold;
+	}
+
+	async saveSettings() {
+		await this.saveData(this.settings);
+		desiredRecallThreshold = this.settings.desiredRecallThreshold;
+	}
 }
 
 export class TheQueueModal extends Modal {
 	component: Component;
+	settings: TheQueueSettings;
+
+	constructor(app: App, plugin: TheQueue) {
+		super(app);
+	}
 
 	result: string;
 	onSubmit: (result: string) => void;
@@ -152,6 +171,7 @@ export class TheQueueModal extends Modal {
 
 	// only tracking this to know whether to pick new learn notes
 	reasonablyRepeatableLearnNotesCounter = 0;
+	pluginSettings: TheQueueSettings;
 
 	loadNotes() {
 		// reset arrays
@@ -277,13 +297,10 @@ export class TheQueueModal extends Modal {
 						);
 						// this is an array of one, containing only the note with the lowest predicted recall
 						// we have this as [] so it's consistent with the other selections
-
-						// TODO: magic number
 						// exclude notes with a recall so high that rep is useless rn
 						console.info(note.name, predictedRecall);
-						if (predictedRecall < 0.8) {
+						if (predictedRecall < desiredRecallThreshold) {
 							this.reasonablyRepeatableLearnNotesCounter += 1;
-
 							if (predictedRecall < lowestPredictedRecall) {
 								lowestPredictedRecall = predictedRecall;
 								this.selectionsOfPickableNotes.startedLearnNoteMostCloseToForgetting =
@@ -306,8 +323,7 @@ export class TheQueueModal extends Modal {
 			}
 		});
 		console.info(
-			"Nr. of learn cards worth repeating: ",
-			this.reasonablyRepeatableLearnNotesCounter
+			`Nr. of learn cards with predicted recall < ${desiredRecallThreshold}: ${this.reasonablyRepeatableLearnNotesCounter}`
 		);
 	}
 
@@ -566,7 +582,7 @@ export class TheQueueModal extends Modal {
 			// only allow new learns when we have less than n started learns with halflife less than a day
 			if (this.reasonablyRepeatableLearnNotesCounter < 10) {
 				console.info(
-					`picking new learn cards, because we have ${this.reasonablyRepeatableLearnNotesCounter} started learn cards with halflife of less than a day.`
+					`allowing to pick new learn cards, because we only have ${this.reasonablyRepeatableLearnNotesCounter} flashcards with predicted recall < ${desiredRecallThreshold}`
 				);
 				if (this.selectionsOfPickableNotes.newLearns.length > 0) {
 					pickableSelections.push("newLearns");
@@ -575,7 +591,7 @@ export class TheQueueModal extends Modal {
 				}
 			} else {
 				console.info(
-					`not picking new learn cards, because we have ${this.reasonablyRepeatableLearnNotesCounter} started learn cards with halflife of less than a day.`
+					`not picking new learn cards, because we have ${this.reasonablyRepeatableLearnNotesCounter} flashcards with predicted recall < ${desiredRecallThreshold}`
 				);
 			}
 
@@ -658,9 +674,9 @@ export class TheQueueModal extends Modal {
 			if (keywordFilter === "all-notes") {
 				setIcon(queueSettingsButton, "filter");
 			}
-			// on click open QueueSettingsModal
+			// on click open QueueFilterModal
 			queueSettingsButton.addEventListener("click", () => {
-				new QueueSettingsModal(this.app).open();
+				new QueueFilterModal(this.app).open();
 			});
 
 			const closeModalButton = headerEl.createEl("button", {});
@@ -919,6 +935,22 @@ class QueueSettingsTab extends PluginSettingTab {
 	display(): void {
 		const { containerEl } = this;
 		containerEl.empty();
+
+		new Setting(containerEl)
+			.setName("Desired Recall Threshold")
+			.setDesc(
+				"The Spaced Repetition Algorithm will only show cards where the predicted recall is below this value."
+			)
+			.addSlider((slider) =>
+				slider
+					.setLimits(0.6, 0.97, 0.01)
+					.setValue(this.plugin.settings.desiredRecallThreshold)
+					.setDynamicTooltip()
+					.onChange(async (value) => {
+						this.plugin.settings.desiredRecallThreshold = value;
+						await this.plugin.saveSettings();
+					})
+			);
 
 		// Data export button (export q-log from localstorage as json)
 		// Data reset button
