@@ -57,18 +57,20 @@ export default class QueueNote {
 
 	// this handles the construction from dirty, real life data
 	// we pass in just the metadata from an actual note, and here we do all the optional nulls and what not
-	static createFromMetadata(metadata: any): QueueNote {
-		const qType = metadata?.frontmatter?.["q-type"] ?? null;
-		const qTopic = metadata?.frontmatter?.["q-topic"] ?? null;
-		const qKeywords = metadata?.frontmatter?.["q-keywords"] ?? null;
-		const qPriority = metadata?.frontmatter?.["q-priority"] ?? null;
-		const qInterval = metadata?.frontmatter?.["q-interval"] ?? null;
+	static createFromFrontmatter(frontmatter: any): QueueNote {
+		const qType = frontmatter["q-type"] ?? null;
+		const qTopic = frontmatter["q-topic"] ?? null;
+		const qKeywords = frontmatter["q-keywords"] ?? null;
+		const qPriority = frontmatter["q-priority"] ?? null;
+		const qInterval = frontmatter["q-interval"] ?? null;
 
-		const qData = metadata?.frontmatter?.["q-data"];
+		const qData = frontmatter["q-data"];
 		const model = qData?.["model"] ?? null;
-		const dueAt = qData?.["dueAt"] ?? new Date().toISOString();
+		const dueAt = qData?.["due-at"] ?? new Date().toISOString();
 		const lastSeen = qData?.["last-seen"] ?? null;
 		const leechCount = qData?.["leech-count"] ?? null;
+
+		// console.info(`Creating note from metadata: \ntype: ${qType}, \ntopic: ${qTopic}, \nkeywords: ${qKeywords}, \npriority: ${qPriority}, \ninterval: ${qInterval}, \nmodel: ${model}, \ndueAt: ${dueAt}, \nlastSeen: ${lastSeen}, \nleechCount: ${leechCount}`);
 
 		return new QueueNote(qType, qTopic, qKeywords, qPriority, qInterval, {
 			model,

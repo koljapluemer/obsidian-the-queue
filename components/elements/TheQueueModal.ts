@@ -92,7 +92,7 @@ export default class TheQueueModal extends Modal {
 			if (!frontmatter) {
 				qNote = new QueueNote();
 			} else {
-				qNote = QueueNote.createFromMetadata(frontmatter);
+				qNote = QueueNote.createFromFrontmatter(frontmatter);
 			}
 
 			// exclude q-type: exclude
@@ -163,7 +163,7 @@ export default class TheQueueModal extends Modal {
 		if (!frontmatter) {
 			qNote = new QueueNote();
 		} else {
-			qNote = QueueNote.createFromMetadata(frontmatter);
+			qNote = QueueNote.createFromFrontmatter(frontmatter);
 		}
 
 		// save to localstorage q-log
@@ -330,16 +330,16 @@ export default class TheQueueModal extends Modal {
 				}
 				if (qNote.getData().lastSeen) {
 					createEmptyQDataIfNeeded();
-					frontmatter["q-data"]["lastSeen"] =
+					frontmatter["q-data"]["last-seen"] =
 						qNote.getData().lastSeen;
 				}
 				if (qNote.getData().leechCount) {
 					createEmptyQDataIfNeeded();
-					frontmatter["q-data"]["leechCount"] =
+					frontmatter["q-data"]["leech-count"] =
 						qNote.getData().leechCount;
 				}
 				createEmptyQDataIfNeeded();
-				frontmatter["q-data"]["dueAt"] = qNote.getData().dueAt;
+				frontmatter["q-data"]["due-at"] = qNote.getData().dueAt;
 			}
 		});
 
@@ -435,6 +435,7 @@ export default class TheQueueModal extends Modal {
 			}
 			// pick a random selection, then pick a random note from selection of that name
 			if (pickableSelections.length > 0) {
+				console.info(`Pickable selections: ${pickableSelections}`);
 				const randomSelection =
 					pickableSelections[
 						Math.floor(Math.random() * pickableSelections.length)
@@ -480,7 +481,7 @@ export default class TheQueueModal extends Modal {
 			if (!frontmatter) {
 				qNote = new QueueNote();
 			} else {
-				qNote = QueueNote.createFromMetadata(frontmatter);
+				qNote = QueueNote.createFromFrontmatter(frontmatter);
 			}
 			// HEADER
 			const headerEl = modalEl.createDiv("headerEl");
