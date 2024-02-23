@@ -88,93 +88,67 @@ export default class TheQueueModal extends Modal {
 			// type can be checked by q-type
 			const metadata = this.app.metadataCache.getFileCache(note);
 			const frontmatter = metadata?.frontmatter;
+			let qNote: QueueNote;
 			if (!frontmatter) {
-				const qNote = new QueueNote();
+				qNote = new QueueNote();
 			} else {
-				const qType = metadata?.frontmatter?.["q-type"] ?? null;
-				const qTopic = metadata?.frontmatter?.["q-topic"] ?? null;
-				const qKeywords = metadata?.frontmatter?.["q-keywords"] ?? null;
-				const qPriority = metadata?.frontmatter?.["q-priority"] ?? null;
-				const qInterval = metadata?.frontmatter?.["q-interval"] ?? null;
+				qNote = QueueNote.createFromMetadata(frontmatter);
+			}
 
-				const qData = metadata?.frontmatter?.["q-data"];
-				const model = qData?.model ?? null;
-				const lastSeen = qData?.["last-seen"] ?? null;
-				const leechCount = qData?.["leech-count"] ?? null;
-
-				const qNote = new QueueNote(
-					qType,
-					qTopic,
-					qKeywords,
-					qPriority,
-					qInterval,
-					{ model, lastSeen, leechCount }
-				);
-
-				// exclude q-type: exclude
-				if (qNote.getShouldBeExcluded()) {
+			// exclude q-type: exclude
+			if (qNote.getShouldBeExcluded()) {
+				return;
+			}
+			// if keywordFilter is not "All Notes", check if note has that keyword
+			if (this.keywordFilter !== "All Notes") {
+				if (!qNote.getKeywords().includes(this.keywordFilter)) {
 					return;
 				}
-				// if keywordFilter is not "All Notes", check if note has that keyword
-				if (this.keywordFilter !== "All Notes") {
-					if (!qNote.getKeywords().includes(this.keywordFilter)) {
-						return;
-					}
-				}
+			}
 
-				if (
-					qNote.getType() === "article" &&
-					qNote.getIsCurrentlyDue()
-				) {
-					this.selectionsOfPickableNotes.dueArticles.push(note);
-				} else if (qNote.getType() === "book-started") {
-					if (qNote.getIsCurrentlyDue()) {
-						this.selectionsOfPickableNotes.dueStartedBooks.push(
-							note
-						);
-					}
-					this.selectionsOfPickableNotes.startedBooksEvenIfNotDue.push(
-						note
-					);
-				} else if (qNote.getType() === "book") {
-					this.selectionsOfPickableNotes.newBooks.push(note);
-				} else if (
-					qNote.getType() === "check" &&
-					qNote.getIsCurrentlyDue()
-				) {
-					this.selectionsOfPickableNotes.dueChecks.push(note);
-				} else if (
-					qNote.getType() === "habit" &&
-					qNote.getIsCurrentlyDue()
-				) {
-					this.selectionsOfPickableNotes.dueHabits.push(note);
-				} else if (
-					qNote.getType() === "todo" &&
-					qNote.getIsCurrentlyDue()
-				) {
-					this.selectionsOfPickableNotes.dueTodos.push(note);
-				} else if (qNote.getType() === "learn-started") {
-					// this is an array of one, containing only the note with the lowest predicted recall
-					// we have this as [] so it's consistent with the other selections
-					// exclude notes with a recall so high that rep is useless rn
-					const predictedRecall = qNote.getPredictedRecall();
-					if (
-						predictedRecall < this.settings.desiredRecallThreshold
-					) {
-						this.reasonablyRepeatableLearnNotesCounter += 1;
-						if (
-							qNote.getPredictedRecall() < lowestPredictedRecall
-						) {
-							lowestPredictedRecall = predictedRecall;
-							this.selectionsOfPickableNotes.startedLearnNoteMostCloseToForgetting =
-								[note];
-						}
-					}
-				} else if (qNote.getType() === "learn") {
-					this.selectionsOfPickableNotes.newLearns.push(note);
-				} else if (qNote.getIsCurrentlyDue()) {
-					this.selectionsOfPickableNotes.dueMisc.push(note);
+			if (qNote.getType() === "article" && qNote.getIsCurrentlyDue()) {
+				this.selectionsOfPickableNotes.dueArticles.push(note);
+			} else if (qNote.getType() === "book-started") {
+				if (qNote.getIsCurrentlyDue()) {
+					this.selectionsOfPickableNotes.dueStartedBooks.push(note);
 				}
+				this.selectionsOfPickableNotes.startedBooksEvenIfNotDue.push(
+					note
+				);
+			} else if (qNote.getType() === "book") {
+				this.selectionsOfPickableNotes.newBooks.push(note);
+			} else if (
+				qNote.getType() === "check" &&
+				qNote.getIsCurrentlyDue()
+			) {
+				this.selectionsOfPickableNotes.dueChecks.push(note);
+			} else if (
+				qNote.getType() === "habit" &&
+				qNote.getIsCurrentlyDue()
+			) {
+				this.selectionsOfPickableNotes.dueHabits.push(note);
+			} else if (
+				qNote.getType() === "todo" &&
+				qNote.getIsCurrentlyDue()
+			) {
+				this.selectionsOfPickableNotes.dueTodos.push(note);
+			} else if (qNote.getType() === "learn-started") {
+				// this is an array of one, containing only the note with the lowest predicted recall
+				// we have this as [] so it's consistent with the other selections
+				// exclude notes with a recall so high that rep is useless rn
+				const predictedRecall = qNote.getPredictedRecall();
+				if (predictedRecall < this.settings.desiredRecallThreshold) {
+					this.reasonablyRepeatableLearnNotesCounter += 1;
+					if (qNote.getPredictedRecall() < lowestPredictedRecall) {
+						lowestPredictedRecall = predictedRecall;
+						this.selectionsOfPickableNotes.startedLearnNoteMostCloseToForgetting =
+							[note];
+					}
+				}
+			} else if (qNote.getType() === "learn") {
+				this.selectionsOfPickableNotes.newLearns.push(note);
+			} else if (qNote.getIsCurrentlyDue()) {
+				this.selectionsOfPickableNotes.dueMisc.push(note);
 			}
 		});
 		console.info(
@@ -183,14 +157,14 @@ export default class TheQueueModal extends Modal {
 	}
 
 	handleScoring(note: TFile, answer: string = "") {
-		// get type from q-type frontmatter property
+
 		const metadata = this.app.metadataCache.getFileCache(note);
-		const frontmatter = metadata!.frontmatter!;
-		const noteType = frontmatter["q-type"];
-		let interval =
-			frontmatter["q-interval"] || frontmatter["interval"] || 1;
-		if (!frontmatter["q-data"]) {
-			frontmatter["q-data"] = {};
+		const frontmatter = metadata?.frontmatter;
+		let qNote: QueueNote;
+		if (!frontmatter) {
+			qNote = new QueueNote();
+		} else {
+			qNote = QueueNote.createFromMetadata(frontmatter);
 		}
 
 		// save to localstorage q-log
@@ -203,7 +177,7 @@ export default class TheQueueModal extends Modal {
 		});
 		localStorage.setItem(`q-log-${app.appId}`, JSON.stringify(qLog));
 
-		if (noteType === "learn") {
+		if (qNote.getType() === "learn") {
 			// check if q-data exists and is a dict, otherwise create it
 
 			// assume stuff will be remembered for different kinds of interval, depending on user's confidence
@@ -218,154 +192,96 @@ export default class TheQueueModal extends Modal {
 			} else if (answer === "easy") {
 				model = ebisu.defaultModel(24);
 			}
-			frontmatter["q-data"]["model"] = model;
-			frontmatter["q-data"]["last-seen"] = new Date().toISOString();
-			frontmatter["q-type"] = "learn-started";
+			qNote.setModel(model);
+			qNote.setLastSeen(new Date().toISOString());
+			qNote.startLearning();
 		}
 
 		// learning cards that we have seen before
 		// TODO: make stuff like this robust against metadata being broken/missing (and think about what to even do)
-		if (noteType === "learn-started") {
-			const lastSeen = frontmatter["q-data"]["last-seen"];
-			const model = frontmatter["q-data"]["model"];
+		if (qNote.getType() === "learn-started") {
 
 			// score: wrong = 0, correct = 1, easy = 2
 			const score = answer === "wrong" ? 0 : answer === "correct" ? 1 : 2;
 			// handle leech counting
 			if (score === 0) {
-				// if score is 0, increment leech count
-				if (frontmatter["q-data"]["leech-count"]) {
-					frontmatter["q-data"]["leech-count"] += 1;
-				} else {
-					frontmatter["q-data"]["leech-count"] = 1;
-				}
+				qNote.incrementLeechCount(1);
 			} else {
-				// if score is not 0, reset leech count
-				frontmatter["q-data"]["leech-count"] = 0;
+				qNote.resetLeechCount();
 			}
-			// elapsed in h
-			const elapsed =
-				(new Date().getTime() - new Date(lastSeen).getTime()) /
-				1000 /
-				60 /
-				60;
-			const newModel = ebisu.updateRecall(
-				model,
-				score,
-				2,
-				Math.max(elapsed, 0.01)
-			);
-			frontmatter["q-data"]["model"] = newModel;
-			frontmatter["q-data"]["last-seen"] = new Date().toISOString();
+			qNote.setNewModel(score);
 		}
 
 		// note: "book" means *unstarted* book
-		if (noteType === "book") {
+		if (qNote.getType() === "book") {
 			// if later, set in 10m
 			if (answer === "later") {
-				frontmatter["q-data"]["dueat"] = new Date(
-					new Date().getTime() + 10 * 60 * 1000
-				).toISOString();
+				qNote.setDueLater("a bit later");
 			} else {
-				frontmatter["q-data"]["dueat"] = new Date(
-					new Date().getTime() + 16 * 60 * 60 * 1000
-				).toISOString();
+				qNote.setDueLater("day later");
 			}
 			// only convert to started if answer is not "not-today" or "later"
 			if (answer !== "not-today" && answer !== "later") {
-				frontmatter["q-type"] = "book-started";
+				qNote.startReadingBook();
 			}
 		}
 
-		if (noteType === "book-started") {
+
+
+		if (qNote.getType() === "book-started") {
 			if (answer === "later") {
-				frontmatter["q-data"]["dueat"] = new Date(
-					new Date().getTime() + 10 * 60 * 1000
-				).toISOString();
-				// add 0.5 to leech count
-				if (frontmatter["q-data"]["leech-count"]) {
-					frontmatter["q-data"]["leech-count"] += 0.5;
-				} else {
-					frontmatter["q-data"]["leech-count"] = 0.5;
-				}
+				qNote.setDueLater("a bit later");
+				qNote.incrementLeechCount(0.5);
+			} else if (answer === "not-today") {
+				qNote.setDueLater("day later");
+				qNote.incrementLeechCount(1);
+			} else if (answer === "done") {
+				qNote.setDueLater("day later");
+				qNote.resetLeechCount();
+			} else if (answer === "finished") {
+				qNote.setDueLater("day later");
+				qNote.resetLeechCount();
+				qNote.finishReadingBook();
+			}
+
+		}
+
+
+		// article works essentially the same as book-started
+		if (qNote.getType() === "article") {
+			if (answer === "later") {
+				qNote.setDueLater("a bit later");
 			} else {
-				// if answer is Not Today, add 1 to leech count, else reset to 0
-				if (answer === "not-today") {
-					if (frontmatter["q-data"]["leech-count"]) {
-						frontmatter["q-data"]["leech-count"] += 1;
-					} else {
-						frontmatter["q-data"]["leech-count"] = 1;
-					}
-				} else {
-					frontmatter["q-data"]["leech-count"] = 0;
-				}
-				frontmatter["q-data"]["dueat"] = new Date(
-					new Date().getTime() + 16 * 60 * 60 * 1000
-				).toISOString();
+				qNote.setDueLater("day later");
 			}
 			// check if finished
 			if (answer === "finished") {
-				frontmatter["q-type"] = "misc";
+				qNote.finishReadingArticle();
 			}
 		}
 
-		// article works the same as book-started
-		if (noteType === "article") {
-			if (answer === "later") {
-				frontmatter["q-data"]["dueat"] = new Date(
-					new Date().getTime() + 10 * 60 * 1000
-				).toISOString();
-			} else {
-				frontmatter["q-data"]["dueat"] = new Date(
-					new Date().getTime() + 16 * 60 * 60 * 1000
-				).toISOString();
-			}
-			// check if finished
-			if (answer === "finished") {
-				frontmatter["q-type"] = "misc";
-			}
-		}
+
 
 		if (
-			noteType === "check" ||
-			noteType === "habit" ||
-			noteType === "todo"
+			qNote.getType() === "check" ||
+			qNote.getType() === "habit" ||
+			qNote.getType() === "todo"
 		) {
 			if (answer === "later") {
-				frontmatter["q-data"]["dueat"] = new Date(
-					new Date().getTime() + 10 * 60 * 1000
-				).toISOString();
-				// add 0.5 to leech count
-				if (frontmatter["q-data"]["leech-count"]) {
-					frontmatter["q-data"]["leech-count"] += 0.5;
-				} else {
-					frontmatter["q-data"]["leech-count"] = 0.5;
-				}
+				qNote.setDueLater("a bit later");
+				qNote.incrementLeechCount(0.5);
 			} else if (answer === "not-today") {
-				frontmatter["q-data"]["dueat"] = new Date(
-					new Date().getTime() + 16 * 60 * 60 * 1000
-				).toISOString();
-				// add 1 to leech count
-				if (frontmatter["q-data"]["leech-count"]) {
-					frontmatter["q-data"]["leech-count"] += 1;
-				} else {
-					frontmatter["q-data"]["leech-count"] = 1;
-				}
+				qNote.setDueLater("day later");
+				qNote.incrementLeechCount(1);
 			} else {
-				// calculate 24h a day, except for the last day, which should only last 16h
-				frontmatter["q-data"]["dueat"] = new Date(
-					new Date().getTime() +
-						24 * 60 * 60 * 1000 * (interval - 1) +
-						16 * 60 * 60 * 1000
-				).toISOString();
-				// reset leech count
-				frontmatter["q-data"]["leech-count"] = 0;
+				qNote.setDueLater("day later");
+				qNote.resetLeechCount();
 			}
 		}
 
 		// if it's habit, or todo, and the answer is not-today, prompt excuse on the note
 		if (
-			(noteType === "habit" || noteType === "todo") &&
+			(qNote.getType() === "habit" || qNote.getType() === "todo") &&
 			answer === "not-today"
 		) {
 			// at bottom of the note, add following text
@@ -380,34 +296,38 @@ export default class TheQueueModal extends Modal {
 		}
 
 		// just handle the special case of todo being completed (due is handled in the condition before)
-		if (noteType === "todo") {
+		if (qNote.getType() === "todo") {
 			if (answer === "completed") {
 				// delete note
 				this.app.vault.trash(note, true);
 			}
 		}
 
-		if (noteType === "misc" || noteType === "" || !noteType) {
-			// if show less, double interval, max 365
-			// if show more, halve interval, min 1
+		if (qNote.getType() === "misc") {
 			if (answer === "show-less") {
-				interval = Math.min(interval * 2, 365);
+				qNote.decrementPriority(1);
+			
 			} else if (answer === "show-more") {
-				interval = Math.max(interval / 2, 1);
+				qNote.incrementPriority(1);
 			}
-			frontmatter["q-data"]["dueat"] = new Date(
-				new Date().getTime() +
-					24 * 60 * 60 * 1000 * (interval - 1) +
-					16 * 60 * 60 * 1000
-			).toISOString();
+			qNote.setDueLater("day later");
 		}
 
 		// write metadata to file
-		const newFrontMatter = frontmatter;
+		
 		app.fileManager.processFrontMatter(note, (frontmatter) => {
-			frontmatter["q-data"] = newFrontMatter["q-data"];
-			frontmatter["q-type"] = newFrontMatter["q-type"];
-			frontmatter["q-interval"] = interval;
+			if (qNote.getActuallyStoredType()) {
+				frontmatter["q-type"] = qNote.getActuallyStoredType();
+			}
+			if (qNote.getActuallyStoredInterval()) {
+				frontmatter["q-interval"] = qNote.getActuallyStoredInterval();
+			}
+			if (qNote.getActuallyStoredPriority()) {
+				frontmatter["q-priority"] = qNote.getActuallyStoredPriority();
+			}
+			if (qNote.getData()) {
+				frontmatter["q-data"] = qNote.getData();
+			}
 		});
 
 		this.loadNewNote();
@@ -533,7 +453,7 @@ export default class TheQueueModal extends Modal {
 		modalEl.addClass("queue-modal");
 
 		this.currentQueueNote = randomNote!;
-		const noteType =
+		const qNote.getType() =
 			this.app.metadataCache!.getFileCache(randomNote)!.frontmatter![
 				"q-type"
 			];
@@ -596,7 +516,7 @@ export default class TheQueueModal extends Modal {
 				renderedContent = splitNote.slice(2).join("---");
 			}
 
-			if (noteType === "learn-started") {
+			if (qNote.getType() === "learn-started") {
 				// TODO: what if we have badly formatted learn card with no (or multiple separators)
 				const splitNote = renderedContent.split("---");
 				renderedContent = splitNote[0];
@@ -628,7 +548,7 @@ export default class TheQueueModal extends Modal {
 				});
 			}
 
-			if (noteType === "learn") {
+			if (qNote.getType() === "learn") {
 				appendScoreButton(randomNote, buttonRow, "Seems Hard", "hard");
 				appendScoreButton(
 					randomNote,
@@ -642,7 +562,7 @@ export default class TheQueueModal extends Modal {
 					"Easy, Got It",
 					"easy"
 				);
-			} else if (noteType === "learn-started") {
+			} else if (qNote.getType() === "learn-started") {
 				buttonRow
 					.createEl("button", {
 						text: "Reveal",
@@ -679,7 +599,7 @@ export default class TheQueueModal extends Modal {
 							"easy"
 						);
 					});
-			} else if (noteType === "habit") {
+			} else if (qNote.getType() === "habit") {
 				// not today, do later, done
 				buttonRow
 					.createEl("button", {
@@ -706,7 +626,7 @@ export default class TheQueueModal extends Modal {
 					});
 
 				// todo
-			} else if (noteType === "todo") {
+			} else if (qNote.getType() === "todo") {
 				// delete, later, not today, done
 				buttonRow
 					.createEl("button", {
@@ -741,7 +661,7 @@ export default class TheQueueModal extends Modal {
 					});
 			}
 			// check:
-			else if (noteType === "check") {
+			else if (qNote.getType() === "check") {
 				// no, kind of, yes
 				buttonRow
 					.createEl("button", {
@@ -769,9 +689,9 @@ export default class TheQueueModal extends Modal {
 			}
 			// book or article
 			else if (
-				noteType === "book" ||
-				noteType === "book-started" ||
-				noteType === "article"
+				qNote.getType() === "book" ||
+				qNote.getType() === "book-started" ||
+				qNote.getType() === "article"
 			) {
 				buttonRow.createEl("span", {
 					text: "Read at a bit:",
