@@ -171,7 +171,10 @@ export default class TheQueueModal extends Modal {
 						// we have this as [] so it's consistent with the other selections
 						// exclude notes with a recall so high that rep is useless rn
 						console.info(note.name, predictedRecall);
-						if (predictedRecall < this.settings.desiredRecallThreshold) {
+						if (
+							predictedRecall <
+							this.settings.desiredRecallThreshold
+						) {
 							this.reasonablyRepeatableLearnNotesCounter += 1;
 							if (predictedRecall < lowestPredictedRecall) {
 								lowestPredictedRecall = predictedRecall;
@@ -251,6 +254,18 @@ export default class TheQueueModal extends Modal {
 
 			// score: wrong = 0, correct = 1, easy = 2
 			const score = answer === "wrong" ? 0 : answer === "correct" ? 1 : 2;
+			// handle leech counting
+			if (score === 0) {
+				// if score is 0, increment leech count
+				if (frontmatter["q-data"]["leech-count"]) {
+					frontmatter["q-data"]["leech-count"] += 1;
+				} else {
+					frontmatter["q-data"]["leech-count"] = 1;
+				}
+			} else {
+				// if score is not 0, reset leech count
+				frontmatter["q-data"]["leech-count"] = 0;
+			}
 			// elapsed in h
 			const elapsed =
 				(new Date().getTime() - new Date(lastSeen).getTime()) /
@@ -290,7 +305,23 @@ export default class TheQueueModal extends Modal {
 				frontmatter["q-data"]["dueat"] = new Date(
 					new Date().getTime() + 10 * 60 * 1000
 				).toISOString();
+				// add 0.5 to leech count
+				if (frontmatter["q-data"]["leech-count"]) {
+					frontmatter["q-data"]["leech-count"] += 0.5;
+				} else {
+					frontmatter["q-data"]["leech-count"] = 0.5;
+				}
 			} else {
+				// if answer is Not Today, add 1 to leech count, else reset to 0
+				if (answer === "not-today") {
+					if (frontmatter["q-data"]["leech-count"]) {
+						frontmatter["q-data"]["leech-count"] += 1;
+					} else {
+						frontmatter["q-data"]["leech-count"] = 1;
+					}
+				} else {
+					frontmatter["q-data"]["leech-count"] = 0;
+				}
 				frontmatter["q-data"]["dueat"] = new Date(
 					new Date().getTime() + 16 * 60 * 60 * 1000
 				).toISOString();
@@ -327,10 +358,22 @@ export default class TheQueueModal extends Modal {
 				frontmatter["q-data"]["dueat"] = new Date(
 					new Date().getTime() + 10 * 60 * 1000
 				).toISOString();
+				// add 0.5 to leech count
+				if (frontmatter["q-data"]["leech-count"]) {
+					frontmatter["q-data"]["leech-count"] += 0.5;
+				} else {
+					frontmatter["q-data"]["leech-count"] = 0.5;
+				}
 			} else if (answer === "not-today") {
 				frontmatter["q-data"]["dueat"] = new Date(
 					new Date().getTime() + 16 * 60 * 60 * 1000
 				).toISOString();
+				// add 1 to leech count
+				if (frontmatter["q-data"]["leech-count"]) {
+					frontmatter["q-data"]["leech-count"] += 1;
+				} else {
+					frontmatter["q-data"]["leech-count"] = 1;
+				}
 			} else {
 				// calculate 24h a day, except for the last day, which should only last 16h
 				frontmatter["q-data"]["dueat"] = new Date(
@@ -338,6 +381,8 @@ export default class TheQueueModal extends Modal {
 						24 * 60 * 60 * 1000 * (interval - 1) +
 						16 * 60 * 60 * 1000
 				).toISOString();
+				// reset leech count
+				frontmatter["q-data"]["leech-count"] = 0;
 			}
 		}
 

@@ -10,9 +10,6 @@
 * implement priority
     - started in `utils/priority_sandbox.py` (project with Nate)
 * handle the fact that notes may be dirty in a million trillion ways (validate cards, essentially), and have elegant fallbacks
-* log data somehow (if only for self-analysis)
-    * does not have to be in note metadata, I *can* filedump (or even just localstorage, I do have a browser essentially) 
-    - think I started doing that, no?
 * document how the program works lol
 - implement leech check
     - could use my existing log to kickstart with a little bit of scripting
@@ -38,3 +35,4 @@
     - especially the one that saves a setting that should be accessible anyways
 - add notices
 - optional: pass current keyword filter into QueueFilterModal so that it can be preselected
+- special treatment of new learn cards
