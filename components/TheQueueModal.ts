@@ -226,19 +226,16 @@ export default class TheQueueModal extends Modal {
 		if (noteType === "learn") {
 			// check if q-data exists and is a dict, otherwise create it
 
-			// assume stuff will be remembered for different kinds of interval, depending on score
-			// wrong = 10s, correct = 2h, easy = 1d
+			// assume stuff will be remembered for different kinds of interval, depending on user's confidence
+			// hard = 1m, medium = 2h, easy = 48h
 			// give the time in hours!
 			let model;
 			// use initial scoring and (with guessed initial halflifes)
-			if (answer === "wrong") {
-				// 12 minutes
-				model = ebisu.defaultModel(0.2);
-			} else if (answer === "correct") {
-				// 2h
+			if (answer === "hard") {
+				model = ebisu.defaultModel(1/60);
+			} else if (answer === "medium") {
 				model = ebisu.defaultModel(2);
-			} else {
-				// 1d
+			} else if (answer === "easy") {
 				model = ebisu.defaultModel(24);
 			}
 			frontmatter["q-data"]["model"] = model;
@@ -607,34 +604,63 @@ export default class TheQueueModal extends Modal {
 
 			// MAIN CONTENT
 			const contentEl = modalEl.createDiv("contentEl");
+			const title = randomNote.name.replace(".md", "");
+			let renderedContent = content
+			let initiallyHiddenContent: String;
 
-			const splitNote = content.split("---");
+			// check if first line is ---!!!!!
+			// if so, we have frontmatter that we should treat omit
+			if (content.startsWith("---")) {
+				const splitNote = content.split("---");
+				// rendered content is everything after 2nd index, rejoined
+				renderedContent = splitNote.slice(2).join("---");
+			}
+			
 
-			// if metadata has property frontmatter, treat differently
-			let front = "";
-			let back = "";
-			// check if frontmatter exists, or if content has more than one ---
-			if (metadata?.frontmatter || splitNote.length > 2) {
-				front = splitNote[2];
-				back = splitNote[3];
-			} else {
-				front = splitNote[0];
-				back = splitNote[1];
+			if (noteType === "learn-started") {
+				// TODO: what if we have badly formatted learn card with no (or multiple separators)
+				const splitNote = renderedContent.split("---");
+				renderedContent = splitNote[0];
+				initiallyHiddenContent = splitNote[1];
 			}
 			// add title of note before front, with a # to make it a title
-			const title = randomNote.name.replace(".md", "");
-			front = `# ${title}\n\n${front}`;
+			renderedContent = `# ${title}\n\n` + renderedContent;
 
-			const noteContent = MarkdownPreviewView.renderMarkdown(
-				front,
+			MarkdownPreviewView.renderMarkdown(
+				renderedContent,
 				contentEl,
 				randomNote.path,
 				Component
 			);
 
 			const buttonRow = contentEl.createDiv("button-row");
-			// check if the property tag: "#learn" exists in nested object tags
-			if (noteType === "learn" || noteType === "learn-started") {
+			if (noteType === "learn") {
+				// 3 buttons
+				// "Seems hard": hard, "I'll try to remember": medium, "Easy, got it": easy
+				buttonRow
+					.createEl("button", {
+						text: "Seems Hard",
+					})
+					.addEventListener("click", () => {
+						this.handleScoring(randomNote, "hard");
+					});
+
+				buttonRow
+					.createEl("button", {
+						text: "I'll Try to Remember",
+					})
+					.addEventListener("click", () => {
+						this.handleScoring(randomNote, "medium");
+					});
+
+				buttonRow
+					.createEl("button", {
+						text: "Easy, Got It",
+					})
+					.addEventListener("click", () => {
+						this.handleScoring(randomNote, "easy");
+					});
+			} else if (noteType === "learn-started") {
 				buttonRow
 					.createEl("button", {
 						text: "Reveal",
@@ -642,7 +668,7 @@ export default class TheQueueModal extends Modal {
 					.addEventListener("click", () => {
 						contentEl.empty();
 						MarkdownPreviewView.renderMarkdown(
-							front + "\n---\n" + back,
+							renderedContent + "\n---\n" + initiallyHiddenContent, 
 							contentEl,
 							randomNote.path,
 							this.component

@@ -36,3 +36,4 @@
 - add notices
 - optional: pass current keyword filter into QueueFilterModal so that it can be preselected
 - special treatment of new learn cards
+- fix `Component`-related error that console throws
