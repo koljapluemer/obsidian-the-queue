@@ -157,7 +157,6 @@ export default class TheQueueModal extends Modal {
 	}
 
 	handleScoring(note: TFile, answer: string = "") {
-
 		const metadata = this.app.metadataCache.getFileCache(note);
 		const frontmatter = metadata?.frontmatter;
 		let qNote: QueueNote;
@@ -200,7 +199,6 @@ export default class TheQueueModal extends Modal {
 		// learning cards that we have seen before
 		// TODO: make stuff like this robust against metadata being broken/missing (and think about what to even do)
 		if (qNote.getType() === "learn-started") {
-
 			// score: wrong = 0, correct = 1, easy = 2
 			const score = answer === "wrong" ? 0 : answer === "correct" ? 1 : 2;
 			// handle leech counting
@@ -226,8 +224,6 @@ export default class TheQueueModal extends Modal {
 			}
 		}
 
-
-
 		if (qNote.getType() === "book-started") {
 			if (answer === "later") {
 				qNote.setDueLater("a bit later");
@@ -243,9 +239,7 @@ export default class TheQueueModal extends Modal {
 				qNote.resetLeechCount();
 				qNote.finishReadingBook();
 			}
-
 		}
-
 
 		// article works essentially the same as book-started
 		if (qNote.getType() === "article") {
@@ -259,8 +253,6 @@ export default class TheQueueModal extends Modal {
 				qNote.finishReadingArticle();
 			}
 		}
-
-
 
 		if (
 			qNote.getType() === "check" ||
@@ -306,7 +298,6 @@ export default class TheQueueModal extends Modal {
 		if (qNote.getType() === "misc") {
 			if (answer === "show-less") {
 				qNote.decrementPriority(1);
-			
 			} else if (answer === "show-more") {
 				qNote.incrementPriority(1);
 			}
@@ -314,7 +305,7 @@ export default class TheQueueModal extends Modal {
 		}
 
 		// write metadata to file
-		
+
 		app.fileManager.processFrontMatter(note, (frontmatter) => {
 			if (qNote.getActuallyStoredType()) {
 				frontmatter["q-type"] = qNote.getActuallyStoredType();
@@ -335,7 +326,7 @@ export default class TheQueueModal extends Modal {
 
 	loadNewNote(lastOpenendNoteName: string = "") {
 		this.loadNotes();
-		let randomNote: TFile;
+		let randomNote: TFile | undefined;
 
 		if (lastOpenendNoteName) {
 			// in this case, load the same note (not actually random)
@@ -435,14 +426,14 @@ export default class TheQueueModal extends Modal {
 									.length
 						)
 					];
-			} else {
-				// pop up a notice that there are no more notes to review (close modal)
-				new Notice("No more notes to review!");
-				this.close();
-				return;
 			}
 		}
 
+		if (!randomNote) {
+			new Notice("No more notes to review!");
+			this.close();
+			return;
+		}
 		// RENDER FUNCTION
 
 		// save note name to local storage
@@ -452,18 +443,23 @@ export default class TheQueueModal extends Modal {
 		modalEl.empty();
 		modalEl.addClass("queue-modal");
 
-		this.currentQueueNote = randomNote!;
-		const qNote.getType() =
-			this.app.metadataCache!.getFileCache(randomNote)!.frontmatter![
-				"q-type"
-			];
+		this.currentQueueNote = randomNote;
+
 		// load the content of the random note
-		this.app.vault.read(randomNote).then((content) => {
+		this.app.vault.read(this.currentQueueNote).then((content) => {
 			if (!content) {
 				return;
 			}
-			const metadata = this.app.metadataCache.getFileCache(randomNote);
-
+			const metadata = this.app.metadataCache.getFileCache(
+				this.currentQueueNote
+			);
+			const frontmatter = metadata?.frontmatter;
+			let qNote: QueueNote;
+			if (!frontmatter) {
+				qNote = new QueueNote();
+			} else {
+				qNote = QueueNote.createFromMetadata(frontmatter);
+			}
 			// HEADER
 			const headerEl = modalEl.createDiv("headerEl");
 
@@ -478,7 +474,11 @@ export default class TheQueueModal extends Modal {
 			const jumpToNoteButton = headerEl.createEl("button", {});
 			setIcon(jumpToNoteButton, "pencil");
 			jumpToNoteButton.addEventListener("click", () => {
-				this.app.workspace.openLinkText(randomNote.path, "", true);
+				this.app.workspace.openLinkText(
+					this.currentQueueNote.path,
+					"",
+					true
+				);
 				this.close();
 			});
 			// button to open queue settings dialog (add filter to button, but override if its default)
@@ -504,7 +504,7 @@ export default class TheQueueModal extends Modal {
 
 			// MAIN CONTENT
 			const contentEl = modalEl.createDiv("contentEl");
-			const title = randomNote.name.replace(".md", "");
+			const title = this.currentQueueNote.name.replace(".md", "");
 			let renderedContent = content;
 			let initiallyHiddenContent: String;
 
@@ -528,40 +528,38 @@ export default class TheQueueModal extends Modal {
 			MarkdownPreviewView.renderMarkdown(
 				renderedContent,
 				contentEl,
-				randomNote.path,
+				this.currentQueueNote.path,
 				Component
 			);
 
 			const buttonRow = contentEl.createDiv("button-row");
 
 			function appendScoreButton(
-				randomNote: TFile,
-				parent,
-				label,
-				returnValue
+				context: any = this,
+				parent: HTMLElement,
+				label: string,
+				returnValue: string
 			) {
 				const button = parent.createEl("button", {
 					text: label,
 				});
 				button.addEventListener("click", () => {
-					handleScoring(randomNote, returnValue);
+					context.handleScoring(
+						context.currentQueueNote,
+						returnValue
+					);
 				});
 			}
 
 			if (qNote.getType() === "learn") {
-				appendScoreButton(randomNote, buttonRow, "Seems Hard", "hard");
+				appendScoreButton(this, buttonRow, "Seems Hard", "hard");
 				appendScoreButton(
-					randomNote,
+					this,
 					buttonRow,
 					"I'll Try to Remember",
 					"medium"
 				);
-				appendScoreButton(
-					randomNote,
-					buttonRow,
-					"Easy, Got It",
-					"easy"
-				);
+				appendScoreButton(this, buttonRow, "Easy, Got It", "easy");
 			} else if (qNote.getType() === "learn-started") {
 				buttonRow
 					.createEl("button", {
@@ -581,19 +579,19 @@ export default class TheQueueModal extends Modal {
 							contentEl.createDiv("button-row");
 
 						appendScoreButton(
-							randomNote,
+							this,
 							secondButtonRow,
 							"Wrong",
 							"wrong"
 						);
 						appendScoreButton(
-							randomNote,
+							this,
 							secondButtonRow,
 							"Correct",
 							"correct"
 						);
 						appendScoreButton(
-							randomNote,
+							this,
 							secondButtonRow,
 							"Easy",
 							"easy"
@@ -601,91 +599,21 @@ export default class TheQueueModal extends Modal {
 					});
 			} else if (qNote.getType() === "habit") {
 				// not today, do later, done
-				buttonRow
-					.createEl("button", {
-						text: "Not Today",
-					})
-					.addEventListener("click", () => {
-						this.handleScoring(randomNote, "not-today");
-					});
-
-				buttonRow
-					.createEl("button", {
-						text: "Later",
-					})
-					.addEventListener("click", () => {
-						this.handleScoring(randomNote, "later");
-					});
-
-				buttonRow
-					.createEl("button", {
-						text: "Done",
-					})
-					.addEventListener("click", () => {
-						this.handleScoring(randomNote, "done");
-					});
-
+				appendScoreButton(this, buttonRow, "Not Today", "not-today");
+				appendScoreButton(this, buttonRow, "Do Later", "later");
+				appendScoreButton(this, buttonRow, "Done", "done");
 				// todo
 			} else if (qNote.getType() === "todo") {
-				// delete, later, not today, done
-				buttonRow
-					.createEl("button", {
-						text: "Delete",
-					})
-					.addEventListener("click", () => {
-						this.handleScoring(randomNote, "delete");
-					});
-
-				buttonRow
-					.createEl("button", {
-						text: "Not Today",
-					})
-					.addEventListener("click", () => {
-						this.handleScoring(randomNote, "not-today");
-					});
-
-				buttonRow
-					.createEl("button", {
-						text: "Later",
-					})
-					.addEventListener("click", () => {
-						this.handleScoring(randomNote, "later");
-					});
-
-				buttonRow
-					.createEl("button", {
-						text: "Completed",
-					})
-					.addEventListener("click", () => {
-						this.handleScoring(randomNote, "completed");
-					});
+				appendScoreButton(this, buttonRow, "Delete", "delete");
+				appendScoreButton(this, buttonRow, "Not Today", "not-today");
+				appendScoreButton(this, buttonRow, "Later", "later");
+				appendScoreButton(this, buttonRow, "Completed", "completed");
 			}
 			// check:
 			else if (qNote.getType() === "check") {
-				// no, kind of, yes
-				buttonRow
-					.createEl("button", {
-						text: "No",
-					})
-					.addEventListener("click", () => {
-						this.handleScoring(randomNote, "no");
-					});
-
-				buttonRow
-					.createEl("button", {
-						text: "Kind of",
-					})
-					.addEventListener("click", () => {
-						this.handleScoring(randomNote, "kind-of");
-					});
-
-				buttonRow
-					.createEl("button", {
-						text: "Yes",
-					})
-					.addEventListener("click", () => {
-						this.handleScoring(randomNote, "yes");
-					});
+				appendScoreButton(this, buttonRow, "No", "no");
+				appendScoreButton(this, buttonRow, "Kind of", "kind-of");
+				appendScoreButton(this, buttonRow, "Yes", "yes");
 			}
 			// book or article
 			else if (
@@ -696,61 +624,24 @@ export default class TheQueueModal extends Modal {
 				buttonRow.createEl("span", {
 					text: "Read at a bit:",
 				});
-				// not today, later, done, finished
-				buttonRow
-					.createEl("button", {
-						text: "Not Today",
-					})
-					.addEventListener("click", () => {
-						this.handleScoring(randomNote, "not-today");
-					});
-
-				buttonRow
-					.createEl("button", {
-						text: "Later",
-					})
-					.addEventListener("click", () => {
-						this.handleScoring(randomNote, "later");
-					});
-
-				buttonRow
-					.createEl("button", {
-						text: "Done",
-					})
-					.addEventListener("click", () => {
-						this.handleScoring(randomNote, "done");
-					});
-
-				buttonRow
-					.createEl("button", {
-						text: "Finished",
-					})
-					.addEventListener("click", () => {
-						this.handleScoring(randomNote, "finished");
-					});
+				appendScoreButton(this, buttonRow, "Not Today", "not-today");
+				appendScoreButton(this, buttonRow, "Later", "later");
+				appendScoreButton(this, buttonRow, "Done", "done");
+				appendScoreButton(this, buttonRow, "Finished", "finished");
 			} else {
-				buttonRow
-					.createEl("button", {
-						text: "Show Less Often",
-					})
-					.addEventListener("click", () => {
-						this.handleScoring(randomNote, "show-less");
-					});
-				buttonRow
-					.createEl("button", {
-						text: "Ok, Cool",
-					})
-					.addEventListener("click", () => {
-						this.handleScoring(randomNote, "show-next");
-					});
-
-				buttonRow
-					.createEl("button", {
-						text: "Show More Often",
-					})
-					.addEventListener("click", () => {
-						this.handleScoring(randomNote, "show-more");
-					});
+				appendScoreButton(
+					this,
+					buttonRow,
+					"Show Less Often",
+					"show-less"
+				);
+				appendScoreButton(this, buttonRow, "Ok, Cool", "show-next");
+				appendScoreButton(
+					this,
+					buttonRow,
+					"Show More Often",
+					"show-more"
+				);
 			}
 		});
 	}
