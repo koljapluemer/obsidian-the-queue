@@ -2,8 +2,8 @@ import {
 	Plugin,
 } from "obsidian";
 
-import QueueSettingsTab from "./components/QueueSettingsTab";
-import TheQueueModal from "./components/TheQueueModal";
+import QueueSettingsTab from "./components/elements/QueueSettingsTab";
+import TheQueueModal from "./components/elements/TheQueueModal";
 
 
 interface TheQueueSettings {

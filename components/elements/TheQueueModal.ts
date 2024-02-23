@@ -11,6 +11,7 @@ import {
 import * as ebisu from "ebisu-js";
 
 import QueueFilterModal from "./QueueFilterModal";
+import QueueNote from "../classes/QueueNote";
 import { Settings } from "http2";
 
 export default class TheQueueModal extends Modal {
@@ -74,24 +75,6 @@ export default class TheQueueModal extends Modal {
 			}
 			return willBeIncluded;
 		});
-		// log how often values for the q-type frontmatter property occur in the notes
-		let qTypes: any = {};
-		this.markdownFiles.forEach((note) => {
-			if (note.extension !== "md") {
-				return;
-			}
-			const metadata = this.app.metadataCache.getFileCache(note);
-			if (metadata?.frontmatter) {
-				const qType = metadata.frontmatter["q-type"];
-				if (qType) {
-					if (qTypes[qType]) {
-						qTypes[qType] += 1;
-					} else {
-						qTypes[qType] = 1;
-					}
-				}
-			}
-		});
 
 		let lowestPredictedRecall = 1;
 		this.reasonablyRepeatableLearnNotesCounter = 0;
@@ -104,36 +87,48 @@ export default class TheQueueModal extends Modal {
 			// series of conditionals to fit into one of the above categories
 			// type can be checked by q-type
 			const metadata = this.app.metadataCache.getFileCache(note);
-			if (metadata?.frontmatter) {
-				const frontmatter = metadata.frontmatter;
-				const qType = frontmatter["q-type"];
+			const frontmatter = metadata?.frontmatter;
+			if (!frontmatter) {
+				const qNote = new QueueNote();
+			} else {
+				const qType = metadata?.frontmatter?.["q-type"] ?? null;
+				const qTopic = metadata?.frontmatter?.["q-topic"] ?? null;
+				const qKeywords = metadata?.frontmatter?.["q-keywords"] ?? null;
+				const qPriority = metadata?.frontmatter?.["q-priority"] ?? null;
+				const qInterval = metadata?.frontmatter?.["q-interval"] ?? null;
+
+				const qData = metadata?.frontmatter?.["q-data"];
+				const model = qData?.model ?? null;
+				const lastSeen = qData?.["last-seen"] ?? null;
+				const leechCount = qData?.["leech-count"] ?? null;
+
+				const qNote = new QueueNote(
+					qType,
+					qTopic,
+					qKeywords,
+					qPriority,
+					qInterval,
+					{ model, lastSeen, leechCount }
+				);
+
 				// exclude q-type: exclude
-				if (qType === "exclude") {
+				if (qNote.getShouldBeExcluded()) {
 					return;
 				}
 				// if keywordFilter is not "All Notes", check if note has that keyword
 				if (this.keywordFilter !== "All Notes") {
-					if (!frontmatter["q-keywords"]) {
-						return;
-					} else if (
-						!frontmatter["q-keywords"].includes(this.keywordFilter)
-					) {
+					if (!qNote.getKeywords().includes(this.keywordFilter)) {
 						return;
 					}
 				}
-				// whether due can be checked by q-data.dueat (format is UNIX timestamp)
-				// dueat property may not exist, check for it
-				let noteIsCurrentlyDue = true;
-				if (frontmatter["q-data"]?.hasOwnProperty("dueat")) {
-					// dueat format is YYYY-MM-DDTHH:MM:SS, make sure to compare correctly with current time
-					const dueAt = frontmatter["q-data"]["dueat"];
-					const currentTime = new Date().toISOString();
-					noteIsCurrentlyDue = dueAt < currentTime;
-				}
-				if (qType === "article" && noteIsCurrentlyDue) {
+
+				if (
+					qNote.getType() === "article" &&
+					qNote.getIsCurrentlyDue()
+				) {
 					this.selectionsOfPickableNotes.dueArticles.push(note);
-				} else if (qType === "book-started") {
-					if (noteIsCurrentlyDue) {
+				} else if (qNote.getType() === "book-started") {
+					if (qNote.getIsCurrentlyDue()) {
 						this.selectionsOfPickableNotes.dueStartedBooks.push(
 							note
 						);
@@ -141,58 +136,43 @@ export default class TheQueueModal extends Modal {
 					this.selectionsOfPickableNotes.startedBooksEvenIfNotDue.push(
 						note
 					);
-				} else if (qType === "book") {
+				} else if (qNote.getType() === "book") {
 					this.selectionsOfPickableNotes.newBooks.push(note);
-				} else if (qType === "check" && noteIsCurrentlyDue) {
+				} else if (
+					qNote.getType() === "check" &&
+					qNote.getIsCurrentlyDue()
+				) {
 					this.selectionsOfPickableNotes.dueChecks.push(note);
-				} else if (qType === "habit" && noteIsCurrentlyDue) {
+				} else if (
+					qNote.getType() === "habit" &&
+					qNote.getIsCurrentlyDue()
+				) {
 					this.selectionsOfPickableNotes.dueHabits.push(note);
-				} else if (qType === "todo" && noteIsCurrentlyDue) {
+				} else if (
+					qNote.getType() === "todo" &&
+					qNote.getIsCurrentlyDue()
+				) {
 					this.selectionsOfPickableNotes.dueTodos.push(note);
-				} else if (qType === "learn-started") {
-					try {
-						// var predictedRecall = ebisu.predictRecall(model, elapsed, true);
-						const model = frontmatter["q-data"]["model"];
-						const elapsedTime =
-							(new Date().getTime() -
-								new Date(
-									frontmatter["q-data"]["last-seen"]
-								).getTime()) /
-							1000 /
-							60 /
-							60;
-
-						const predictedRecall = ebisu.predictRecall(
-							model,
-							elapsedTime,
-							true
-						);
-						// this is an array of one, containing only the note with the lowest predicted recall
-						// we have this as [] so it's consistent with the other selections
-						// exclude notes with a recall so high that rep is useless rn
-						console.info(note.name, predictedRecall);
+				} else if (qNote.getType() === "learn-started") {
+					// this is an array of one, containing only the note with the lowest predicted recall
+					// we have this as [] so it's consistent with the other selections
+					// exclude notes with a recall so high that rep is useless rn
+					const predictedRecall = qNote.getPredictedRecall();
+					if (
+						predictedRecall < this.settings.desiredRecallThreshold
+					) {
+						this.reasonablyRepeatableLearnNotesCounter += 1;
 						if (
-							predictedRecall <
-							this.settings.desiredRecallThreshold
+							qNote.getPredictedRecall() < lowestPredictedRecall
 						) {
-							this.reasonablyRepeatableLearnNotesCounter += 1;
-							if (predictedRecall < lowestPredictedRecall) {
-								lowestPredictedRecall = predictedRecall;
-								this.selectionsOfPickableNotes.startedLearnNoteMostCloseToForgetting =
-									[note];
-							}
+							lowestPredictedRecall = predictedRecall;
+							this.selectionsOfPickableNotes.startedLearnNoteMostCloseToForgetting =
+								[note];
 						}
-					} catch (error) {
-						console.error(
-							"Error while calculating predicted recall for note \n ",
-							note.name,
-							"\n:\n",
-							error
-						);
 					}
-				} else if (qType === "learn") {
+				} else if (qNote.getType() === "learn") {
 					this.selectionsOfPickableNotes.newLearns.push(note);
-				} else if (noteIsCurrentlyDue) {
+				} else if (qNote.getIsCurrentlyDue()) {
 					this.selectionsOfPickableNotes.dueMisc.push(note);
 				}
 			}
@@ -232,7 +212,7 @@ export default class TheQueueModal extends Modal {
 			let model;
 			// use initial scoring and (with guessed initial halflifes)
 			if (answer === "hard") {
-				model = ebisu.defaultModel(1/60);
+				model = ebisu.defaultModel(1 / 60);
 			} else if (answer === "medium") {
 				model = ebisu.defaultModel(2);
 			} else if (answer === "easy") {
@@ -605,7 +585,7 @@ export default class TheQueueModal extends Modal {
 			// MAIN CONTENT
 			const contentEl = modalEl.createDiv("contentEl");
 			const title = randomNote.name.replace(".md", "");
-			let renderedContent = content
+			let renderedContent = content;
 			let initiallyHiddenContent: String;
 
 			// check if first line is ---!!!!!
@@ -615,7 +595,6 @@ export default class TheQueueModal extends Modal {
 				// rendered content is everything after 2nd index, rejoined
 				renderedContent = splitNote.slice(2).join("---");
 			}
-			
 
 			if (noteType === "learn-started") {
 				// TODO: what if we have badly formatted learn card with no (or multiple separators)
@@ -634,32 +613,35 @@ export default class TheQueueModal extends Modal {
 			);
 
 			const buttonRow = contentEl.createDiv("button-row");
+
+			function appendScoreButton(
+				randomNote: TFile,
+				parent,
+				label,
+				returnValue
+			) {
+				const button = parent.createEl("button", {
+					text: label,
+				});
+				button.addEventListener("click", () => {
+					handleScoring(randomNote, returnValue);
+				});
+			}
+
 			if (noteType === "learn") {
-				// 3 buttons
-				// "Seems hard": hard, "I'll try to remember": medium, "Easy, got it": easy
-				buttonRow
-					.createEl("button", {
-						text: "Seems Hard",
-					})
-					.addEventListener("click", () => {
-						this.handleScoring(randomNote, "hard");
-					});
-
-				buttonRow
-					.createEl("button", {
-						text: "I'll Try to Remember",
-					})
-					.addEventListener("click", () => {
-						this.handleScoring(randomNote, "medium");
-					});
-
-				buttonRow
-					.createEl("button", {
-						text: "Easy, Got It",
-					})
-					.addEventListener("click", () => {
-						this.handleScoring(randomNote, "easy");
-					});
+				appendScoreButton(randomNote, buttonRow, "Seems Hard", "hard");
+				appendScoreButton(
+					randomNote,
+					buttonRow,
+					"I'll Try to Remember",
+					"medium"
+				);
+				appendScoreButton(
+					randomNote,
+					buttonRow,
+					"Easy, Got It",
+					"easy"
+				);
 			} else if (noteType === "learn-started") {
 				buttonRow
 					.createEl("button", {
@@ -668,36 +650,34 @@ export default class TheQueueModal extends Modal {
 					.addEventListener("click", () => {
 						contentEl.empty();
 						MarkdownPreviewView.renderMarkdown(
-							renderedContent + "\n---\n" + initiallyHiddenContent, 
+							renderedContent +
+								"\n---\n" +
+								initiallyHiddenContent,
 							contentEl,
 							randomNote.path,
 							this.component
 						);
-						const buttonRow = contentEl.createDiv("button-row");
+						const secondButtonRow =
+							contentEl.createDiv("button-row");
 
-						buttonRow
-							.createEl("button", {
-								text: "Wrong",
-							})
-							.addEventListener("click", () => {
-								this.handleScoring(randomNote, "wrong");
-							});
-
-						buttonRow
-							.createEl("button", {
-								text: "Correct",
-							})
-							.addEventListener("click", () => {
-								this.handleScoring(randomNote, "correct");
-							});
-
-						buttonRow
-							.createEl("button", {
-								text: "Easy",
-							})
-							.addEventListener("click", () => {
-								this.handleScoring(randomNote, "easy");
-							});
+						appendScoreButton(
+							randomNote,
+							secondButtonRow,
+							"Wrong",
+							"wrong"
+						);
+						appendScoreButton(
+							randomNote,
+							secondButtonRow,
+							"Correct",
+							"correct"
+						);
+						appendScoreButton(
+							randomNote,
+							secondButtonRow,
+							"Easy",
+							"easy"
+						);
 					});
 			} else if (noteType === "habit") {
 				// not today, do later, done

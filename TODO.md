@@ -37,3 +37,5 @@
 - optional: pass current keyword filter into QueueFilterModal so that it can be preselected
 - special treatment of new learn cards
 - fix `Component`-related error that console throws
+- don't set useless properties, like `q-interval` for learn cards
+    - I think we need some better abstractions here, maybe even a class representation for QCards or something
