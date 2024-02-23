@@ -66,7 +66,7 @@ export default class QueueNote {
 
 		const qData = metadata?.frontmatter?.["q-data"];
 		const model = qData?.["model"] ?? null;
-		const dueAt = qData?.["dueat"] ?? new Date().toISOString();
+		const dueAt = qData?.["dueAt"] ?? new Date().toISOString();
 		const lastSeen = qData?.["last-seen"] ?? null;
 		const leechCount = qData?.["leech-count"] ?? null;
 
@@ -224,6 +224,23 @@ export default class QueueNote {
 	getData(): any | null {
 		return this.qData;
 	}
+
+	// getLeechCount(): number | null {
+	// 	return this.qData.leechCount;
+	// }
+
+	// getModel(): any | null {
+	// 	return this.qData.model;
+	// }
+
+	// getLastSeen(): string | null {
+	// 	return this.qData.lastSeen;
+	// }
+
+	// getDueAt(): string {
+	// 	return this.qData.dueAt;
+	// }
+
 
 
 }

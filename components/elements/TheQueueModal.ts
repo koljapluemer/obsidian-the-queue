@@ -317,7 +317,29 @@ export default class TheQueueModal extends Modal {
 				frontmatter["q-priority"] = qNote.getActuallyStoredPriority();
 			}
 			if (qNote.getData()) {
-				frontmatter["q-data"] = qNote.getData();
+				function createEmptyQDataIfNeeded() {
+					if (!frontmatter["q-data"]) {
+						frontmatter["q-data"] = {};
+					}
+				}
+				// nested if so we don't paste an empty object on the note
+				// but we still check for every prop whether we actually need it
+				if (qNote.getData().model) {
+					createEmptyQDataIfNeeded();
+					frontmatter["q-data"]["model"] = qNote.getData().model;
+				}
+				if (qNote.getData().lastSeen) {
+					createEmptyQDataIfNeeded();
+					frontmatter["q-data"]["lastSeen"] =
+						qNote.getData().lastSeen;
+				}
+				if (qNote.getData().leechCount) {
+					createEmptyQDataIfNeeded();
+					frontmatter["q-data"]["leechCount"] =
+						qNote.getData().leechCount;
+				}
+				createEmptyQDataIfNeeded();
+				frontmatter["q-data"]["dueAt"] = qNote.getData().dueAt;
 			}
 		});
 
