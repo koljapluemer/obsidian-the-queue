@@ -50,6 +50,5 @@
     - I think we need some better abstractions here, maybe even a class representation for QCards or something
 - allow less silly formatted learn cards
 - bug: we get same card again with learn cards (probably some `last-seen` problem)
-- handle intervals less than 1 day
-    - currently, they bring us to the past xD
-    - update: always brings us to the past 
+- make log work again
+- actual prio selection

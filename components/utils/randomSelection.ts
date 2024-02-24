@@ -1,14 +1,4 @@
 import QueueNote from "components/classes/QueueNote";
-import { TFile } from "obsidian";
-
-export function pickRandomNote(notes: Array<TFile>): TFile | null {
-	if (notes.length === 0) {
-		return null;
-	}
-	// for now just return random note
-	const note = notes[Math.floor(Math.random() * notes.length)];
-	return note;
-}
 
 export function pickRandomNoteWithPriorityWeighting(
 	notes: QueueNote[]
@@ -16,7 +6,12 @@ export function pickRandomNoteWithPriorityWeighting(
 	if (notes.length === 0) {
 		return null;
 	}
-	// for now just return random note
-	const note = notes[Math.floor(Math.random() * notes.length)];
-	return note;
+	const sortedNotes = notes.sort((a, b) => b.getPriority() - a.getPriority());
+	const randomValue = Math.random();
+	const pdfValueNormalized =
+		(Math.exp(randomValue) - Math.exp(0)) / (Math.exp(1) - Math.exp(0));
+	const amountOfNotes = sortedNotes.length;
+	const indexToSelect = Math.floor(pdfValueNormalized * amountOfNotes);
+	return sortedNotes[indexToSelect];
 }
+
