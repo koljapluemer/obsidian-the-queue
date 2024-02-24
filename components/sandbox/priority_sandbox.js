@@ -22,7 +22,6 @@ const cards =
             priority: 50000
         }
     ];
-console.log(cards);
 
 function selectRandomCard(cards) {
     // sort reversed priority
@@ -48,7 +47,6 @@ function main() {
         }
     }
     const sortedCardCounts = Object.keys(cardCounts).sort((a, b) => cardCounts[a] - cardCounts[b]);
-    console.log('CARD COUNTS', sortedCardCounts.map(card => `${card}: ${cardCounts[card]}`));
 }
 
 main();

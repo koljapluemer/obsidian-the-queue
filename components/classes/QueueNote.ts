@@ -268,12 +268,10 @@ export default class QueueNote {
 
 	incrementPriority(by: number): void {
 		this.qPriority = this.getPriority() + by;
-		console.info(`Incremented priority to ${this.qPriority}`);
 	}
 
 	decrementPriority(by: number): void {
 		this.qPriority = this.getPriority() - by;
-		console.info(`Decremented priority to ${this.qPriority}`);
 	}
 
 	getPriority(): number {

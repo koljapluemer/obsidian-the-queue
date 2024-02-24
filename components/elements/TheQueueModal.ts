@@ -25,11 +25,13 @@ export default class TheQueueModal extends Modal {
 		this.settings = settings;
 	}
 
+	qNotes: QueueNote[] = [];
 	currentQueueNote: QueueNote | null;
 	keywordFilter: string = "All Notes";
 
 	loadNewNote(lastOpenendNoteName: string | null = null) {
-		console.log("loading new note");
+		let loadingLastNote = false;
+
 		if (lastOpenendNoteName !== null) {
 			// in this case, load the same note we had open before (not actually random)
 			// find note by name
@@ -39,16 +41,19 @@ export default class TheQueueModal extends Modal {
 					return file.name === lastOpenendNoteName;
 				});
 			if (possibleNotes.length > 0) {
+				loadingLastNote = true;
 				this.currentQueueNote = QueueNote.createFromNoteFile(
 					possibleNotes[0]
 				);
 			}
-		} else {
+		}
+
+		if (!loadingLastNote) {
 			// RANDOM CARD PICK
 			// if no note was loaded, pick a random note
 
 			const pickableSelections = getSortedSelectionsOfPickableNotes(
-				this.app.vault.getMarkdownFiles(),
+				this.qNotes,
 				this.keywordFilter,
 				this.currentQueueNote,
 				(this.settings as any).desiredRecallThreshold
@@ -73,7 +78,11 @@ export default class TheQueueModal extends Modal {
 		render(this.currentQueueNote, this);
 	}
 
-	onOpen() {
+	async onOpen() {
+		// loop markdown files, create qNote for each
+		this.qNotes = this.app.vault.getMarkdownFiles().map((file) => {
+			return QueueNote.createFromNoteFile(file);
+		});
 		const lastNote = localStorage.getItem("lastOpenendNoteName") || "";
 		this.loadNewNote(lastNote);
 

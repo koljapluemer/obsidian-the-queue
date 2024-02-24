@@ -108,7 +108,6 @@ export function render(qNote: QueueNote, parentContext: any) {
 			button.addEventListener("click", () => {
 				const adaptedQNote = adaptQueueNoteByScore(qNote, returnValue);
                 adaptedQNote.save();
-                console.log('about to load new note')
                 parentContext.loadNewNote();
 			});
 		}

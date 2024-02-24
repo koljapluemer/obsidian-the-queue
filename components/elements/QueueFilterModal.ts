@@ -56,7 +56,6 @@ export default class QueueFilterModal extends Modal {
 			.addButton((button) =>
 				button.setButtonText("Filter").onClick(() => {
 					this.close();
-                    console.log('about to submit with keywordFilter:', this.keywordFilter);
 					this.onSubmit(this.keywordFilter);
 				})
 			);
