@@ -20,7 +20,7 @@ function slipNoteIntoPrioritySortedArray(notes: QueueNote[], note: QueueNote) {
 export function getSortedSelectionsOfPickableNotes(
 	markdownFiles: TFile[],
 	keywordFilter: string,
-	currentQueueNote: TFile | null,
+	currentQueueNote: QueueNote | null,
 	desiredRecallThreshold: number
 ): QueueNote[][] {
 	let dueArticles: QueueNote[] = [];
@@ -50,7 +50,7 @@ export function getSortedSelectionsOfPickableNotes(
 			return;
 		}
 		// if equal to current one, also skip
-		if (note === currentQueueNote) {
+		if (qNote === currentQueueNote) {
 			return;
 		}
 		// if keywordFilter is not "All Notes", check if note has that keyword
