@@ -1,9 +1,11 @@
 import * as ebisu from "ebisu-js";
+import { TFile } from "obsidian";
 
 type QType =
 	| "learn"
 	| "learn-started"
 	| "todo"
+	| "todo-done"
 	| "habit"
 	| "check"
 	| "book"
@@ -27,8 +29,10 @@ export default class QueueNote {
 	qTopic: string | null;
 	qType: QType | null;
 	qKeywords: Array<string> | null;
+	noteFile: TFile | null;
 
 	constructor(
+		noteFile?: TFile | null,
 		qType?: QType | null,
 		qTopic?: string | null,
 		qKeywords?: Array<string> | null,
@@ -39,7 +43,7 @@ export default class QueueNote {
 			lastSeen: Date | null;
 			dueAt: Date | null;
 			leechCount: number | null;
-		}
+		},
 	) {
 		this.qType = qType || null;
 		this.qTopic = qTopic || null;
@@ -52,50 +56,66 @@ export default class QueueNote {
 			lastSeen: null,
 			leechCount: null,
 		};
+		this.noteFile = noteFile || null;
 	}
 
 	// this handles the construction from dirty, real life data
 	// we pass in just the metadata from an actual note, and here we do all the optional nulls and what not
-	static createFromFrontmatter(frontmatter: any): QueueNote {
-		const qType = frontmatter["q-type"] ?? null;
-		const qTopic = frontmatter["q-topic"] ?? null;
-		const qKeywords = frontmatter["q-keywords"] ?? null;
-		const qPriority = frontmatter["q-priority"] ?? null;
-		const qInterval = frontmatter["q-interval"] ?? null;
+	static createFromNoteFile(note: TFile): QueueNote {
+		const metadata = app.metadataCache.getFileCache(note);
+		const frontmatter = metadata?.frontmatter;
+		let qNote: QueueNote;
+		if (!frontmatter) {
+			return new QueueNote(note);
+		} else {
+			const qType = frontmatter["q-type"] ?? null;
+			const qTopic = frontmatter["q-topic"] ?? null;
+			const qKeywords = frontmatter["q-keywords"] ?? null;
+			const qPriority = frontmatter["q-priority"] ?? null;
+			const qInterval = frontmatter["q-interval"] ?? null;
 
-		const qData = frontmatter["q-data"];
-		const model = qData?.["model"] ?? null;
-		// TODO: remove "dueat" at some point, this is just legacy from my vault (and now Marta's)
-		// (or handle this more elegantly, list of synoyms or something, but that's overkill for now)
-		// if due at not set, set 10s into the past
-		const dueAtString = qData?.["due-at"] || qData?.["dueat"] || null;
-		let dueAt: Date | null = null;
-		// convert from date format 2024-03-01T03:00:00.000Z to actual date
-		if (dueAtString) {
-			dueAt = new Date(dueAtString);
-			if (dueAt.toString() === "Invalid Date") {
-				console.error(`Invalid date string: ${dueAtString}`);
+			const qData = frontmatter["q-data"];
+			const model = qData?.["model"] ?? null;
+			// TODO: remove "dueat" at some point, this is just legacy from my vault (and now Marta's)
+			// (or handle this more elegantly, list of synoyms or something, but that's overkill for now)
+			// if due at not set, set 10s into the past
+			const dueAtString = qData?.["due-at"] || qData?.["dueat"] || null;
+			let dueAt: Date | null = null;
+			// convert from date format 2024-03-01T03:00:00.000Z to actual date
+			if (dueAtString) {
+				dueAt = new Date(dueAtString);
+				if (dueAt.toString() === "Invalid Date") {
+					console.error(`Invalid date string: ${dueAtString}`);
+				}
 			}
-		}
-		const lastSeenString = qData?.["last-seen"] ?? null;
-		let lastSeen: Date | null = null;
-		if (lastSeenString) {
-			lastSeen = new Date(lastSeenString);
-			if (lastSeen.toString() === "Invalid Date") {
-				console.error(`Invalid date string: ${lastSeenString}`);
+			const lastSeenString = qData?.["last-seen"] ?? null;
+			let lastSeen: Date | null = null;
+			if (lastSeenString) {
+				lastSeen = new Date(lastSeenString);
+				if (lastSeen.toString() === "Invalid Date") {
+					console.error(`Invalid date string: ${lastSeenString}`);
+				}
 			}
+
+			const leechCount = qData?.["leech-count"] ?? null;
+
+			// console.info(`Creating note from metadata: \ntype: ${qType}, \ntopic: ${qTopic}, \nkeywords: ${qKeywords}, \npriority: ${qPriority}, \ninterval: ${qInterval}, \nmodel: ${model}, \ndueAt: ${dueAt}, \nlastSeen: ${lastSeen}, \nleechCount: ${leechCount}`);
+
+			return new QueueNote(
+				note,
+				qType,
+				qTopic,
+				qKeywords,
+				qPriority,
+				qInterval,
+				{
+					model,
+					dueAt,
+					lastSeen,
+					leechCount,
+				}
+			);
 		}
-
-		const leechCount = qData?.["leech-count"] ?? null;
-
-		// console.info(`Creating note from metadata: \ntype: ${qType}, \ntopic: ${qTopic}, \nkeywords: ${qKeywords}, \npriority: ${qPriority}, \ninterval: ${qInterval}, \nmodel: ${model}, \ndueAt: ${dueAt}, \nlastSeen: ${lastSeen}, \nleechCount: ${leechCount}`);
-
-		return new QueueNote(qType, qTopic, qKeywords, qPriority, qInterval, {
-			model,
-			dueAt,
-			lastSeen,
-			leechCount,
-		});
 	}
 
 	getType(): QType {
@@ -113,7 +133,7 @@ export default class QueueNote {
 	}
 
 	getShouldBeExcluded(): boolean {
-		return this.qType === "exclude";
+		return this.qType === "exclude" || this.qType === "todo-done";
 	}
 
 	getKeywords(): Array<string> {
@@ -203,6 +223,10 @@ export default class QueueNote {
 		this.qType = "misc";
 	}
 
+	completeTodo(): void {
+		this.qType = "todo-done";
+	}
+
 	incrementLeechCount(by: number): void {
 		this.qData.leechCount = (this.qData.leechCount || 0) + by;
 	}
@@ -269,5 +293,50 @@ export default class QueueNote {
 
 	getTopic(): string | null {
 		return this.qTopic;
+	}
+
+
+	save(): void {
+		if (!this.noteFile) {
+			console.error("No note file to save to");
+			return;
+		}
+		app.fileManager.processFrontMatter(this.noteFile, (frontmatter) => {
+			if (this.getActuallyStoredType() != null) {
+				frontmatter["q-type"] = this.getActuallyStoredType();
+			}
+			if (this.getActuallyStoredInterval() != null) {
+				frontmatter["q-interval"] = this.getActuallyStoredInterval();
+			}
+			if (this.getActuallyStoredPriority() != null) {
+				frontmatter["q-priority"] = this.getActuallyStoredPriority();
+			}
+			if (this.getData() != null) {
+				function createEmptyQDataIfNeeded() {
+					if (!frontmatter["q-data"]) {
+						frontmatter["q-data"] = {};
+					}
+				}
+				// nested if so we don't paste an empty object on the note
+				// but we still check for every prop whether we actually need it
+				if (this.getData().model != null) {
+					createEmptyQDataIfNeeded();
+					frontmatter["q-data"]["model"] = this.getData().model;
+				}
+				if (this.getData().lastSeen != null) {
+					createEmptyQDataIfNeeded();
+					frontmatter["q-data"]["last-seen"] = this.getData().lastSeen;
+				}
+				if (this.getData().leechCount != null) {
+					createEmptyQDataIfNeeded();
+					frontmatter["q-data"]["leech-count"] =
+						this.getData().leechCount;
+				}
+				if (this.getData().dueAt != null) {
+					createEmptyQDataIfNeeded();
+					frontmatter["q-data"]["due-at"] = this.getData().dueAt;
+				}
+			}
+		});
 	}
 }
