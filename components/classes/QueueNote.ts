@@ -227,17 +227,17 @@ export default class QueueNote {
 	}
 
 	incrementPriority(by: number): void {
-		this.qPriority = (this.qPriority || 0) + by;
+		this.qPriority = this.getPriority() + by;
 		console.log(`Incremented priority to ${this.qPriority}`);
 	}
 
 	decrementPriority(by: number): void {
-		this.qPriority = (this.qPriority || 0) - by;
+		this.qPriority = this.getPriority() - by;
 		console.log(`Decremented priority to ${this.qPriority}`);
 	}
 
-	getPriority(): number | null {
-		return this.qPriority;
+	getPriority(): number {
+		return this.qPriority || 1;
 	}
 
 	getActuallyStoredPriority(): number | null {

@@ -291,16 +291,16 @@ export default class TheQueueModal extends Modal {
 		// write metadata to file
 
 		app.fileManager.processFrontMatter(note, (frontmatter) => {
-			if (qNote.getActuallyStoredType()) {
+			if (qNote.getActuallyStoredType() != null) {
 				frontmatter["q-type"] = qNote.getActuallyStoredType();
 			}
-			if (qNote.getActuallyStoredInterval()) {
+			if (qNote.getActuallyStoredInterval() != null) {
 				frontmatter["q-interval"] = qNote.getActuallyStoredInterval();
 			}
-			if (qNote.getActuallyStoredPriority()) {
+			if (qNote.getActuallyStoredPriority() != null) {
 				frontmatter["q-priority"] = qNote.getActuallyStoredPriority();
 			}
-			if (qNote.getData()) {
+			if (qNote.getData() != null) {
 				function createEmptyQDataIfNeeded() {
 					if (!frontmatter["q-data"]) {
 						frontmatter["q-data"] = {};
@@ -308,21 +308,21 @@ export default class TheQueueModal extends Modal {
 				}
 				// nested if so we don't paste an empty object on the note
 				// but we still check for every prop whether we actually need it
-				if (qNote.getData().model) {
+				if (qNote.getData().model != null) {
 					createEmptyQDataIfNeeded();
 					frontmatter["q-data"]["model"] = qNote.getData().model;
 				}
-				if (qNote.getData().lastSeen) {
+				if (qNote.getData().lastSeen != null) {
 					createEmptyQDataIfNeeded();
 					frontmatter["q-data"]["last-seen"] =
 						qNote.getData().lastSeen;
 				}
-				if (qNote.getData().leechCount) {
+				if (qNote.getData().leechCount != null) {
 					createEmptyQDataIfNeeded();
 					frontmatter["q-data"]["leech-count"] =
 						qNote.getData().leechCount;
 				}
-				if (qNote.getData().dueAt) {
+				if (qNote.getData().dueAt != null) {
 					createEmptyQDataIfNeeded();
 					frontmatter["q-data"]["due-at"] = qNote.getData().dueAt;
 				}
