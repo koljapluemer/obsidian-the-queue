@@ -219,10 +219,8 @@ export default class QueueNote {
 		const newDueAt = new Date(currentTime);
 		if (timeDuration === "a bit later") {
 			newDueAt.setMinutes(currentTime.getMinutes() + 10);
-		} else if (timeDuration === "day later") {
-			// in 16 hours
-			newDueAt.setHours(currentTime.getHours() + 16);
-		} else if (timeDuration === "custom") {
+		} else {
+			// handles 'day later' and custom'
 			// if interval is less than 1, convert to actual time and just add
 			if (this.getInterval() < 1) {
 				const minutesToAdd = this.getInterval() * 60 * 24;
@@ -236,8 +234,12 @@ export default class QueueNote {
 				if (newDueAt < currentTime) {
 					newDueAt.setDate(newDueAt.getDate() + 1);
 				}
-				// calculate rest of the days with 24h
-				newDueAt.setDate(newDueAt.getDate() + (this.getInterval() - 1));
+				if (timeDuration === "custom") {
+					// calculate rest of the days with 24h
+					newDueAt.setDate(
+						newDueAt.getDate() + (this.getInterval() - 1)
+					);
+				}
 			}
 		}
 		this.qData.dueAt = newDueAt;
