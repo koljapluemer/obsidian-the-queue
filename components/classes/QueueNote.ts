@@ -29,10 +29,10 @@ export default class QueueNote {
 	qTopic: string | null;
 	qType: QType | null;
 	qKeywords: Array<string> | null;
-	noteFile: TFile | null;
+	noteFile: TFile;
 
 	constructor(
-		noteFile?: TFile | null,
+		noteFile: TFile,
 		qType?: QType | null,
 		qTopic?: string | null,
 		qKeywords?: Array<string> | null,
@@ -56,7 +56,7 @@ export default class QueueNote {
 			lastSeen: null,
 			leechCount: null,
 		};
-		this.noteFile = noteFile || null;
+		this.noteFile = noteFile;
 	}
 
 	// this handles the construction from dirty, real life data
@@ -98,8 +98,6 @@ export default class QueueNote {
 			}
 
 			const leechCount = qData?.["leech-count"] ?? null;
-
-			// console.info(`Creating note from metadata: \ntype: ${qType}, \ntopic: ${qTopic}, \nkeywords: ${qKeywords}, \npriority: ${qPriority}, \ninterval: ${qInterval}, \nmodel: ${model}, \ndueAt: ${dueAt}, \nlastSeen: ${lastSeen}, \nleechCount: ${leechCount}`);
 
 			return new QueueNote(
 				note,
@@ -161,7 +159,6 @@ export default class QueueNote {
 			60 /
 			60;
 
-		// console.log("elapsedTime", elapsedTime);
 		return ebisu.predictRecall(this.qData.model, elapsedTime, true);
 	}
 
@@ -293,6 +290,10 @@ export default class QueueNote {
 
 	getTopic(): string | null {
 		return this.qTopic;
+	}
+
+	getBasename(): string {
+		return this.noteFile.basename;
 	}
 
 

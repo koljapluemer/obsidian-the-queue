@@ -22,29 +22,16 @@ export function getSortedSelectionsOfPickableNotes(
 	keywordFilter: string,
 	currentQueueNote: TFile | null,
 	desiredRecallThreshold: number
-): any {
-	interface Selections {
-		dueArticles: QueueNote[];
-		newBooks: QueueNote[];
-		dueStartedBooks: QueueNote[];
-		dueChecks: QueueNote[];
-		dueHabits: QueueNote[];
-		dueTodos: QueueNote[];
-		newLearns: QueueNote[];
-		startedLearnNoteMostCloseToForgetting: QueueNote[];
-		dueMisc: QueueNote[];
-	}
-	const selections: Selections = {
-		dueArticles: [],
-		newBooks: [],
-		dueStartedBooks: [],
-		dueChecks: [],
-		dueHabits: [],
-		dueTodos: [],
-		newLearns: [],
-		startedLearnNoteMostCloseToForgetting: [],
-		dueMisc: [],
-	};
+): QueueNote[][] {
+	let dueArticles: QueueNote[] = [];
+	let newBooks: QueueNote[] = [];
+	let dueStartedBooks: QueueNote[] = [];
+	let dueChecks: QueueNote[] = [];
+	let dueHabits: QueueNote[] = [];
+	let dueTodos: QueueNote[] = [];
+	let newLearns: QueueNote[] = [];
+	let startedLearnNoteMostCloseToForgetting: QueueNote[] = [];
+	let dueMisc: QueueNote[] = [];
 
 	let counterStartedLearnsBelowThreshold = 0;
 	let counterStartedBooksEvenIfNotDue = 0;
@@ -74,88 +61,77 @@ export function getSortedSelectionsOfPickableNotes(
 		}
 
 		if (qNote.getType() === "article" && qNote.getIsCurrentlyDue()) {
-			selections.dueArticles = slipNoteIntoPrioritySortedArray(
-				selections.dueArticles,
-				qNote
-			);
+			dueArticles = slipNoteIntoPrioritySortedArray(dueArticles, qNote);
 		} else if (qNote.getType() === "book-started") {
 			if (qNote.getIsCurrentlyDue()) {
-				selections.dueStartedBooks = slipNoteIntoPrioritySortedArray(
-					selections.dueStartedBooks,
+				dueStartedBooks = slipNoteIntoPrioritySortedArray(
+					dueStartedBooks,
 					qNote
 				);
 			}
 			counterStartedBooksEvenIfNotDue += 1;
 		} else if (qNote.getType() === "book") {
-			selections.newBooks = slipNoteIntoPrioritySortedArray(
-				selections.newBooks,
-				qNote
-			);
+			newBooks = slipNoteIntoPrioritySortedArray(newBooks, qNote);
 		} else if (qNote.getType() === "check" && qNote.getIsCurrentlyDue()) {
-			selections.dueChecks = slipNoteIntoPrioritySortedArray(
-				selections.dueChecks,
-				qNote
-			);
+			dueChecks = slipNoteIntoPrioritySortedArray(dueChecks, qNote);
 		} else if (qNote.getType() === "habit" && qNote.getIsCurrentlyDue()) {
-			selections.dueHabits = slipNoteIntoPrioritySortedArray(
-				selections.dueHabits,
-				qNote
-			);
+			dueHabits = slipNoteIntoPrioritySortedArray(dueHabits, qNote);
 		} else if (qNote.getType() === "todo" && qNote.getIsCurrentlyDue()) {
-			selections.dueTodos = slipNoteIntoPrioritySortedArray(
-				selections.dueTodos,
-				qNote
-			);
+			dueTodos = slipNoteIntoPrioritySortedArray(dueTodos, qNote);
 		} else if (qNote.getType() === "learn-started") {
 			// this is an array of one, containing only the note with the lowest predicted recall
 			// we have this as [] so it's consistent with the other selections
 			// exclude notes with a recall so high that rep is useless rn
 			const predictedRecall = qNote.getPredictedRecall();
-			console.info(
-				`Predicted recall of ${note.name}: ${predictedRecall}`
-			);
 			if (predictedRecall < desiredRecallThreshold) {
 				counterStartedLearnsBelowThreshold += 1;
 				if (qNote.getPredictedRecall() < lowestPredictedRecall) {
 					lowestPredictedRecall = predictedRecall;
-					selections.startedLearnNoteMostCloseToForgetting =
+					startedLearnNoteMostCloseToForgetting =
 						slipNoteIntoPrioritySortedArray(
-							selections.startedLearnNoteMostCloseToForgetting,
+							startedLearnNoteMostCloseToForgetting,
 							qNote
 						);
 				}
 			}
 		} else if (qNote.getType() === "learn") {
-			selections.newLearns = slipNoteIntoPrioritySortedArray(
-				selections.newLearns,
-				qNote
-			);
+			newLearns = slipNoteIntoPrioritySortedArray(newLearns, qNote);
 		} else if (qNote.getIsCurrentlyDue()) {
-			selections.dueMisc = slipNoteIntoPrioritySortedArray(
-				selections.dueMisc,
-				qNote
-			);
+			dueMisc = slipNoteIntoPrioritySortedArray(dueMisc, qNote);
 		}
 	});
-	console.info(
-		`Nr. of learn cards with predicted recall < ${desiredRecallThreshold}: ${counterStartedLearnsBelowThreshold}`
-	);
 	// if we have more than 10 learn cards below threshold, remove new learn cards
-    // if we have 5 or more started books, also remove new books
+	// if we have 5 or more started books, also remove new books
 	// also, don't include selections that are empty (including key)
-    const returnObj = {};
+	let returnObj: QueueNote[][] = [];
+    if (counterStartedLearnsBelowThreshold < 10 && newLearns.length > 0) {
+        returnObj.push(newLearns);
+    }
+    if (counterStartedBooksEvenIfNotDue < 5 && newBooks.length > 0) {
+        returnObj.push(newBooks);
+    }
+    // rest of the selections are a simple 'do they contain anything' check
+    if (dueArticles.length > 0) {
+        returnObj.push(dueArticles);
+    }
+    if (dueStartedBooks.length > 0) {
+        returnObj.push(dueStartedBooks);
+    }
+    if (dueChecks.length > 0) {
+        returnObj.push(dueChecks);
+    }
+    if (dueHabits.length > 0) {
+        returnObj.push(dueHabits);
+    }
+    if (dueTodos.length > 0) {
+        returnObj.push(dueTodos);
+    }
+    if (startedLearnNoteMostCloseToForgetting.length > 0) {
+        returnObj.push(startedLearnNoteMostCloseToForgetting);
+    }
+    if (dueMisc.length > 0) {
+        returnObj.push(dueMisc);
+    }
 
-	for (const key in selections) {
-		if (key === "newBooks" && counterStartedBooksEvenIfNotDue > 4) {
-            continue;
-        }
-        if (key === "newLearns" && counterStartedLearnsBelowThreshold > 9) {
-            continue;
-        }
-        if (selections[key].length > 0) {
-            returnObj[key] = selections[key];
-        }
-	}
-
-    return returnObj;
+	return returnObj;
 }

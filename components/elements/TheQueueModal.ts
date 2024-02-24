@@ -10,38 +10,40 @@ import {
 
 import * as ebisu from "ebisu-js";
 
-import QueueFilterModal from "./QueueFilterModal";
-import QueueNote from "../classes/QueueNote";
 import { pickRandomNoteWithPriorityWeighting } from "components/utils/randomSelection";
 import { Settings } from "http2";
 import { getSortedSelectionsOfPickableNotes } from "components/utils/getSortedSelectionsOfPickableNotes";
 import { render } from "components/utils/renderModalNote";
+import QueueNote from "components/classes/QueueNote";
 
 export default class TheQueueModal extends Modal {
 	component: Component;
 	settings: Settings;
 
-	constructor(app: App, settings) {
+	constructor(app: App, settings: any) {
 		super(app);
 		this.settings = settings;
 	}
 
-	currentQueueNote: TFile | null;
+	currentQueueNote: QueueNote | null;
 	keywordFilter: string = "All Notes";
 
-	loadNewNote(lastOpenendNoteName: string = "") {
-		if (lastOpenendNoteName) {
+	loadNewNote(lastOpenendNoteName: string | null = null) {
+		console.log("loading new note");
+		if (lastOpenendNoteName !== null) {
 			// in this case, load the same note we had open before (not actually random)
 			// find note by name
-			const possibleNotes = this.app.vault.getMarkdownFiles().filter((file) => {
-				return file.name === lastOpenendNoteName;
-			});
+			const possibleNotes = this.app.vault
+				.getMarkdownFiles()
+				.filter((file) => {
+					return file.name === lastOpenendNoteName;
+				});
 			if (possibleNotes.length > 0) {
-				this.currentQueueNote = possibleNotes[0];
+				this.currentQueueNote = QueueNote.createFromNoteFile(
+					possibleNotes[0]
+				);
 			}
-		}
-
-		if (!this.currentQueueNote) {
+		} else {
 			// RANDOM CARD PICK
 			// if no note was loaded, pick a random note
 
@@ -49,20 +51,16 @@ export default class TheQueueModal extends Modal {
 				this.app.vault.getMarkdownFiles(),
 				this.keywordFilter,
 				this.currentQueueNote,
-				this.settings.desiredRecallThreshold
+				(this.settings as any).desiredRecallThreshold
 			);
 			// pick a random selection, then pick a random note from selection of that name
 			if (pickableSelections.length > 0) {
-				console.info(`Pickable selections: ${pickableSelections}`);
 				const randomSelection =
 					pickableSelections[
 						Math.floor(Math.random() * pickableSelections.length)
 					];
-				console.info(`Picking from: ${randomSelection}`);
-
-				this.currentQueueNote = pickRandomNoteWithPriorityWeighting(
-					pickableSelections[randomSelection]
-				);
+				this.currentQueueNote =
+					pickRandomNoteWithPriorityWeighting(randomSelection);
 			}
 		}
 
@@ -72,15 +70,18 @@ export default class TheQueueModal extends Modal {
 			return;
 		}
 
-		render(QueueNote.createFromNoteFile(this.currentQueueNote), this);
+		render(this.currentQueueNote, this);
 	}
 
 	onOpen() {
 		const lastNote = localStorage.getItem("lastOpenendNoteName") || "";
 		this.loadNewNote(lastNote);
 
-		if (!localStorage.getItem(`q-log-${app.appId}`)) {
-			localStorage.setItem(`q-log-${app.appId}`, JSON.stringify([]));
+		if (!localStorage.getItem(`q-log-${(app as any).appId}`)) {
+			localStorage.setItem(
+				`q-log-${(app as any).appId}`,
+				JSON.stringify([])
+			);
 		}
 	}
 
