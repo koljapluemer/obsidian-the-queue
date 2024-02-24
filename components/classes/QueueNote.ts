@@ -19,8 +19,8 @@ type TimeDurationString = "a bit later" | "day later" | "custom"
 export default class QueueNote {
 	qData: {
 		model: any | null;
-		lastSeen: string | null;
-		dueAt: string | null;
+		lastSeen: Date | null;
+		dueAt: Date | null;
 		leechCount: number | null;
 	};
 	qInterval: number | null;
@@ -37,8 +37,8 @@ export default class QueueNote {
 		qInterval?: number | null,
 		qData?: {
 			model: any | null;
-			lastSeen: string | null;
-			dueAt: string | null;
+			lastSeen: Date | null;
+			dueAt: Date | null;
 			leechCount: number | null;
 		}
 	) {
@@ -109,7 +109,7 @@ export default class QueueNote {
 		if (!this.qData.dueAt) {
 			return true;
 		}
-		const currentTime = new Date().toISOString();
+		const currentTime = new Date();
 		return currentTime > this.qData.dueAt;
 	}
 
@@ -148,7 +148,7 @@ export default class QueueNote {
 			2,
 			Math.max(elapsedTime, 0.01)
 		);
-		this.qData.lastSeen = new Date().toISOString();
+		this.qData.lastSeen = new Date();
 	}
 
 	getInterval(): number {
@@ -212,7 +212,7 @@ export default class QueueNote {
 			const hoursInLastDay = 16;
 			newDueAt.setHours(currentTime.getHours() + hoursInFullDays + hoursInLastDay);
 		}
-		this.qData.dueAt = newDueAt.toISOString();
+		this.qData.dueAt = newDueAt;
 	}
 
 	incrementPriority(by: number): void {

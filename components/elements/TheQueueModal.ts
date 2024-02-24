@@ -171,7 +171,7 @@ export default class TheQueueModal extends Modal {
 		qLog.push({
 			noteName: note.name,
 			answer: answer,
-			time: new Date().toISOString(),
+			time: new Date(),
 			noteMetadata: frontmatter,
 		});
 		localStorage.setItem(`q-log-${app.appId}`, JSON.stringify(qLog));
@@ -192,7 +192,7 @@ export default class TheQueueModal extends Modal {
 				model = ebisu.defaultModel(24);
 			}
 			qNote.setModel(model);
-			qNote.setLastSeen(new Date().toISOString());
+			qNote.setLastSeen(new Date());
 			qNote.startLearning();
 		}
 
@@ -279,7 +279,7 @@ export default class TheQueueModal extends Modal {
 			// at bottom of the note, add following text
 			// - *excuse 2024-02-1-: *
 
-			const formattedDate = new Date().toISOString().split("T")[0];
+			const formattedDate = new Date().split("T")[0];
 			const excuse = `\n\n- *excuse ${formattedDate}*: `;
 			this.app.vault.append(note, excuse);
 			// go to note; close modal
