@@ -137,6 +137,9 @@ export default class TheQueueModal extends Modal {
 				// we have this as [] so it's consistent with the other selections
 				// exclude notes with a recall so high that rep is useless rn
 				const predictedRecall = qNote.getPredictedRecall();
+				console.info(
+					`Predicted recall of ${note.name}: ${predictedRecall}`
+				);
 				if (predictedRecall < this.settings.desiredRecallThreshold) {
 					this.reasonablyRepeatableLearnNotesCounter += 1;
 					if (qNote.getPredictedRecall() < lowestPredictedRecall) {
@@ -185,7 +188,7 @@ export default class TheQueueModal extends Modal {
 			let model;
 			// use initial scoring and (with guessed initial halflifes)
 			if (answer === "hard") {
-				model = ebisu.defaultModel(1 / 60);
+				model = ebisu.defaultModel(1 / 6);
 			} else if (answer === "medium") {
 				model = ebisu.defaultModel(2);
 			} else if (answer === "easy") {

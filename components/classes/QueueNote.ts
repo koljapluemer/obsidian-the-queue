@@ -13,8 +13,7 @@ type QType =
 	| "misc"
 	| "exclude";
 
-type TimeDurationString = "a bit later" | "day later" | "custom"
-
+type TimeDurationString = "a bit later" | "day later" | "custom";
 
 export default class QueueNote {
 	qData: {
@@ -69,8 +68,24 @@ export default class QueueNote {
 		// TODO: remove "dueat" at some point, this is just legacy from my vault (and now Marta's)
 		// (or handle this more elegantly, list of synoyms or something, but that's overkill for now)
 		// if due at not set, set 10s into the past
-		const dueAt = qData?.["due-at"] || qData?.["dueat"] || null;
-		const lastSeen = qData?.["last-seen"] ?? null;
+		const dueAtString = qData?.["due-at"] || qData?.["dueat"] || null;
+		let dueAt: Date | null = null;
+		// convert from date format 2024-03-01T03:00:00.000Z to actual date
+		if (dueAtString) {
+			dueAt = new Date(dueAtString);
+			if (dueAt.toString() === "Invalid Date") {
+				console.error(`Invalid date string: ${dueAtString}`);
+			}
+		}
+		const lastSeenString = qData?.["last-seen"] ?? null;
+		let lastSeen: Date | null = null;
+		if (lastSeenString) {
+			lastSeen = new Date(lastSeenString);
+			if (lastSeen.toString() === "Invalid Date") {
+				console.error(`Invalid date string: ${lastSeenString}`);
+			}
+		}
+
 		const leechCount = qData?.["leech-count"] ?? null;
 
 		// console.info(`Creating note from metadata: \ntype: ${qType}, \ntopic: ${qTopic}, \nkeywords: ${qKeywords}, \npriority: ${qPriority}, \ninterval: ${qInterval}, \nmodel: ${model}, \ndueAt: ${dueAt}, \nlastSeen: ${lastSeen}, \nleechCount: ${leechCount}`);
@@ -120,12 +135,13 @@ export default class QueueNote {
 			);
 			return 0;
 		}
-		// TODO: check if this is using the right units
 		const elapsedTime =
 			(new Date().getTime() - new Date(this.qData.lastSeen).getTime()) /
 			1000 /
 			60 /
 			60;
+
+		// console.log("elapsedTime", elapsedTime);
 		return ebisu.predictRecall(this.qData.model, elapsedTime, true);
 	}
 
@@ -154,7 +170,7 @@ export default class QueueNote {
 	getInterval(): number {
 		return this.qInterval || 1;
 	}
-	
+
 	getActuallyStoredInterval(): number | null {
 		return this.qInterval;
 	}
@@ -163,15 +179,13 @@ export default class QueueNote {
 		this.qData.model = model;
 	}
 
-	setLastSeen(lastSeen: string): void {
+	setLastSeen(lastSeen: Date): void {
 		this.qData.lastSeen = lastSeen;
 	}
 
-	setDueAt(dueAt: string): void {
+	setDueAt(dueAt: Date): void {
 		this.qData.dueAt = dueAt;
 	}
-
-	
 
 	startLearning(): void {
 		this.qType = "learn-started";
@@ -194,7 +208,10 @@ export default class QueueNote {
 	}
 
 	resetLeechCount(): void {
-		this.qData.leechCount = 0;
+		// no need to reset if it's not set (implication is that it's 0, no need to spam metadata)
+		if (this.qData.leechCount != null) {
+			this.qData.leechCount = 0;
+		}
 	}
 
 	setDueLater(timeDuration: TimeDurationString): void {
@@ -219,7 +236,7 @@ export default class QueueNote {
 				if (newDueAt < currentTime) {
 					newDueAt.setDate(newDueAt.getDate() + 1);
 				}
-				// calculate rest of the days with 24h	
+				// calculate rest of the days with 24h
 				newDueAt.setDate(newDueAt.getDate() + (this.getInterval() - 1));
 			}
 		}
@@ -228,12 +245,12 @@ export default class QueueNote {
 
 	incrementPriority(by: number): void {
 		this.qPriority = this.getPriority() + by;
-		console.log(`Incremented priority to ${this.qPriority}`);
+		console.info(`Incremented priority to ${this.qPriority}`);
 	}
 
 	decrementPriority(by: number): void {
 		this.qPriority = this.getPriority() - by;
-		console.log(`Decremented priority to ${this.qPriority}`);
+		console.info(`Decremented priority to ${this.qPriority}`);
 	}
 
 	getPriority(): number {
@@ -251,5 +268,4 @@ export default class QueueNote {
 	getTopic(): string | null {
 		return this.qTopic;
 	}
-
 }
