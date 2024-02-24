@@ -99,6 +99,10 @@ export default class TheQueueModal extends Modal {
 			if (qNote.getShouldBeExcluded()) {
 				return;
 			}
+			// if equal to current one, also skip
+			if (note === this.currentQueueNote) {
+				return;
+			}
 			// if keywordFilter is not "All Notes", check if note has that keyword
 			if (this.keywordFilter !== "All Notes") {
 				if (!qNote.getKeywords().includes(this.keywordFilter)) {
@@ -430,6 +434,7 @@ export default class TheQueueModal extends Modal {
 						Math.floor(Math.random() * pickableSelections.length)
 					];
 				console.info(`Picking from: ${randomSelection}`);
+				// TODO: exclude currentQueueNote from random selection
 				randomNote =
 					this.selectionsOfPickableNotes[randomSelection][
 						Math.floor(
