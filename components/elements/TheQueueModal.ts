@@ -271,22 +271,6 @@ export default class TheQueueModal extends Modal {
 			}
 		}
 
-		// if it's habit, or todo, and the answer is not-today, prompt excuse on the note
-		if (
-			(qNote.getType() === "habit" || qNote.getType() === "todo") &&
-			answer === "not-today"
-		) {
-			// at bottom of the note, add following text
-			// - *excuse 2024-02-1-: *
-
-			const formattedDate = new Date().split("T")[0];
-			const excuse = `\n\n- *excuse ${formattedDate}*: `;
-			this.app.vault.append(note, excuse);
-			// go to note; close modal
-			this.app.workspace.openLinkText(note.path, "", true);
-			this.close();
-		}
-
 		// just handle the special case of todo being completed (due is handled in the condition before)
 		if (qNote.getType() === "todo") {
 			if (answer === "completed") {

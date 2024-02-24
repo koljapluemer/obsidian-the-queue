@@ -206,21 +206,34 @@ export default class QueueNote {
 			// in 16 hours
 			newDueAt.setHours(currentTime.getHours() + 16);
 		} else if (timeDuration === "custom") {
-			// every day is 24h, except "the last" which is 16h
-			// so, 2 days = 40h, 3 days = 64h, 4 days = 88h
-			const hoursInFullDays = (this.getInterval() - 1) * 24;
-			const hoursInLastDay = 16;
-			newDueAt.setHours(currentTime.getHours() + hoursInFullDays + hoursInLastDay);
+			// if interval is less than 1, convert to actual time and just add
+			if (this.getInterval() < 1) {
+				const minutesToAdd = this.getInterval() * 60 * 24;
+				newDueAt.setMinutes(currentTime.getMinutes() + minutesToAdd);
+			} else if (this.getInterval() >= 1) {
+				// find the next 4am in local time and set it to that
+				newDueAt.setHours(4);
+				newDueAt.setMinutes(0);
+				newDueAt.setSeconds(0);
+				newDueAt.setMilliseconds(0);
+				if (newDueAt < currentTime) {
+					newDueAt.setDate(newDueAt.getDate() + 1);
+				}
+				// calculate rest of the days with 24h	
+				newDueAt.setDate(newDueAt.getDate() + (this.getInterval() - 1));
+			}
 		}
 		this.qData.dueAt = newDueAt;
 	}
 
 	incrementPriority(by: number): void {
 		this.qPriority = (this.qPriority || 0) + by;
+		console.log(`Incremented priority to ${this.qPriority}`);
 	}
 
 	decrementPriority(by: number): void {
 		this.qPriority = (this.qPriority || 0) - by;
+		console.log(`Decremented priority to ${this.qPriority}`);
 	}
 
 	getPriority(): number | null {
