@@ -266,7 +266,7 @@ export default class TheQueueModal extends Modal {
 				qNote.setDueLater("day later");
 				qNote.incrementLeechCount(1);
 			} else {
-				qNote.setDueLater("day later");
+				qNote.setDueLater("custom");
 				qNote.resetLeechCount();
 			}
 		}
@@ -338,8 +338,10 @@ export default class TheQueueModal extends Modal {
 					frontmatter["q-data"]["leech-count"] =
 						qNote.getData().leechCount;
 				}
-				createEmptyQDataIfNeeded();
-				frontmatter["q-data"]["due-at"] = qNote.getData().dueAt;
+				if (qNote.getData().dueAt) {
+					createEmptyQDataIfNeeded();
+					frontmatter["q-data"]["due-at"] = qNote.getData().dueAt;
+				}
 			}
 		});
 
@@ -488,8 +490,12 @@ export default class TheQueueModal extends Modal {
 
 			// use q-topic frontmatter property if it exists, otherwise empty
 			// give id #modal-topic to make it easy to style
+			let labelText = qNote.getType();
+			if (qNote.getTopic()) {
+				labelText += ` — ${qNote.getTopic()}`;
+			}
 			const topicLabel = headerEl.createEl("span", {
-				text: metadata?.frontmatter?.["q-topic"] || "",
+				text: labelText,
 			});
 			topicLabel.id = "modal-topic";
 

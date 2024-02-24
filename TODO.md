@@ -1,5 +1,14 @@
-## Large Scale
-
+- next up
+    0. check Telegram
+    1. start a `utils` folder and put in function becaue `TheQueueModal` is still cursed (700 lines, most having not too much to do with the actual modal)
+    2. document it, at this point could even consider automating it, given that I have actual function and class headers and what not
+        - get into contracts?
+    3. write a generator that at least covers one card of every type
+        - a test vault for manual testing is already good automation, full auto testing can come later
+        - also, test idea: *generate cards with data and then assert that correct nr. of cards is in this and that card array, like `dueMisc` etc. etc.*
+- would love the ability to show non-note cards (would be fun at least)
+    - or maybe that's shit?
+    - but maybe convenient for *oops that last one was a leech* and stuff like that
 * check if this works with fresh vault, and with all kinds of incomplete data!
 * find a way to do automated tests
     1. take out the obsidian surroundings
@@ -39,3 +48,8 @@
 - fix `Component`-related error that console throws
 - don't set useless properties, like `q-interval` for learn cards
     - I think we need some better abstractions here, maybe even a class representation for QCards or something
+- allow less silly formatted learn cards
+- bug: we get same card again with learn cards (probably some `last-seen` problem)
+- handle intervals less than 1 day
+    - currently, they bring us to the past xD
+    - update: always brings us to the past 

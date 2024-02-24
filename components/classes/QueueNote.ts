@@ -13,14 +13,14 @@ type QType =
 	| "misc"
 	| "exclude";
 
-type TimeDurationString = "a bit later" | "day later" | "multiple days later"
+type TimeDurationString = "a bit later" | "day later" | "custom"
 
 
 export default class QueueNote {
 	qData: {
 		model: any | null;
 		lastSeen: string | null;
-		dueAt: string;
+		dueAt: string | null;
 		leechCount: number | null;
 	};
 	qInterval: number | null;
@@ -38,7 +38,7 @@ export default class QueueNote {
 		qData?: {
 			model: any | null;
 			lastSeen: string | null;
-			dueAt: string;
+			dueAt: string | null;
 			leechCount: number | null;
 		}
 	) {
@@ -49,7 +49,7 @@ export default class QueueNote {
 		this.qInterval = qInterval || null;
 		this.qData = qData || {
 			model: null,
-			dueAt: new Date().toISOString(),
+			dueAt: null,
 			lastSeen: null,
 			leechCount: null,
 		};
@@ -66,7 +66,10 @@ export default class QueueNote {
 
 		const qData = frontmatter["q-data"];
 		const model = qData?.["model"] ?? null;
-		const dueAt = qData?.["due-at"] ?? new Date().toISOString();
+		// TODO: remove "dueat" at some point, this is just legacy from my vault (and now Marta's)
+		// (or handle this more elegantly, list of synoyms or something, but that's overkill for now)
+		// if due at not set, set 10s into the past
+		const dueAt = qData?.["due-at"] || qData?.["dueat"] || null;
 		const lastSeen = qData?.["last-seen"] ?? null;
 		const leechCount = qData?.["leech-count"] ?? null;
 
@@ -103,6 +106,9 @@ export default class QueueNote {
 	}
 
 	getIsCurrentlyDue(): boolean {
+		if (!this.qData.dueAt) {
+			return true;
+		}
 		const currentTime = new Date().toISOString();
 		return currentTime > this.qData.dueAt;
 	}
@@ -165,6 +171,8 @@ export default class QueueNote {
 		this.qData.dueAt = dueAt;
 	}
 
+	
+
 	startLearning(): void {
 		this.qType = "learn-started";
 	}
@@ -189,7 +197,7 @@ export default class QueueNote {
 		this.qData.leechCount = 0;
 	}
 
-	setDueLater(timeDuration: TimeDurationString, multiplier: number = 1): void {
+	setDueLater(timeDuration: TimeDurationString): void {
 		const currentTime = new Date();
 		const newDueAt = new Date(currentTime);
 		if (timeDuration === "a bit later") {
@@ -197,10 +205,10 @@ export default class QueueNote {
 		} else if (timeDuration === "day later") {
 			// in 16 hours
 			newDueAt.setHours(currentTime.getHours() + 16);
-		} else if (timeDuration === "multiple days later") {
+		} else if (timeDuration === "custom") {
 			// every day is 24h, except "the last" which is 16h
 			// so, 2 days = 40h, 3 days = 64h, 4 days = 88h
-			const hoursInFullDays = (multiplier - 1) * 24;
+			const hoursInFullDays = (this.getInterval() - 1) * 24;
 			const hoursInLastDay = 16;
 			newDueAt.setHours(currentTime.getHours() + hoursInFullDays + hoursInLastDay);
 		}
@@ -215,8 +223,8 @@ export default class QueueNote {
 		this.qPriority = (this.qPriority || 0) - by;
 	}
 
-	getPriority(): number {
-		return this.qPriority || 1;
+	getPriority(): number | null {
+		return this.qPriority;
 	}
 
 	getActuallyStoredPriority(): number | null {
@@ -227,22 +235,8 @@ export default class QueueNote {
 		return this.qData;
 	}
 
-	// getLeechCount(): number | null {
-	// 	return this.qData.leechCount;
-	// }
-
-	// getModel(): any | null {
-	// 	return this.qData.model;
-	// }
-
-	// getLastSeen(): string | null {
-	// 	return this.qData.lastSeen;
-	// }
-
-	// getDueAt(): string {
-	// 	return this.qData.dueAt;
-	// }
-
-
+	getTopic(): string | null {
+		return this.qTopic;
+	}
 
 }
