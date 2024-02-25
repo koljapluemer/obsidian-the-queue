@@ -17,6 +17,15 @@ type QType =
 
 type TimeDurationString = "a bit later" | "day later" | "custom";
 
+const scenarioHalfLives = {
+	"hard": 1 / 6,
+	"medium": 2,
+	"easy": 24,
+	"0": 1 / 6,
+	"1": 2,
+	"2": 24,
+};
+
 export default class QueueNote {
 	qData: {
 		model: any | null;
@@ -148,8 +157,8 @@ export default class QueueNote {
 
 	getPredictedRecall(): number {
 		if (!this.qData.lastSeen || !this.qData.model) {
-			console.error(
-				"No last seen string for this note, returning recall % of 0"
+			console.warn(
+				`No last seen string for note ${this.noteFile.basename}, returning recall % of 0`
 			);
 			return 0;
 		}
@@ -163,20 +172,23 @@ export default class QueueNote {
 	}
 
 	setNewModel(score: number): void {
-		if (!this.qData.lastSeen || !this.qData.model) {
-			console.error(
-				"There is no saved learning data for this note, cannot update recall."
+		let model = this.qData.model
+		let lastSeen = this.qData.lastSeen
+		if (lastSeen == null || model == null) {
+			console.warn(
+				`There is no saved learning data for note ${this.noteFile.basename}, model may be distorted.`
 			);
-			return;
+			model = ebisu.defaultModel((scenarioHalfLives as any)[score.toString()]);
+			lastSeen = new Date();
 		}
 		const elapsedTime =
-			(new Date().getTime() - new Date(this.qData.lastSeen).getTime()) /
+			(new Date().getTime() - new Date(lastSeen).getTime()) /
 			1000 /
 			60 /
 			60;
 		// TODO: validate if the math check out, and what that Math.max is actually doing
 		this.qData.model = ebisu.updateRecall(
-			this.qData.model,
+			model,
 			score,
 			2,
 			Math.max(elapsedTime, 0.01)
@@ -292,6 +304,109 @@ export default class QueueNote {
 
 	getBasename(): string {
 		return this.noteFile.basename;
+	}
+
+
+	adaptByScore(answer: string) {
+
+		if (this.getType() === "learn") {
+			const model = ebisu.defaultModel((scenarioHalfLives as any)[answer]);
+			this.setModel(model);
+			this.setLastSeen(new Date());
+			this.startLearning();
+		}
+	
+		// learning cards that we have seen before
+		// TODO: make stuff like this robust against metadata being broken/missing (and think about what to even do)
+		if (this.getType() === "learn-started") {
+			// score: wrong = 0, correct = 1, easy = 2
+			const score = answer === "wrong" ? 0 : answer === "correct" ? 1 : 2;
+			// handle leech counting
+			if (score === 0) {
+				this.incrementLeechCount(1);
+			} else {
+				this.resetLeechCount();
+			}
+			this.setNewModel(score);
+		}
+	
+		// note: "book" means *unstarted* book
+		if (this.getType() === "book") {
+			// if later, set in 10m
+			if (answer === "later") {
+				this.setDueLater("a bit later");
+			} else {
+				this.setDueLater("day later");
+			}
+			// only convert to started if answer is not "not-today" or "later"
+			if (answer !== "not-today" && answer !== "later") {
+				this.startReadingBook();
+			}
+		}
+	
+		if (this.getType() === "book-started") {
+			if (answer === "later") {
+				this.setDueLater("a bit later");
+				this.incrementLeechCount(0.5);
+			} else if (answer === "not-today") {
+				this.setDueLater("day later");
+				this.incrementLeechCount(1);
+			} else if (answer === "done") {
+				this.setDueLater("day later");
+				this.resetLeechCount();
+			} else if (answer === "finished") {
+				this.setDueLater("day later");
+				this.resetLeechCount();
+				this.finishReadingBook();
+			}
+		}
+	
+		// article works essentially the same as book-started
+		if (this.getType() === "article") {
+			if (answer === "later") {
+				this.setDueLater("a bit later");
+			} else {
+				this.setDueLater("day later");
+			}
+			// check if finished
+			if (answer === "finished") {
+				this.finishReadingArticle();
+			}
+		}
+	
+		if (
+			this.getType() === "check" ||
+			this.getType() === "habit" ||
+			this.getType() === "todo"
+		) {
+			if (answer === "later") {
+				this.setDueLater("a bit later");
+				this.incrementLeechCount(0.5);
+			} else if (answer === "not-today") {
+				this.setDueLater("day later");
+				this.incrementLeechCount(1);
+			} else {
+				this.setDueLater("custom");
+				this.resetLeechCount();
+			}
+		}
+	
+		// just handle the special case of todo being completed (due is handled in the condition before)
+		if (this.getType() === "todo") {
+			if (answer === "completed") {
+				this.completeTodo();
+			}
+		}
+	
+		if (this.getType() === "misc") {
+			if (answer === "show-less") {
+				this.decrementPriority(1);
+			} else if (answer === "show-more") {
+				this.incrementPriority(1);
+			}
+			this.setDueLater("day later");
+		}
+	
 	}
 
 

@@ -1,6 +1,5 @@
 import QueueFilterModal from "components/elements/QueueFilterModal";
 import { MarkdownPreviewView, setIcon } from "obsidian";
-import { adaptQueueNoteByScore } from "./adaptQueueNoteByScore";
 import QueueNote from "components/classes/QueueNote";
 
 export function render(qNote: QueueNote, parentContext: any) {
@@ -106,8 +105,8 @@ export function render(qNote: QueueNote, parentContext: any) {
 				text: label,
 			});
 			button.addEventListener("click", () => {
-				const adaptedQNote = adaptQueueNoteByScore(qNote, returnValue);
-                adaptedQNote.save();
+				qNote.adaptByScore(returnValue);
+                qNote.save();
                 parentContext.loadNewNote();
 			});
 		}
