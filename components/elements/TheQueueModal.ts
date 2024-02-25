@@ -1,14 +1,9 @@
 import {
 	App,
-	MarkdownPreviewView,
 	Modal,
 	Notice,
 	Component,
-	TFile,
-	setIcon,
 } from "obsidian";
-
-import * as ebisu from "ebisu-js";
 
 import { pickRandomNoteWithPriorityWeighting } from "components/utils/randomSelection";
 import { Settings } from "http2";
@@ -26,20 +21,21 @@ export default class TheQueueModal extends Modal {
 	}
 
 	qNotes: QueueNote[] = [];
-	currentQueueNote: QueueNote | null;
+	currentQueueNote: QueueNote;
 	keywordFilter: string = "All Notes";
 
-	loadNewNote(lastOpenendNoteName: string | null = null) {
+	loadNewNote(lastOpenedNoteName: string | null = null) {
 		let loadingLastNote = false;
 		let foundNoteToOpen = false;
+		let specialUsedSelection: "improvables" | "orphans" | null = null;
 
-		if (lastOpenendNoteName !== null) {
+		if (lastOpenedNoteName !== null) {
 			// in this case, load the same note we had open before (not actually random)
 			// find note by name
 			const possibleNotes = this.app.vault
 				.getMarkdownFiles()
 				.filter((file) => {
-					return file.name === lastOpenendNoteName;
+					return file.name === lastOpenedNoteName;
 				});
 			if (possibleNotes.length > 0) {
 				loadingLastNote = true;
@@ -47,13 +43,19 @@ export default class TheQueueModal extends Modal {
 					possibleNotes[0]
 				);
 				foundNoteToOpen = true;
+
+				// check if specialUsedSelection is in localstorage
+				if (localStorage.getItem("specialUsedSelection")) {
+					specialUsedSelection = localStorage.getItem(
+						"specialUsedSelection"
+					) as "improvables" | "orphans" | null;
+				}
 			}
 		}
 
 		if (!loadingLastNote) {
 			// RANDOM CARD PICK
 			// if no note was loaded, pick a random note
-
 			const pickableSelections = getSortedSelectionsOfPickableNotes(
 				this.qNotes,
 				this.keywordFilter,
@@ -61,14 +63,21 @@ export default class TheQueueModal extends Modal {
 				(this.settings as any).desiredRecallThreshold
 			);
 			// pick a random selection, then pick a random note from selection of that name
-			if (pickableSelections.length > 0) {
-				const randomSelection =
-					pickableSelections[
-						Math.floor(Math.random() * pickableSelections.length)
-					];
+			// count nr of keys in object
+			const keys = Object.keys(pickableSelections);
+			if (keys.length > 0) {
+				// pick a random value from the object
+				const randomKey = keys[Math.floor(Math.random() * keys.length)];
 				this.currentQueueNote =
-					pickRandomNoteWithPriorityWeighting(randomSelection);
+					pickRandomNoteWithPriorityWeighting(pickableSelections[randomKey]);
 				foundNoteToOpen = true;
+
+				if (randomKey === "improvables" || randomKey === "orphans") {
+					specialUsedSelection = randomKey;
+					localStorage.setItem("specialUsedSelection", randomKey);
+				} else {
+					localStorage.removeItem("specialUsedSelection");
+				}
 			}
 		}
 
@@ -78,7 +87,7 @@ export default class TheQueueModal extends Modal {
 			return;
 		}
 
-		render(this.currentQueueNote, this);
+		render(this.currentQueueNote, this, specialUsedSelection);
 	}
 
 	async onOpen() {
@@ -86,7 +95,7 @@ export default class TheQueueModal extends Modal {
 		this.qNotes = this.app.vault.getMarkdownFiles().map((file) => {
 			return QueueNote.createFromNoteFile(file);
 		});
-		const lastNote = localStorage.getItem("lastOpenendNoteName") || "";
+		const lastNote = localStorage.getItem("lastOpenedNoteName") || "";
 		this.loadNewNote(lastNote);
 
 		if (!localStorage.getItem(`q-log-${(app as any).appId}`)) {

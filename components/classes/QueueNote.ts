@@ -39,9 +39,11 @@ export default class QueueNote {
 	qType: QType | null;
 	qKeywords: Array<string> | null;
 	noteFile: TFile;
+	nrOfLinks: number;
 
 	constructor(
 		noteFile: TFile,
+		nrOfLinks: number,
 		qType?: QType | null,
 		qTopic?: string | null,
 		qKeywords?: Array<string> | null,
@@ -66,6 +68,7 @@ export default class QueueNote {
 			leechCount: null,
 		};
 		this.noteFile = noteFile;
+		this.nrOfLinks = nrOfLinks;
 	}
 
 	// this handles the construction from dirty, real life data
@@ -73,9 +76,10 @@ export default class QueueNote {
 	static createFromNoteFile(note: TFile): QueueNote {
 		const metadata = app.metadataCache.getFileCache(note);
 		const frontmatter = metadata?.frontmatter;
-		let qNote: QueueNote;
+		const nrOfLinks = metadata?.links?.length || 0;
+
 		if (!frontmatter) {
-			return new QueueNote(note);
+			return new QueueNote(note, nrOfLinks);
 		} else {
 			let qType: QType | null = null;
 			let qTopic: string | null = null;
@@ -241,6 +245,7 @@ export default class QueueNote {
 
 			return new QueueNote(
 				note,
+				nrOfLinks,
 				qType,
 				qTopic,
 				qKeywords,
@@ -432,6 +437,14 @@ export default class QueueNote {
 
 	getBasename(): string {
 		return this.noteFile.basename;
+	}
+
+	getNoteFile(): TFile {
+		return this.noteFile;
+	}
+
+	getNrOfLinks(): number {
+		return this.nrOfLinks;
 	}
 
 	adaptByScore(answer: string) {

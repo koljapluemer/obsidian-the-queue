@@ -2,10 +2,7 @@ import QueueNote from "components/classes/QueueNote";
 
 export function pickRandomNoteWithPriorityWeighting(
 	notes: QueueNote[]
-): QueueNote | null {
-	if (notes.length === 0) {
-		return null;
-	}
+): QueueNote {
 	const sortedNotes = notes.sort((a, b) => b.getPriority() - a.getPriority());
 	const randomValue = Math.random();
 	const pdfValueNormalized =

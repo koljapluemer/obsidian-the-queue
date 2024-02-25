@@ -2,11 +2,15 @@ import QueueFilterModal from "components/elements/QueueFilterModal";
 import { MarkdownPreviewView, setIcon } from "obsidian";
 import QueueNote from "components/classes/QueueNote";
 
-export function render(qNote: QueueNote, parentContext: any) {
+export function render(
+	qNote: QueueNote,
+	parentContext: any,
+	specialUsedSelection: string | null = null
+) {
 	// RENDER FUNCTION
 	// save note name to local storage
 	if (qNote.noteFile) {
-		localStorage.setItem("lastOpenendNoteName", qNote.noteFile.name);
+		localStorage.setItem("lastOpenedNoteName", qNote.noteFile.name);
 	}
 
 	const { modalEl } = parentContext;
@@ -91,7 +95,7 @@ export function render(qNote: QueueNote, parentContext: any) {
 			renderedContent,
 			contentEl,
 			parentContext.currentQueueNote.path,
-			parentContext.component 
+			parentContext.component
 		);
 
 		const buttonRow = contentEl.createDiv("button-row");
@@ -106,94 +110,115 @@ export function render(qNote: QueueNote, parentContext: any) {
 			});
 			button.addEventListener("click", () => {
 				qNote.adaptByScore(returnValue);
-                qNote.save();
-                parentContext.loadNewNote();
+				qNote.save();
+				parentContext.loadNewNote();
 			});
 		}
 
-		if (qNote.getType() === "learn") {
-			appendScoreButton( buttonRow, "Seems Hard", "hard");
-			appendScoreButton(
-				
-				buttonRow,
-				"I'll Try to Remember",
-				"medium"
-			);
-			appendScoreButton( buttonRow, "Easy, Got It", "easy");
-		} else if (qNote.getType() === "learn-started") {
+		// HANDLE SPECIAL USED SELECTION
+		// for orphans and improvables, we want to show a different set of buttons
+		// one 'Ok' opens the current note and closes the modal, and a standard 'Not Today' button
+		if (specialUsedSelection === "improvables") {
+			buttonRow.createEl("span", {
+				text: "You marked this note as improvable. Make it slightly nicer!",
+			});
+		} else if (specialUsedSelection === "orphans") {
+			buttonRow.createEl("span", {
+				text: "This note is an orphan. Link it with another note!",
+			});
+		}
+		if (
+			specialUsedSelection === "improvables" ||
+			specialUsedSelection === "orphans"
+		) {
 			buttonRow
 				.createEl("button", {
-					text: "Reveal",
+					text: "Let's Go",
 				})
 				.addEventListener("click", () => {
-					contentEl.empty();
-					MarkdownPreviewView.renderMarkdown(
-						renderedContent + "\n---\n" + initiallyHiddenContent,
-						contentEl,
-						parentContext.currentQueueNote.path,
-						parentContext.component
+					// remove lastOpenedNoteName from localstorage so we don't open the same note again
+					// otherwise the prompt never leaves
+					// *could do this more elegantly by recounting the links but that would require a rerun of
+					// functionality upon opening a previously saved note, which is currently not done*
+					localStorage.removeItem("lastOpenedNoteName");
+					// open note in editor and close modal
+					parentContext.app.workspace.openLinkText(
+						qNote.noteFile.path,
+						"",
+						true
 					);
-					const secondButtonRow = contentEl.createDiv("button-row");
-
-					appendScoreButton(
-						
-						secondButtonRow,
-						"Wrong",
-						"wrong"
-					);
-					appendScoreButton(
-						
-						secondButtonRow,
-						"Correct",
-						"correct"
-					);
-					appendScoreButton( secondButtonRow, "Easy", "easy");
+					parentContext.close();
 				});
-		} else if (qNote.getType() === "habit") {
-			// not today, do later, done
-			appendScoreButton( buttonRow, "Not Today", "not-today");
-			appendScoreButton( buttonRow, "Do Later", "later");
-			appendScoreButton( buttonRow, "Done", "done");
-			// todo
-		} else if (qNote.getType() === "todo") {
-			appendScoreButton( buttonRow, "Delete", "delete");
-			appendScoreButton( buttonRow, "Not Today", "not-today");
-			appendScoreButton( buttonRow, "Later", "later");
-			appendScoreButton( buttonRow, "Completed", "completed");
-		}
-		// check:
-		else if (qNote.getType() === "check") {
-			appendScoreButton( buttonRow, "No", "no");
-			appendScoreButton( buttonRow, "Kind of", "kind-of");
-			appendScoreButton( buttonRow, "Yes", "yes");
-		}
-		// book or article
-		else if (
-			qNote.getType() === "book" ||
-			qNote.getType() === "book-started" ||
-			qNote.getType() === "article"
-		) {
-			buttonRow.createEl("span", {
-				text: "Read at a bit:",
-			});
-			appendScoreButton( buttonRow, "Not Today", "not-today");
-			appendScoreButton( buttonRow, "Later", "later");
-			appendScoreButton( buttonRow, "Done", "done");
-			appendScoreButton( buttonRow, "Finished", "finished");
+			appendScoreButton(buttonRow, "Not Today", "not-today");
 		} else {
-			appendScoreButton(
-				
-				buttonRow,
-				"Show Less Often",
-				"show-less"
-			);
-			appendScoreButton( buttonRow, "Ok, Cool", "show-next");
-			appendScoreButton(
-				
-				buttonRow,
-				"Show More Often",
-				"show-more"
-			);
+			// HANDLE STANDARD CASES
+
+			if (qNote.getType() === "learn") {
+				appendScoreButton(buttonRow, "Seems Hard", "hard");
+				appendScoreButton(buttonRow, "I'll Try to Remember", "medium");
+				appendScoreButton(buttonRow, "Easy, Got It", "easy");
+			} else if (qNote.getType() === "learn-started") {
+				buttonRow
+					.createEl("button", {
+						text: "Reveal",
+					})
+					.addEventListener("click", () => {
+						contentEl.empty();
+						MarkdownPreviewView.renderMarkdown(
+							renderedContent +
+								"\n---\n" +
+								initiallyHiddenContent,
+							contentEl,
+							parentContext.currentQueueNote.path,
+							parentContext.component
+						);
+						const secondButtonRow =
+							contentEl.createDiv("button-row");
+
+						appendScoreButton(secondButtonRow, "Wrong", "wrong");
+						appendScoreButton(
+							secondButtonRow,
+							"Correct",
+							"correct"
+						);
+						appendScoreButton(secondButtonRow, "Easy", "easy");
+					});
+			} else if (qNote.getType() === "habit") {
+				// not today, do later, done
+				appendScoreButton(buttonRow, "Not Today", "not-today");
+				appendScoreButton(buttonRow, "Do Later", "later");
+				appendScoreButton(buttonRow, "Done", "done");
+				// todo
+			} else if (qNote.getType() === "todo") {
+				appendScoreButton(buttonRow, "Delete", "delete");
+				appendScoreButton(buttonRow, "Not Today", "not-today");
+				appendScoreButton(buttonRow, "Later", "later");
+				appendScoreButton(buttonRow, "Completed", "completed");
+			}
+			// check:
+			else if (qNote.getType() === "check") {
+				appendScoreButton(buttonRow, "No", "no");
+				appendScoreButton(buttonRow, "Kind of", "kind-of");
+				appendScoreButton(buttonRow, "Yes", "yes");
+			}
+			// book or article
+			else if (
+				qNote.getType() === "book" ||
+				qNote.getType() === "book-started" ||
+				qNote.getType() === "article"
+			) {
+				buttonRow.createEl("span", {
+					text: "Read at a bit:",
+				});
+				appendScoreButton(buttonRow, "Not Today", "not-today");
+				appendScoreButton(buttonRow, "Later", "later");
+				appendScoreButton(buttonRow, "Done", "done");
+				appendScoreButton(buttonRow, "Finished", "finished");
+			} else {
+				appendScoreButton(buttonRow, "Show Less Often", "show-less");
+				appendScoreButton(buttonRow, "Ok, Cool", "show-next");
+				appendScoreButton(buttonRow, "Show More Often", "show-more");
+			}
 		}
 	});
 }

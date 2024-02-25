@@ -1,13 +1,15 @@
 import QueueNote from "components/classes/QueueNote";
-import { TFile } from "obsidian";
 
-// return array of string TFile arrays
+interface pickableSelections {
+	[key: string]: QueueNote[];
+}
+
 export function getSortedSelectionsOfPickableNotes(
 	qNotes: QueueNote[],
 	keywordFilter: string,
 	currentQueueNote: QueueNote | null,
 	desiredRecallThreshold: number
-): QueueNote[][] {
+): pickableSelections {
 	let dueArticles: QueueNote[] = [];
 	let newBooks: QueueNote[] = [];
 	let dueStartedBooks: QueueNote[] = [];
@@ -17,6 +19,8 @@ export function getSortedSelectionsOfPickableNotes(
 	let newLearns: QueueNote[] = [];
 	let startedLearnNoteMostCloseToForgetting: QueueNote[] = [];
 	let dueMisc: QueueNote[] = [];
+
+	let orphans: QueueNote[] = [];
 
 	let counterStartedLearnsBelowThreshold = 0;
 	let counterStartedBooksEvenIfNotDue = 0;
@@ -67,41 +71,52 @@ export function getSortedSelectionsOfPickableNotes(
 			}
 		} else if (qNote.getType() === "learn") {
 			newLearns.push(qNote);
-		} else if (qNote.getIsCurrentlyDue()) {
-			dueMisc.push(qNote);
+		} else if (qNote.getType() === "misc") {
+			if (qNote.getIsCurrentlyDue()) {
+				dueMisc.push(qNote);
+			}
+			// if no links, add to orphans
+			if (qNote.getNrOfLinks() === 0) {
+				orphans.push(qNote);
+			}
 		}
 	});
 	// if we have more than 10 learn cards below threshold, remove new learn cards
 	// if we have 5 or more started books, also remove new books
 	// also, don't include selections that are empty (including key)
-	let returnObj: QueueNote[][] = [];
+	let returnObj: pickableSelections = {};
+
 	if (counterStartedLearnsBelowThreshold < 10 && newLearns.length > 0) {
-		returnObj.push(newLearns);
+		returnObj.newLearns = newLearns;
 	}
 	if (counterStartedBooksEvenIfNotDue < 5 && newBooks.length > 0) {
-		returnObj.push(newBooks);
+		returnObj.newBooks = newBooks;
 	}
 	// rest of the selections are a simple 'do they contain anything' check
 	if (dueArticles.length > 0) {
-		returnObj.push(dueArticles);
+		returnObj.dueArticles = dueArticles;
 	}
 	if (dueStartedBooks.length > 0) {
-		returnObj.push(dueStartedBooks);
+		returnObj.dueStartedBooks = dueStartedBooks;
 	}
 	if (dueChecks.length > 0) {
-		returnObj.push(dueChecks);
+		returnObj.dueChecks = dueChecks;
 	}
 	if (dueHabits.length > 0) {
-		returnObj.push(dueHabits);
+		returnObj.dueHabits = dueHabits;
 	}
 	if (dueTodos.length > 0) {
-		returnObj.push(dueTodos);
+		returnObj.dueTodos = dueTodos;
 	}
 	if (startedLearnNoteMostCloseToForgetting.length > 0) {
-		returnObj.push(startedLearnNoteMostCloseToForgetting);
+		returnObj.startedLearnNoteMostCloseToForgetting =
+			startedLearnNoteMostCloseToForgetting;
 	}
 	if (dueMisc.length > 0) {
-		returnObj.push(dueMisc);
+		returnObj.dueMisc = dueMisc;
+	}
+	if (orphans.length > 0) {
+		returnObj.orphans = orphans;
 	}
 
 	return returnObj;
