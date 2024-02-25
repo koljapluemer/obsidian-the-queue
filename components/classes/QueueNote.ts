@@ -235,9 +235,9 @@ export default class QueueNote {
 				}
 			}
 
-			console.info(
-				`Loaded note ${note.basename} from file, creating following object: \n qType: ${qType} \n qTopic: ${qTopic} \n qKeywords: ${qKeywords} \n qPriority: ${qPriority} \n qInterval: ${qInterval} \n qData: ${qData}`
-			);
+			// console.info(
+			// 	`Loaded note ${note.basename} from file, creating following object: \n qType: ${qType} \n qTopic: ${qTopic} \n qKeywords: ${qKeywords} \n qPriority: ${qPriority} \n qInterval: ${qInterval} \n qData: ${qData}`
+			// );
 
 			return new QueueNote(
 				note,

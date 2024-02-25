@@ -31,6 +31,7 @@ export default class TheQueueModal extends Modal {
 
 	loadNewNote(lastOpenendNoteName: string | null = null) {
 		let loadingLastNote = false;
+		let foundNoteToOpen = false;
 
 		if (lastOpenendNoteName !== null) {
 			// in this case, load the same note we had open before (not actually random)
@@ -45,6 +46,7 @@ export default class TheQueueModal extends Modal {
 				this.currentQueueNote = QueueNote.createFromNoteFile(
 					possibleNotes[0]
 				);
+				foundNoteToOpen = true;
 			}
 		}
 
@@ -66,10 +68,11 @@ export default class TheQueueModal extends Modal {
 					];
 				this.currentQueueNote =
 					pickRandomNoteWithPriorityWeighting(randomSelection);
+				foundNoteToOpen = true;
 			}
 		}
 
-		if (!this.currentQueueNote) {
+		if (!foundNoteToOpen) {
 			new Notice("No more notes to review!");
 			this.close();
 			return;

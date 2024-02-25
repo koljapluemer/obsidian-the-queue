@@ -53,3 +53,5 @@
 - make log work again
 - actual prio selection
 - check if keywords work
+- handle broken/illegal queue types
+    - they get selected as `misc` anyhow but scoring just doesn't affect them
