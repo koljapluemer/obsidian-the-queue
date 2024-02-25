@@ -52,3 +52,4 @@
 - bug: we get same card again with learn cards (probably some `last-seen` problem)
 - make log work again
 - actual prio selection
+- check if keywords work

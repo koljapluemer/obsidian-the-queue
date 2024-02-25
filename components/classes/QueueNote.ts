@@ -18,9 +18,9 @@ type QType =
 type TimeDurationString = "a bit later" | "day later" | "custom";
 
 const scenarioHalfLives = {
-	"hard": 1 / 6,
-	"medium": 2,
-	"easy": 24,
+	hard: 1 / 6,
+	medium: 2,
+	easy: 24,
 	"0": 1 / 6,
 	"1": 2,
 	"2": 24,
@@ -52,7 +52,7 @@ export default class QueueNote {
 			lastSeen: Date | null;
 			dueAt: Date | null;
 			leechCount: number | null;
-		},
+		}
 	) {
 		this.qType = qType || null;
 		this.qTopic = qTopic || null;
@@ -77,36 +77,167 @@ export default class QueueNote {
 		if (!frontmatter) {
 			return new QueueNote(note);
 		} else {
-			const qType = frontmatter["q-type"] ?? null;
-			const qTopic = frontmatter["q-topic"] ?? null;
-			const qKeywords = frontmatter["q-keywords"] ?? null;
-			const qPriority = frontmatter["q-priority"] ?? null;
-			const qInterval = frontmatter["q-interval"] ?? null;
+			let qType: QType | null = null;
+			let qTopic: string | null = null;
+			let qKeywords: Array<string> | null = null;
+			let qPriority: number | null = null;
+			let qInterval: number | null = null;
+			let qData: {
+				model: any | null;
+				lastSeen: Date | null;
+				dueAt: Date | null;
+				leechCount: number | null;
+			} | null = {
+				model: null,
+				lastSeen: null,
+				dueAt: null,
+				leechCount: null,
+			};
 
-			const qData = frontmatter["q-data"];
-			const model = qData?.["model"] ?? null;
+			// check if frontmatter["q-type"] is string
+			if (frontmatter["q-type"] != null) {
+				if (typeof frontmatter["q-type"] === "string") {
+					// TODO: check if this fails if the string is not a valid QType
+					qType = frontmatter["q-type"] as QType;
+				} else {
+					console.warn(
+						`Invalid q-type for note %c${note.basename}`,
+						"color: orange"
+					);
+				}
+			}
+			// same for topic
+			if (frontmatter["q-topic"] != null) {
+				if (typeof frontmatter["q-topic"] === "string") {
+					qTopic = frontmatter["q-topic"];
+				} else {
+					console.warn(
+						`Invalid q-topic for note %c${note.basename}`,
+						"color: orange"
+					);
+				}
+			}
+			// same for keywords, accept string array or string, always make array
+			if (frontmatter["q-keywords"] != null) {
+				if (Array.isArray(frontmatter["q-keywords"])) {
+					qKeywords = frontmatter["q-keywords"];
+				} else if (typeof frontmatter["q-keywords"] === "string") {
+					qKeywords = [frontmatter["q-keywords"]];
+				} else {
+					console.warn(
+						`Invalid q-keywords for note %c${note.basename}`,
+						"color: orange"
+					);
+					qKeywords = null;
+				}
+			}
+			// same for priority
+			if (frontmatter["q-priority"] != null) {
+				if (typeof frontmatter["q-priority"] === "number") {
+					qPriority = frontmatter["q-priority"];
+				} else {
+					console.warn(
+						`Invalid q-priority for note %c${note.basename}`,
+						"color: orange"
+					);
+				}
+			}
+
+			// same for interval
+			if (frontmatter["q-interval"] != null) {
+				if (typeof frontmatter["q-interval"] === "number") {
+					qInterval = frontmatter["q-interval"];
+				} else {
+					console.warn(
+						`Invalid q-interval for note %c${note.basename}`,
+						"color: orange"
+					);
+				}
+			}
+
+			// same for q-data.model, check for type object
+
+			if (frontmatter["q-data"]) {
+				if (frontmatter["q-data"]["model"] != null) {
+					if (typeof frontmatter["q-data"].model === "object") {
+						qData.model = frontmatter["q-data"]["model"];
+					} else {
+						console.warn(
+							`Invalid q-data.model for note %c${note.basename}`,
+							"color: orange"
+						);
+					}
+				}
+			}
+
+			// same for q-data.last-seen, check for type string
+			// but then convert to date
+			if (frontmatter["q-data"]) {
+				if (frontmatter["q-data"]["last-seen"] != null) {
+					if (
+						typeof frontmatter["q-data"]["last-seen"] === "string"
+					) {
+						// see if legitimate datestring:
+						if (
+							new Date(
+								frontmatter["q-data"]["last-seen"]
+							).toString() === "Invalid Date"
+						) {
+							console.warn(
+								`Invalid date string for q-data.last-seen for note %c${note.basename}`,
+								"color: orange"
+							);
+						} else {
+							qData.lastSeen = new Date(
+								frontmatter["q-data"]["last-seen"]
+							);
+						}
+					}
+				}
+			}
+
+			// same for q-data.due-at, check for type string
+
 			// TODO: remove "dueat" at some point, this is just legacy from my vault (and now Marta's)
 			// (or handle this more elegantly, list of synoyms or something, but that's overkill for now)
 			// if due at not set, set 10s into the past
-			const dueAtString = qData?.["due-at"] || qData?.["dueat"] || null;
-			let dueAt: Date | null = null;
-			// convert from date format 2024-03-01T03:00:00.000Z to actual date
-			if (dueAtString) {
-				dueAt = new Date(dueAtString);
-				if (dueAt.toString() === "Invalid Date") {
-					console.error(`Invalid date string: ${dueAtString}`);
-				}
-			}
-			const lastSeenString = qData?.["last-seen"] ?? null;
-			let lastSeen: Date | null = null;
-			if (lastSeenString) {
-				lastSeen = new Date(lastSeenString);
-				if (lastSeen.toString() === "Invalid Date") {
-					console.error(`Invalid date string: ${lastSeenString}`);
+			if (frontmatter["q-data"]) {
+				const dueAtString =
+					frontmatter["q-data"]["due-at"] ||
+					frontmatter["q-data"]["dueat"] ||
+					null;
+				if (dueAtString != null && typeof dueAtString === "string") {
+					const dueAtDate = new Date(dueAtString);
+					if (dueAtDate.toString() === "Invalid Date") {
+						console.warn(
+							`Invalid date string for q-data.due-at for note %c${note.basename}`,
+							"color: orange"
+						);
+					} else {
+						qData.dueAt = dueAtDate;
+					}
 				}
 			}
 
-			const leechCount = qData?.["leech-count"] ?? null;
+			// check leech-count for type number
+			if (frontmatter["q-data"]) {
+				if (frontmatter["q-data"]["leech-count"] != null) {
+					if (
+						typeof frontmatter["q-data"]["leech-count"] === "number"
+					) {
+						qData.leechCount = frontmatter["q-data"]["leech-count"];
+					} else {
+						console.warn(
+							`Invalid q-data.leech-count for note %c${note.basename}`,
+							"color: orange"
+						);
+					}
+				}
+			}
+
+			console.info(
+				`Loaded note ${note.basename} from file, creating following object: \n qType: ${qType} \n qTopic: ${qTopic} \n qKeywords: ${qKeywords} \n qPriority: ${qPriority} \n qInterval: ${qInterval} \n qData: ${qData}`
+			);
 
 			return new QueueNote(
 				note,
@@ -115,12 +246,7 @@ export default class QueueNote {
 				qKeywords,
 				qPriority,
 				qInterval,
-				{
-					model,
-					dueAt,
-					lastSeen,
-					leechCount,
-				}
+				qData
 			);
 		}
 	}
@@ -172,13 +298,15 @@ export default class QueueNote {
 	}
 
 	setNewModel(score: number): void {
-		let model = this.qData.model
-		let lastSeen = this.qData.lastSeen
+		let model = this.qData.model;
+		let lastSeen = this.qData.lastSeen;
 		if (lastSeen == null || model == null) {
 			console.warn(
 				`There is no saved learning data for note ${this.noteFile.basename}, model may be distorted.`
 			);
-			model = ebisu.defaultModel((scenarioHalfLives as any)[score.toString()]);
+			model = ebisu.defaultModel(
+				(scenarioHalfLives as any)[score.toString()]
+			);
 			lastSeen = new Date();
 		}
 		const elapsedTime =
@@ -306,16 +434,16 @@ export default class QueueNote {
 		return this.noteFile.basename;
 	}
 
-
 	adaptByScore(answer: string) {
-
 		if (this.getType() === "learn") {
-			const model = ebisu.defaultModel((scenarioHalfLives as any)[answer]);
+			const model = ebisu.defaultModel(
+				(scenarioHalfLives as any)[answer]
+			);
 			this.setModel(model);
 			this.setLastSeen(new Date());
 			this.startLearning();
 		}
-	
+
 		// learning cards that we have seen before
 		// TODO: make stuff like this robust against metadata being broken/missing (and think about what to even do)
 		if (this.getType() === "learn-started") {
@@ -329,7 +457,7 @@ export default class QueueNote {
 			}
 			this.setNewModel(score);
 		}
-	
+
 		// note: "book" means *unstarted* book
 		if (this.getType() === "book") {
 			// if later, set in 10m
@@ -343,7 +471,7 @@ export default class QueueNote {
 				this.startReadingBook();
 			}
 		}
-	
+
 		if (this.getType() === "book-started") {
 			if (answer === "later") {
 				this.setDueLater("a bit later");
@@ -360,7 +488,7 @@ export default class QueueNote {
 				this.finishReadingBook();
 			}
 		}
-	
+
 		// article works essentially the same as book-started
 		if (this.getType() === "article") {
 			if (answer === "later") {
@@ -373,7 +501,7 @@ export default class QueueNote {
 				this.finishReadingArticle();
 			}
 		}
-	
+
 		if (
 			this.getType() === "check" ||
 			this.getType() === "habit" ||
@@ -390,14 +518,14 @@ export default class QueueNote {
 				this.resetLeechCount();
 			}
 		}
-	
+
 		// just handle the special case of todo being completed (due is handled in the condition before)
 		if (this.getType() === "todo") {
 			if (answer === "completed") {
 				this.completeTodo();
 			}
 		}
-	
+
 		if (this.getType() === "misc") {
 			if (answer === "show-less") {
 				this.decrementPriority(1);
@@ -406,9 +534,7 @@ export default class QueueNote {
 			}
 			this.setDueLater("day later");
 		}
-	
 	}
-
 
 	save(): void {
 		if (!this.noteFile) {
@@ -439,7 +565,8 @@ export default class QueueNote {
 				}
 				if (this.getData().lastSeen != null) {
 					createEmptyQDataIfNeeded();
-					frontmatter["q-data"]["last-seen"] = this.getData().lastSeen;
+					frontmatter["q-data"]["last-seen"] =
+						this.getData().lastSeen;
 				}
 				if (this.getData().leechCount != null) {
 					createEmptyQDataIfNeeded();
