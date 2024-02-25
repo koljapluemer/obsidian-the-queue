@@ -45,10 +45,18 @@ export default class TheQueueModal extends Modal {
 				foundNoteToOpen = true;
 
 				// check if specialUsedSelection is in localstorage
-				if (localStorage.getItem("specialUsedSelection")) {
-					specialUsedSelection = localStorage.getItem(
-						"specialUsedSelection"
-					) as "improvables" | "orphans" | null;
+				specialUsedSelection = (localStorage.getItem("specialUsedSelection") as 
+					"improvables" | "orphans" | null);
+				if (specialUsedSelection !== null) {
+					if (specialUsedSelection  === "orphans") {
+						// if we're looking at an orphan check:
+						// check nrOflinks now, if they were added, we are done with the task at hand
+						// and should get a new card
+						// for this, just let the function continue
+						if (this.currentQueueNote.getNrOfLinks() > 0) {
+							loadingLastNote = false;
+						}
+					}
 				}
 			}
 		}

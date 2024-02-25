@@ -141,11 +141,6 @@ export function render(
 					text: "Let's Go",
 				})
 				.addEventListener("click", () => {
-					// remove lastOpenedNoteName from localstorage so we don't open the same note again
-					// otherwise the prompt never leaves
-					// *could do this more elegantly by recounting the links but that would require a rerun of
-					// functionality upon opening a previously saved note, which is currently not done*
-					localStorage.removeItem("lastOpenedNoteName");
 					// open note in editor and close modal
 					parentContext.app.workspace.openLinkText(
 						qNote.noteFile.path,
