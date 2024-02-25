@@ -1,5 +1,5 @@
 import QueueFilterModal from "components/elements/QueueFilterModal";
-import { MarkdownPreviewView, setIcon } from "obsidian";
+import { MarkdownPreviewView, MarkdownRenderer, setIcon } from "obsidian";
 import QueueNote from "components/classes/QueueNote";
 
 export function render(
@@ -91,11 +91,11 @@ export function render(
 		// add title of note before front, with a # to make it a title
 		renderedContent = `# ${title}\n\n` + renderedContent;
 
-		MarkdownPreviewView.renderMarkdown(
+		MarkdownRenderer.renderMarkdown(
 			renderedContent,
 			contentEl,
-			parentContext.currentQueueNote.path,
-			parentContext.component
+			qNote.getNoteFile().path,
+			contentEl
 		);
 
 
@@ -163,13 +163,13 @@ export function render(
 					})
 					.addEventListener("click", () => {
 						contentEl.empty();
-						MarkdownPreviewView.renderMarkdown(
+						MarkdownRenderer.renderMarkdown(
 							renderedContent +
 								"\n---\n" +
 								initiallyHiddenContent,
 							contentEl,
-							parentContext.currentQueueNote.path,
-							parentContext.component
+							qNote.getNoteFile().path,
+							contentEl
 						);
 						const secondButtonRow =
 							contentEl.createDiv("button-row");
