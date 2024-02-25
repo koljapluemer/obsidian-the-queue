@@ -12,6 +12,7 @@ export default class QueueFilterModal extends Modal {
 	}
 
 	onOpen() {
+		// TODO: technically we don't need the markdown loop or the manual frontmatter check, we can use QueueNote[] array
 		// loop through all notes, and generate a set from all found values in the q-keywords frontmatter list property
 		const allKeywords = new Set();
 
@@ -21,7 +22,6 @@ export default class QueueFilterModal extends Modal {
 			const keywordsProperty = metadata?.frontmatter?.["q-keywords"];
 			if (keywordsProperty) {
 				// check type of keywordsProperty
-				const typeOfKeywordsProperty = typeof keywordsProperty;
 				// if it's an array, loop through, if it's a string, add it to the set
 				if (Array.isArray(keywordsProperty)) {
 					keywordsProperty.forEach((keyword: String) => {
