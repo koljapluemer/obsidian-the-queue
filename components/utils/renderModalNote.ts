@@ -98,7 +98,6 @@ export function render(
 			parentContext.component
 		);
 
-		const buttonRow = contentEl.createDiv("button-row");
 
 		function appendScoreButton(
 			parent: HTMLElement,
@@ -119,18 +118,24 @@ export function render(
 		// for orphans and improvables, we want to show a different set of buttons
 		// one 'Ok' opens the current note and closes the modal, and a standard 'Not Today' button
 		if (specialUsedSelection === "improvables") {
-			buttonRow.createEl("span", {
+			contentEl.createEl("p", {
 				text: "You marked this note as improvable. Make it slightly nicer!",
+				cls: "button-prompt"
 			});
 		} else if (specialUsedSelection === "orphans") {
-			buttonRow.createEl("span", {
+			contentEl.createEl("p", {
 				text: "This note is an orphan. Link it with another note!",
+				cls: "button-prompt"
 			});
 		}
+
+		const buttonRow = contentEl.createDiv("button-row");
+
 		if (
 			specialUsedSelection === "improvables" ||
 			specialUsedSelection === "orphans"
 		) {
+			appendScoreButton(buttonRow, "Not Today", "not-today");
 			buttonRow
 				.createEl("button", {
 					text: "Let's Go",
@@ -149,7 +154,6 @@ export function render(
 					);
 					parentContext.close();
 				});
-			appendScoreButton(buttonRow, "Not Today", "not-today");
 		} else {
 			// HANDLE STANDARD CASES
 

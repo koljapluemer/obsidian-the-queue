@@ -17,6 +17,12 @@
     margin: 6px inherit;
 }
 
+.button-prompt {
+    margin: auto;
+    text-align: center;
+    padding-bottom: 4px;
+}
+
 .button-row {
     display: flex;
     flex-direction: row;
