@@ -1,10 +1,7 @@
-import {
-	Plugin,
-} from "obsidian";
+import { Plugin } from "obsidian";
 
 import QueueSettingsTab from "./components/elements/QueueSettingsTab";
 import TheQueueModal from "./components/elements/TheQueueModal";
-
 
 interface TheQueueSettings {
 	desiredRecallThreshold: number;
@@ -29,6 +26,14 @@ export default class TheQueue extends Plugin {
 		// add settings tab
 		await this.loadSettings();
 		this.addSettingTab(new QueueSettingsTab(this.app, this));
+		// event listener for file renames
+		// this is important so that the same note can be opened in queue, even if it's renamed
+		app.vault.on("rename", function (file, oldname) {
+			// if old_name corresponds to localstorage.lastOpenedNoteName, update it localstorage
+			if (localStorage.getItem("lastOpenedNoteName") === oldname) {
+				localStorage.setItem("lastOpenedNoteName", file.name);
+			}
+		});
 	}
 
 	onunload() {}
@@ -45,5 +50,3 @@ export default class TheQueue extends Plugin {
 		await this.saveData(this.settings);
 	}
 }
-
-

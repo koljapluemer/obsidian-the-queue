@@ -4,16 +4,9 @@ There is no point in creating notes you never see again! *The Queue* shows you r
 
 ### Types of notes
 
-#### Learn
 
-#### Habit
 
-#### Check-In
 
-#### To-Do
+### Tips & Tricks
 
-#### Article
-
-#### Book
-
-#### Misc
+#### The orphan prompt works great with AutoMOC

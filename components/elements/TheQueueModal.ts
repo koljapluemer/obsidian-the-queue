@@ -55,6 +55,7 @@ export default class TheQueueModal extends Modal {
 						// for this, just let the function continue
 						if (this.currentQueueNote.getNrOfLinks() > 0) {
 							loadingLastNote = false;
+							localStorage.removeItem("specialUsedSelection");
 						}
 					}
 				}
@@ -83,9 +84,7 @@ export default class TheQueueModal extends Modal {
 				if (randomKey === "improvables" || randomKey === "orphans") {
 					specialUsedSelection = randomKey;
 					localStorage.setItem("specialUsedSelection", randomKey);
-				} else {
-					localStorage.removeItem("specialUsedSelection");
-				}
+				} 
 			}
 		}
 

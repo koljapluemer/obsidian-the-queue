@@ -59,10 +59,12 @@ export default class QueueFilterModal extends Modal {
 					this.onSubmit(this.keywordFilter);
 				})
 			);
+
 	}
 
 	onClose() {
 		let { contentEl } = this;
 		contentEl.empty();
 	}
+
 }
