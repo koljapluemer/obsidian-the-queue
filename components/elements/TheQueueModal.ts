@@ -37,13 +37,16 @@ export default class TheQueueModal extends Modal {
 			if (possibleNotes.length > 0) {
 				loadingLastNote = true;
 				const qNote = QueueNote.createFromNoteFile(possibleNotes[0]);
-				let promptType = qNote.getType() as PromptType;
+				let promptType = qNote.guessPromptType();
 				// if we have promptType saved in localStorage, use that instead
 				const savedPromptType = localStorage.getItem(
 					"lastOpenedPromptType"
 				);
 				if (savedPromptType) {
-					promptType = savedPromptType as PromptType;
+					// if it's one of the special cases, overwrite it
+					if (savedPromptType === "orphans" || savedPromptType === "improvables") {
+						promptType = savedPromptType as PromptType;
+					}
 				}
 
 				this.currentQueuePrompt = new QueuePrompt(qNote, promptType);

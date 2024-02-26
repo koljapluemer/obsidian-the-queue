@@ -1,6 +1,6 @@
 import * as ebisu from "ebisu-js";
 import { TFile } from "obsidian";
-
+import { PromptType } from "./QueuePrompt";
 
 export enum QType {
 	learn = "learn",
@@ -28,6 +28,9 @@ const scenarioHalfLives = {
 	"2": 24,
 };
 
+/** Represents an Obsidian note's mirror for the Queue plugin
+ *
+ */
 export default class QueueNote {
 	qData: {
 		model: any | null;
@@ -58,7 +61,7 @@ export default class QueueNote {
 			leechCount: number | null;
 		}
 	) {
-		this.qType = qType as QType || null;
+		this.qType = (qType as QType) || null;
 		this.qTopic = qTopic || null;
 		this.qKeywords = qKeywords || null;
 		this.qPriority = qPriority || null;
@@ -260,10 +263,10 @@ export default class QueueNote {
 
 	getType(): QType {
 		// a finished book is not treated different from a 'misc' card
-		// unspecified (or illegal) types are also treated as 'misc' 
+		// unspecified (or illegal) types are also treated as 'misc'
 		// TODO: check if this works
 		let pragmaticType = this.qType || QType.misc;
-		if (pragmaticType  === QType.bookFinished) {
+		if (pragmaticType === QType.bookFinished) {
 			pragmaticType = QType.misc;
 		}
 		return pragmaticType;
@@ -272,6 +275,34 @@ export default class QueueNote {
 	// we need this so notes metadata does not get filled for no reason
 	getActuallyStoredType(): QType | null {
 		return this.qType;
+	}
+
+	guessPromptType(): PromptType {
+		if (this.getType() === "learn") {
+			return "newLearns";
+		}
+		if (this.getType() === "learn-started") {
+			return "startedLearnNoteMostCloseToForgetting";
+		}
+		if (this.getType() === "book") {
+			return "newBooks";
+		}
+		if (this.getType() === "book-started") {
+			return "dueStartedBooks";
+		}
+		if (this.getType() === "check") {
+			return "dueChecks";
+		}
+		if (this.getType() === "habit") {
+			return "dueHabits";
+		}
+		if (this.getType() === "todo") {
+			return "dueTodos";
+		}
+		if (this.getType() === "article") {
+			return "dueArticles";
+		}
+		return "dueMisc";
 	}
 
 	getShouldBeExcluded(): boolean {
