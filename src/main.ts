@@ -1,14 +1,16 @@
 import { Plugin } from "obsidian";
 
 import QueueSettingsTab from "./elements/QueueSettingsTab";
-import TheQueueModal from "./elements/TheQueueModal";
+import QueueModal from "./elements/QueueModal";
 
 interface TheQueueSettings {
 	desiredRecallThreshold: number;
+	improvablesKeyword: string;
 }
 
 const DEFAULT_SETTINGS: Partial<TheQueueSettings> = {
 	desiredRecallThreshold: 0.8,
+	improvablesKeyword: "needs-improvement",
 };
 
 /** The outer plugin class.
@@ -20,12 +22,12 @@ export default class TheQueue extends Plugin {
 
 	async onload() {
 		// This creates an icon in the left ribbon.
-		const queueInstantIconEl = this.addRibbonIcon(
+		this.addRibbonIcon(
 			"dice",
 			"Instant Queue",
 			(evt: MouseEvent) => {
 				/** Here, the modal where the action happens is opened; see class definition */
-				new TheQueueModal(this.app, this.settings).open();
+				new QueueModal(this.app, this.settings).open();
 			}
 		);
 		// add settings tab
@@ -49,6 +51,8 @@ export default class TheQueue extends Plugin {
 			DEFAULT_SETTINGS,
 			await this.loadData()
 		);
+		// save settings as session cookie
+		sessionStorage.setItem("the-queue-settings", JSON.stringify(this.settings));
 	}
 
 	async saveSettings() {

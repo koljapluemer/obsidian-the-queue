@@ -11,7 +11,7 @@ export function getSortedSelectionsOfPickableNotes(
 	qNotes: QueueNote[],
 	keywordFilter: string,
 	currentQueueNote: QueueNote | null,
-	desiredRecallThreshold: number
+	settings: any
 ): pickableSelections {
 	let dueArticles: QueueNote[] = [];
 	let newBooks: QueueNote[] = [];
@@ -24,6 +24,7 @@ export function getSortedSelectionsOfPickableNotes(
 	let dueMisc: QueueNote[] = [];
 
 	let orphans: QueueNote[] = [];
+	let improvables: QueueNote[] = [];
 
 	let counterStartedLearnsBelowThreshold = 0;
 	let counterStartedBooksEvenIfNotDue = 0;
@@ -65,7 +66,7 @@ export function getSortedSelectionsOfPickableNotes(
 			// we have this as [] so it's consistent with the other selections
 			// exclude notes with a recall so high that rep is useless rn
 			const predictedRecall = qNote.getPredictedRecall();
-			if (predictedRecall < desiredRecallThreshold) {
+			if (predictedRecall < settings.desiredRecallThreshold) {
 				counterStartedLearnsBelowThreshold += 1;
 				if (qNote.getPredictedRecall() < lowestPredictedRecall) {
 					lowestPredictedRecall = predictedRecall;
@@ -82,6 +83,10 @@ export function getSortedSelectionsOfPickableNotes(
 			if (qNote.getNrOfLinks() === 0) {
 				orphans.push(qNote);
 			}
+		}
+		// any due note may be considered improvable if settings.
+		if (qNote.getIsCurrentlyDue() && qNote.isImprovable) {
+			improvables.push(qNote);
 		}
 	});
 	// if we have more than 10 learn cards below threshold, remove new learn cards
@@ -120,6 +125,10 @@ export function getSortedSelectionsOfPickableNotes(
 	}
 	if (orphans.length > 0) {
 		returnObj.orphans = orphans;
+	}
+	if (improvables.length > 0) {
+		console.log("Adding improvable notes to returnObj");
+		returnObj.improvables = improvables;
 	}
 
 	return returnObj;

@@ -17,6 +17,8 @@ export enum QType {
 	exclude = "exclude",
 }
 
+import TheQueue from "../main";
+
 type TimeDurationString = "a bit later" | "day later" | "custom";
 
 const scenarioHalfLives = {
@@ -43,10 +45,12 @@ export default class QueueNote {
 	qKeywords: Array<string> | null;
 	noteFile: TFile;
 	nrOfLinks: number;
+	isImprovable: boolean;
 
 	constructor(
 		noteFile: TFile,
 		nrOfLinks: number,
+		isImprovable: boolean,
 		qType?: string | null,
 		qTopic?: string | null,
 		qKeywords?: Array<string> | null,
@@ -72,6 +76,7 @@ export default class QueueNote {
 		};
 		this.noteFile = noteFile;
 		this.nrOfLinks = nrOfLinks;
+		this.isImprovable = false;
 	}
 
 	// this handles the construction from dirty, real life data
@@ -81,8 +86,24 @@ export default class QueueNote {
 		const frontmatter = metadata?.frontmatter;
 		const nrOfLinks = metadata?.links?.length || 0;
 
+		// read note content:
+		let isImprovable = false;
+		app.vault.read(note).then((content) => {
+			const settingsCookie = sessionStorage.getItem("the-queue-settings");
+			if (settingsCookie != null) {
+				const settings = JSON.parse(settingsCookie);
+				// check if settings.improvablesKeyword is in the note
+				if (content.includes(settings?.improvablesKeyword)) {
+					isImprovable = true;
+					// console.log(
+						// `Note ${note.basename} is improvable, because it contains the keyword ${settings?.improvablesKeyword}`
+					// );
+				}
+			}
+		});
+
 		if (!frontmatter) {
-			return new QueueNote(note, nrOfLinks);
+			return new QueueNote(note, nrOfLinks, isImprovable);
 		} else {
 			let qType: QType | null = null;
 			let qTopic: string | null = null;
@@ -249,6 +270,7 @@ export default class QueueNote {
 			return new QueueNote(
 				note,
 				nrOfLinks,
+				isImprovable,
 				qType,
 				qTopic,
 				qKeywords,

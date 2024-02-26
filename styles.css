@@ -18,9 +18,11 @@
 }
 
 .button-prompt {
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
     margin: auto;
     text-align: center;
-    padding-bottom: 4px;
+    padding-top: 12px;
+    padding-bottom: 8px;
 }
 
 .button-row {

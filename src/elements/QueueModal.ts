@@ -8,7 +8,7 @@ import { PromptType } from "../classes/QueuePrompt";
 import { pickRandomNoteWithPriorityWeighting } from "../utils/randomSelection";
 
 /** Basically the modal itself, mainly tasked with loading a new note. */
-export default class TheQueueModal extends Modal {
+export default class QueueModal extends Modal {
 	component: Component;
 	settings: any;
 
@@ -74,6 +74,14 @@ export default class TheQueueModal extends Modal {
 					// and should get a new card
 					// for this, just let the function continue
 					if (qNote.getNrOfLinks() > 0) {
+						loadingLastNote = false;
+						localStorage.removeItem("lastOpenedNoteName");
+						localStorage.removeItem("lastOpenedPromptType");
+					}
+				}
+				// if 'improvables', check if it still contains the keyword
+				if (promptType === "improvables") {
+					if (!qNote.getKeywords().includes(this.settings.improvablesKeyword)) {
 						loadingLastNote = false;
 						localStorage.removeItem("lastOpenedNoteName");
 						localStorage.removeItem("lastOpenedPromptType");
