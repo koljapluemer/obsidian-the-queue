@@ -461,7 +461,7 @@ export default class QueueNote {
 	getShouldReceiveLeechTreatment(): boolean {
 		// true if leech count is divisible by 4 and not 0
 		// TODO: adapt these nrs, maybe even make them a setting
-		return this.getLeechCount() % 4 === 0 && this.getLeechCount() !== 0;
+		return this.getLeechCount() % 1 === 0 && this.getLeechCount() !== 0;
 	}
 
 	setDueLater(timeDuration: TimeDurationString): void {
@@ -590,8 +590,10 @@ export default class QueueNote {
 		if (this.getType() === "article") {
 			if (answer === "later") {
 				this.setDueLater("a bit later");
+				this.incrementLeechCount(0.5);
 			} else {
 				this.setDueLater("day later");
+				this.incrementLeechCount(1);
 			}
 			// check if finished
 			if (answer === "finished") {
@@ -599,27 +601,41 @@ export default class QueueNote {
 			}
 		}
 
-		if (
-			this.getType() === "check" ||
-			this.getType() === "habit" ||
-			this.getType() === "todo"
-		) {
+		if (this.getType() === "habit") {
 			if (answer === "later") {
 				this.setDueLater("a bit later");
 				this.incrementLeechCount(0.5);
 			} else if (answer === "not-today") {
 				this.setDueLater("day later");
 				this.incrementLeechCount(1);
-			} else {
+			} else if (answer === "done") {
 				this.setDueLater("custom");
 				this.resetLeechCount();
 			}
 		}
 
+		if (this.getType() === "check") {
+			if (answer === "no") {
+				this.incrementLeechCount(1);
+			} else if (answer === "kind-of") {
+				this.incrementLeechCount(0.5);
+			} else if (answer === "yes") {
+				this.resetLeechCount();
+			}
+			this.setDueLater("custom");
+		}
+
 		// just handle the special case of todo being completed (due is handled in the condition before)
 		if (this.getType() === "todo") {
-			if (answer === "completed") {
+			if (answer === "later") {
+				this.setDueLater("a bit later");
+				this.incrementLeechCount(0.5);
+			} else if (answer === "not-today") {
+				this.setDueLater("day later");
+				this.incrementLeechCount(1);
+			} else if (answer === "completed") {
 				this.completeTodo();
+				this.resetLeechCount();
 			}
 		}
 

@@ -214,7 +214,6 @@ export function render(qPrompt: QueuePrompt, parentContext: any) {
 				appendScoreButton(buttonRow, "Done", "done");
 				// todo
 			} else if (qPrompt.promptType === "dueTodos") {
-				appendScoreButton(buttonRow, "Delete", "delete");
 				appendScoreButton(buttonRow, "Not Today", "not-today");
 				appendScoreButton(buttonRow, "Later", "later");
 				appendScoreButton(buttonRow, "Completed", "completed");

@@ -26,6 +26,9 @@ export function getSortedSelectionsOfPickableNotes(
 	let orphans: QueueNote[] = [];
 	let improvables: QueueNote[] = [];
 	let learnLeeches: QueueNote[] = [];
+	let checkLeeches: QueueNote[] = [];
+	let otherLeeches: QueueNote[] = [];
+	let readingLeeches: QueueNote[] = [];
 
 	let counterStartedLearnsBelowThreshold = 0;
 	let counterStartedBooksEvenIfNotDue = 0;
@@ -49,19 +52,34 @@ export function getSortedSelectionsOfPickableNotes(
 
 		if (qNote.getType() === "article" && qNote.getIsCurrentlyDue()) {
 			dueArticles.push(qNote);
+			if (qNote.getShouldReceiveLeechTreatment()) {
+				readingLeeches.push(qNote);
+			}
 		} else if (qNote.getType() === "book-started") {
 			if (qNote.getIsCurrentlyDue()) {
 				dueStartedBooks.push(qNote);
 			}
 			counterStartedBooksEvenIfNotDue += 1;
+			if (qNote.getShouldReceiveLeechTreatment()) {
+				readingLeeches.push(qNote);
+			}
 		} else if (qNote.getType() === "book") {
 			newBooks.push(qNote);
 		} else if (qNote.getType() === "check" && qNote.getIsCurrentlyDue()) {
 			dueChecks.push(qNote);
+			if (qNote.getShouldReceiveLeechTreatment()) {
+				checkLeeches.push(qNote);
+			}
 		} else if (qNote.getType() === "habit" && qNote.getIsCurrentlyDue()) {
 			dueHabits.push(qNote);
+			if (qNote.getShouldReceiveLeechTreatment()) {
+				otherLeeches.push(qNote);
+			}
 		} else if (qNote.getType() === "todo" && qNote.getIsCurrentlyDue()) {
 			dueTodos.push(qNote);
+			if (qNote.getShouldReceiveLeechTreatment()) {
+				otherLeeches.push(qNote);
+			}
 		} else if (qNote.getType() === "learn-started") {
 			// check if should be treated as leech
 			// TODO: add a kind of actual due check here (but currently dueAt for learn cards is related to recall threshold...)
@@ -138,6 +156,15 @@ export function getSortedSelectionsOfPickableNotes(
 	}
 	if (learnLeeches.length > 0) {
 		returnObj.learnLeeches = learnLeeches;
+	}
+	if (checkLeeches.length > 0) {
+		returnObj.checkLeeches = checkLeeches;
+	}
+	if (otherLeeches.length > 0) {
+		returnObj.otherLeeches = otherLeeches;
+	}
+	if (readingLeeches.length > 0) {
+		returnObj.readingLeeches = readingLeeches;
 	}
 	// console.info('Selections with pickable notes: ', returnObj);
 
