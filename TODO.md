@@ -39,6 +39,3 @@
 
 - allow less silly formatted learn cards
 - make log work again
-- handle broken/illegal `q-type`s
-    - they get selected as `misc` anyhow but scoring just doesn't affect them
-- handle `orphan` type better. Logic is all over main file, and sometimes irrelevant cards get classified as an orphan etc.

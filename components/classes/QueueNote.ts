@@ -1,19 +1,21 @@
 import * as ebisu from "ebisu-js";
 import { TFile } from "obsidian";
 
-type QType =
-	| "learn"
-	| "learn-started"
-	| "todo"
-	| "todo-done"
-	| "habit"
-	| "check"
-	| "book"
-	| "book-started"
-	| "book-finished"
-	| "article"
-	| "misc"
-	| "exclude";
+
+export enum QType {
+	learn = "learn",
+	learnStarted = "learn-started",
+	todo = "todo",
+	todoDone = "todo-done",
+	habit = "habit",
+	check = "check",
+	book = "book",
+	bookStarted = "book-started",
+	bookFinished = "book-finished",
+	article = "article",
+	misc = "misc",
+	exclude = "exclude",
+}
 
 type TimeDurationString = "a bit later" | "day later" | "custom";
 
@@ -44,7 +46,7 @@ export default class QueueNote {
 	constructor(
 		noteFile: TFile,
 		nrOfLinks: number,
-		qType?: QType | null,
+		qType?: string | null,
 		qTopic?: string | null,
 		qKeywords?: Array<string> | null,
 		qPriority?: number | null,
@@ -56,7 +58,7 @@ export default class QueueNote {
 			leechCount: number | null;
 		}
 	) {
-		this.qType = qType || null;
+		this.qType = qType as QType || null;
 		this.qTopic = qTopic || null;
 		this.qKeywords = qKeywords || null;
 		this.qPriority = qPriority || null;
@@ -100,12 +102,12 @@ export default class QueueNote {
 
 			// check if frontmatter["q-type"] is string
 			if (frontmatter["q-type"] != null) {
-				if (typeof frontmatter["q-type"] === "string") {
-					// TODO: check if this fails if the string is not a valid QType
-					qType = frontmatter["q-type"] as QType;
+				// check if q-type corresponds to a valid value in the QType enum
+				if (Object.values(QType).includes(frontmatter["q-type"])) {
+					qType = frontmatter["q-type"];
 				} else {
 					console.warn(
-						`Invalid q-type for note %c${note.basename}`,
+						`Invalid q-type for note %c${note.basename}, treating as misc`,
 						"color: orange"
 					);
 				}
@@ -257,12 +259,14 @@ export default class QueueNote {
 	}
 
 	getType(): QType {
-		let typeOfNote = this.qType || "misc";
 		// a finished book is not treated different from a 'misc' card
-		if (typeOfNote === "book-finished") {
-			typeOfNote = "misc";
+		// unspecified (or illegal) types are also treated as 'misc' 
+		// TODO: check if this works
+		let pragmaticType = this.qType || QType.misc;
+		if (pragmaticType  === QType.bookFinished) {
+			pragmaticType = QType.misc;
 		}
-		return typeOfNote;
+		return pragmaticType;
 	}
 
 	// we need this so notes metadata does not get filled for no reason
@@ -350,23 +354,23 @@ export default class QueueNote {
 	}
 
 	startLearning(): void {
-		this.qType = "learn-started";
+		this.qType = QType.learnStarted;
 	}
 
 	startReadingBook(): void {
-		this.qType = "book-started";
+		this.qType = QType.bookStarted;
 	}
 
 	finishReadingBook(): void {
-		this.qType = "book-finished";
+		this.qType = QType.bookFinished;
 	}
 
 	finishReadingArticle(): void {
-		this.qType = "misc";
+		this.qType = QType.misc;
 	}
 
 	completeTodo(): void {
-		this.qType = "todo-done";
+		this.qType = QType.todoDone;
 	}
 
 	incrementLeechCount(by: number): void {
