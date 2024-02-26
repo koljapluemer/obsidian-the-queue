@@ -46,7 +46,7 @@ export default class QueueFilterModal extends Modal {
 			.addDropdown((dropdown) => {
 				dropdown.addOption("All Notes", "All Notes");
 				allKeywords.forEach((keyword) => {
-					dropdown.addOption(keyword, keyword);
+					dropdown.addOption(keyword as string, keyword as string);
 				});
                 dropdown.setValue(this.keywordFilter);
 				dropdown.onChange((value) => {

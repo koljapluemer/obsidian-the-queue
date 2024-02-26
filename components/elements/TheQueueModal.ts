@@ -1,15 +1,12 @@
-import {
-	App,
-	Modal,
-	Notice,
-	Component,
-} from "obsidian";
+import { App, Modal, Notice, Component } from "obsidian";
 
 import { pickRandomNoteWithPriorityWeighting } from "components/utils/randomSelection";
 import { Settings } from "http2";
 import { getSortedSelectionsOfPickableNotes } from "components/utils/getSortedSelectionsOfPickableNotes";
 import { render } from "components/utils/renderModalNote";
 import QueueNote from "components/classes/QueueNote";
+import QueuePrompt from "components/classes/QueuePrompt";
+import { PromptType } from "components/classes/QueuePrompt";
 
 export default class TheQueueModal extends Modal {
 	component: Component;
@@ -21,13 +18,13 @@ export default class TheQueueModal extends Modal {
 	}
 
 	qNotes: QueueNote[] = [];
-	currentQueueNote: QueueNote;
+	// currentQueueNote: QueueNote;
+	currentQueuePrompt: QueuePrompt;
 	keywordFilter: string = "All Notes";
 
 	loadNewNote(lastOpenedNoteName: string | null = null) {
 		let loadingLastNote = false;
 		let foundNoteToOpen = false;
-		let specialUsedSelection: "improvables" | "orphans" | null = null;
 
 		if (lastOpenedNoteName !== null) {
 			// in this case, load the same note we had open before (not actually random)
@@ -39,24 +36,28 @@ export default class TheQueueModal extends Modal {
 				});
 			if (possibleNotes.length > 0) {
 				loadingLastNote = true;
-				this.currentQueueNote = QueueNote.createFromNoteFile(
-					possibleNotes[0]
+				const qNote = QueueNote.createFromNoteFile(possibleNotes[0]);
+				let promptType = qNote.getType() as PromptType;
+				// if we have promptType saved in localStorage, use that instead
+				const savedPromptType = localStorage.getItem(
+					"lastOpenedPromptType"
 				);
+				if (savedPromptType) {
+					promptType = savedPromptType as PromptType;
+				}
+
+				this.currentQueuePrompt = new QueuePrompt(qNote, promptType);
 				foundNoteToOpen = true;
 
-				// check if specialUsedSelection is in localstorage
-				specialUsedSelection = (localStorage.getItem("specialUsedSelection") as 
-					"improvables" | "orphans" | null);
-				if (specialUsedSelection !== null) {
-					if (specialUsedSelection  === "orphans") {
-						// if we're looking at an orphan check:
-						// check nrOflinks now, if they were added, we are done with the task at hand
-						// and should get a new card
-						// for this, just let the function continue
-						if (this.currentQueueNote.getNrOfLinks() > 0) {
-							loadingLastNote = false;
-							localStorage.removeItem("specialUsedSelection");
-						}
+				if (promptType === "orphans") {
+					// if we're looking at an orphan check:
+					// check nrOflinks now, if they were added, we are done with the task at hand
+					// and should get a new card
+					// for this, just let the function continue
+					if (qNote.getNrOfLinks() > 0) {
+						loadingLastNote = false;
+						localStorage.removeItem("lastOpenedNoteName");
+						localStorage.removeItem("lastOpenedPromptType");
 					}
 				}
 			}
@@ -68,7 +69,7 @@ export default class TheQueueModal extends Modal {
 			const pickableSelections = getSortedSelectionsOfPickableNotes(
 				this.qNotes,
 				this.keywordFilter,
-				this.currentQueueNote,
+				this.currentQueuePrompt.qNote,
 				(this.settings as any).desiredRecallThreshold
 			);
 			// pick a random selection, then pick a random note from selection of that name
@@ -77,15 +78,22 @@ export default class TheQueueModal extends Modal {
 			if (keys.length > 0) {
 				// pick a random value from the object
 				const randomKey = keys[Math.floor(Math.random() * keys.length)];
-				this.currentQueueNote =
-					pickRandomNoteWithPriorityWeighting(pickableSelections[randomKey]);
+				const randomNote = pickRandomNoteWithPriorityWeighting(
+					pickableSelections[randomKey]
+				);
+				this.currentQueuePrompt = new QueuePrompt(
+					randomNote,
+					randomKey as PromptType
+				);
 				foundNoteToOpen = true;
-
-				if (randomKey === "improvables" || randomKey === "orphans") {
-					specialUsedSelection = randomKey;
-					localStorage.setItem("specialUsedSelection", randomKey);
-				} 
+				console.info(
+					`Opening random note ${randomNote.noteFile.name}, using promptType ${randomKey}`
+				);
 			}
+		} else {
+			console.info(
+				`Opening previous note ${lastOpenedNoteName}, using promptType ${this.currentQueuePrompt.promptType}`
+			);
 		}
 
 		if (!foundNoteToOpen) {
@@ -94,7 +102,16 @@ export default class TheQueueModal extends Modal {
 			return;
 		}
 
-		render(this.currentQueueNote, this, specialUsedSelection);
+		localStorage.setItem(
+			"lastOpenedNoteName",
+			this.currentQueuePrompt.qNote.noteFile.name
+		);
+		localStorage.setItem(
+			"lastOpenedPromptType",
+			this.currentQueuePrompt.promptType
+		);
+
+		render(this.currentQueuePrompt, this);
 	}
 
 	async onOpen() {
@@ -102,7 +119,7 @@ export default class TheQueueModal extends Modal {
 		this.qNotes = this.app.vault.getMarkdownFiles().map((file) => {
 			return QueueNote.createFromNoteFile(file);
 		});
-		const lastNote = localStorage.getItem("lastOpenedNoteName") || "";
+		const lastNote = localStorage.getItem("lastOpenedNoteName") || null;
 		this.loadNewNote(lastNote);
 
 		if (!localStorage.getItem(`q-log-${(app as any).appId}`)) {

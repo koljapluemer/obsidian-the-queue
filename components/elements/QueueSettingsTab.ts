@@ -41,19 +41,19 @@ export default class QueueSettingsTab extends PluginSettingTab {
 			.setName("Local Data Logging")
 			.addButton((button) =>
 				button.setButtonText("Export Logs").onClick(() => {
-					const log = localStorage.getItem(`q-log-${app.appId}`);
-					const blob = new Blob([log], { type: "application/json" });
+					const log = localStorage.getItem(`q-log-${(app as any).appId}`);
+					const blob = new Blob([log as any], { type: "application/json" });
 					const url = URL.createObjectURL(blob);
 					const a = document.createElement("a");
 					a.href = url;
-					a.download = `q-log-${app.appId}.json`;
+					a.download = `q-log-${(app as any).appId}.json`;
 					a.click();
 				})
 			)
 			.addButton((button) =>
 				button.setButtonText("Reset Logs").onClick(() => {
 					localStorage.setItem(
-						`q-log-${app.appId}`,
+						`q-log-${(app as any).appId}`,
 						JSON.stringify([])
 					);
 				})
