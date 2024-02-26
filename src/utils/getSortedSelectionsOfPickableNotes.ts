@@ -1,9 +1,12 @@
-import QueueNote from "src/classes/QueueNote";
+import QueueNote from "../classes/QueueNote";
 
 interface pickableSelections {
 	[key: string]: QueueNote[];
 }
 
+/** Returns an object, where each property contains an array
+ * each property has a descriptive name like "dueHabits", and its value is an array of QueueNotes that are (in this case) due now and of type habit
+ */
 export function getSortedSelectionsOfPickableNotes(
 	qNotes: QueueNote[],
 	keywordFilter: string,

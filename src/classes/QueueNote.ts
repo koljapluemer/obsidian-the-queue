@@ -28,9 +28,7 @@ const scenarioHalfLives = {
 	"2": 24,
 };
 
-/** Represents an Obsidian note's mirror for the Queue plugin
- *
- */
+/** Represents an Obsidian note's mirror for the Queue plugin */
 export default class QueueNote {
 	qData: {
 		model: any | null;

@@ -1,7 +1,8 @@
-import QueueFilterModal from "src/elements/QueueFilterModal";
+import QueueFilterModal from "../elements/QueueFilterModal";
 import { MarkdownRenderer, setIcon } from "obsidian";
-import QueuePrompt from "src/classes/QueuePrompt";
+import QueuePrompt from "../classes/QueuePrompt";
 
+/** Responsible for generating the actual HTML elements in the modal that you see every time you engage with the plugin */
 export function render(qPrompt: QueuePrompt, parentContext: any) {
 	// RENDER FUNCTION
 	const { modalEl } = parentContext;
@@ -46,7 +47,7 @@ export function render(qPrompt: QueuePrompt, parentContext: any) {
 		}
 		// on click open QueueFilterModal
 		queueSettingsButton.addEventListener("click", () => {
-			new QueueFilterModal(parentContext.app, (keywordFilter) => {
+			new QueueFilterModal(parentContext.app, (keywordFilter: string) => {
 				parentContext.keywordFilter = keywordFilter;
 				parentContext.loadNewNote();
 			}).open();
@@ -88,6 +89,9 @@ export function render(qPrompt: QueuePrompt, parentContext: any) {
 			contentEl
 		);
 
+		/** small, internal helper function to actually add a given button and its event listener
+		 * we do this a lot, but all that ever changes is the label and the string we return (like "Not Today" and "not-today", respectively)
+		 */
 		function appendScoreButton(
 			parent: HTMLElement,
 			label: string,

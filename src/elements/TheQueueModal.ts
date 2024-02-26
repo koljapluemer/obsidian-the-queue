@@ -1,16 +1,16 @@
 import { App, Modal, Notice, Component } from "obsidian";
 
-import { pickRandomNoteWithPriorityWeighting } from "src/utils/randomSelection";
-import { Settings } from "http2";
-import { getSortedSelectionsOfPickableNotes } from "src/utils/getSortedSelectionsOfPickableNotes";
-import { render } from "src/utils/renderModalNote";
-import QueueNote from "src/classes/QueueNote";
-import QueuePrompt from "src/classes/QueuePrompt";
-import { PromptType } from "src/classes/QueuePrompt";
+import { getSortedSelectionsOfPickableNotes } from "../utils/getSortedSelectionsOfPickableNotes";
+import { render } from "../utils/renderModalNote";
+import QueueNote from "../classes/QueueNote";
+import QueuePrompt from "../classes/QueuePrompt";
+import { PromptType } from "../classes/QueuePrompt";
+import { pickRandomNoteWithPriorityWeighting } from "../utils/randomSelection";
 
+/** Basically the modal itself, mainly tasked with loading a new note. */
 export default class TheQueueModal extends Modal {
 	component: Component;
-	settings: Settings;
+	settings: any;
 
 	constructor(app: App, settings: any) {
 		super(app);
@@ -22,6 +22,22 @@ export default class TheQueueModal extends Modal {
 	currentQueuePrompt: QueuePrompt;
 	keywordFilter: string = "All Notes";
 
+	/** Selects a new note to display and calls the render function to display it.
+	 * Essentially, this function merely gets all selections (getSortedSelectionsOfPickableNotes),
+	 * picks a random one, and then gets a random note from that selection (randomSelection/pickRandomNoteWithPriorityWeighting).
+	 * 
+	 * This function is long and fairly complicated because it is possible that the user closes the QueueModal, for example to edit a note.
+	 * In that case, the same note should be opened again when the QueueModal is opened again — however, the whole plugin context is freed when this happened.
+	 * For this reason, we save the last opened note in localStorage, and load it again when the QueueModal is opened.
+	 * 
+	 * However, there is additional complexity: The 'orphan' is an artificial note type where the user is prompted to connect a previously unconnected note.
+	 * For this, the user closes the QueueModal, connects the note, and then opens the QueueModal again.
+	 * 
+	 * For this reason, we have a fairly large stage explosion. We have to check whether there is a a previous note saved, then whether it still exist,
+	 * then whether it's an orphan note, and then whether it has been connected (essentially).
+	 * That is 90% of what happens in this function, and also the main reason that we need the wrapper class `QueuePrompt` around `QueueNote`.
+	 * 
+	*/
 	loadNewNote(lastOpenedNoteName: string | null = null) {
 		let loadingLastNote = false;
 		let foundNoteToOpen = false;
@@ -110,6 +126,7 @@ export default class TheQueueModal extends Modal {
 		render(this.currentQueuePrompt, this);
 	}
 
+	/** Opens the modal, and loads the first note. */
 	async onOpen() {
 		// loop markdown files, create qNote for each
 		this.qNotes = this.app.vault.getMarkdownFiles().map((file) => {
@@ -117,13 +134,6 @@ export default class TheQueueModal extends Modal {
 		});
 		const lastNote = localStorage.getItem("lastOpenedNoteName") || null;
 		this.loadNewNote(lastNote);
-
-		if (!localStorage.getItem(`q-log-${(app as any).appId}`)) {
-			localStorage.setItem(
-				`q-log-${(app as any).appId}`,
-				JSON.stringify([])
-			);
-		}
 	}
 
 	onClose() {

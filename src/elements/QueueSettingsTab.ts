@@ -1,11 +1,7 @@
-import {
-	App,
-	PluginSettingTab,
-	Setting,
-} from "obsidian";
+import { App, PluginSettingTab, Setting } from "obsidian";
+import TheQueue from "../main";
 
-import TheQueue from "src/main";
-
+/** Settings Tab within the Community Plugin Settings */
 export default class QueueSettingsTab extends PluginSettingTab {
 	plugin: TheQueue;
 
@@ -41,8 +37,12 @@ export default class QueueSettingsTab extends PluginSettingTab {
 			.setName("Local Data Logging")
 			.addButton((button) =>
 				button.setButtonText("Export Logs").onClick(() => {
-					const log = localStorage.getItem(`q-log-${(app as any).appId}`);
-					const blob = new Blob([log as any], { type: "application/json" });
+					const log = localStorage.getItem(
+						`q-log-${(app as any).appId}`
+					);
+					const blob = new Blob([log as any], {
+						type: "application/json",
+					});
 					const url = URL.createObjectURL(blob);
 					const a = document.createElement("a");
 					a.href = url;

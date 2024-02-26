@@ -1,6 +1,8 @@
 import { App, Modal, Setting } from "obsidian";
 
-// define QueueFilterModal:
+/** Responsible for filtering the queue by keyword.
+ * Opens *another* modal, on top of the standard QueueModal
+ */
 export default class QueueFilterModal extends Modal {
 	keywordFilter: string = "All Notes";
 
