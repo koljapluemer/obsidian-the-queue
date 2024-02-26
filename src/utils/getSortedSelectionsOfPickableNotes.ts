@@ -85,7 +85,7 @@ export function getSortedSelectionsOfPickableNotes(
 			}
 		}
 		// any due note may be considered improvable if settings.
-		if (qNote.getIsCurrentlyDue() && qNote.isImprovable) {
+		if (qNote.isImprovable) {
 			improvables.push(qNote);
 		}
 	});
@@ -127,7 +127,6 @@ export function getSortedSelectionsOfPickableNotes(
 		returnObj.orphans = orphans;
 	}
 	if (improvables.length > 0) {
-		console.log("Adding improvable notes to returnObj");
 		returnObj.improvables = improvables;
 	}
 

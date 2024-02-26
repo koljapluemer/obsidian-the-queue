@@ -81,7 +81,7 @@ export default class QueueModal extends Modal {
 				}
 				// if 'improvables', check if it still contains the keyword
 				if (promptType === "improvables") {
-					if (!qNote.getKeywords().includes(this.settings.improvablesKeyword)) {
+					if (!qNote.isImprovable) {
 						loadingLastNote = false;
 						localStorage.removeItem("lastOpenedNoteName");
 						localStorage.removeItem("lastOpenedPromptType");

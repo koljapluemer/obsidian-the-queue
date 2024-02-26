@@ -21,6 +21,7 @@ export default class TheQueue extends Plugin {
 	settings: TheQueueSettings;
 
 	async onload() {
+		console.log("loading The Queue");
 		// This creates an icon in the left ribbon.
 		this.addRibbonIcon(
 			"dice",
@@ -43,7 +44,9 @@ export default class TheQueue extends Plugin {
 		});
 	}
 
-	onunload() {}
+	onunload() {
+		// TODO: remove event listener rename
+	}
 
 	async loadSettings() {
 		this.settings = Object.assign(

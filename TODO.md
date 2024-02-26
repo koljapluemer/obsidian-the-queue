@@ -33,7 +33,8 @@
     - poetry is just *so* hard
 - hook up housekeeping functionality
 - add empty and non-existing frontmatter to test suite
-
+- do something about long load time...
+    - I mean, kind of doesn't matter if it's partly async, as long as we load *some* cards...
 
 ### Bugs and minor improvements
 

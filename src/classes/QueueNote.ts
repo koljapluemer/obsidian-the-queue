@@ -50,7 +50,6 @@ export default class QueueNote {
 	constructor(
 		noteFile: TFile,
 		nrOfLinks: number,
-		isImprovable: boolean,
 		qType?: string | null,
 		qTopic?: string | null,
 		qKeywords?: Array<string> | null,
@@ -77,6 +76,8 @@ export default class QueueNote {
 		this.noteFile = noteFile;
 		this.nrOfLinks = nrOfLinks;
 		this.isImprovable = false;
+		// async function where it doesn't matter if it takes a while
+		this.setIsImprovable();
 	}
 
 	// this handles the construction from dirty, real life data
@@ -86,24 +87,8 @@ export default class QueueNote {
 		const frontmatter = metadata?.frontmatter;
 		const nrOfLinks = metadata?.links?.length || 0;
 
-		// read note content:
-		let isImprovable = false;
-		app.vault.read(note).then((content) => {
-			const settingsCookie = sessionStorage.getItem("the-queue-settings");
-			if (settingsCookie != null) {
-				const settings = JSON.parse(settingsCookie);
-				// check if settings.improvablesKeyword is in the note
-				if (content.includes(settings?.improvablesKeyword)) {
-					isImprovable = true;
-					// console.log(
-						// `Note ${note.basename} is improvable, because it contains the keyword ${settings?.improvablesKeyword}`
-					// );
-				}
-			}
-		});
-
 		if (!frontmatter) {
-			return new QueueNote(note, nrOfLinks, isImprovable);
+			return new QueueNote(note, nrOfLinks);
 		} else {
 			let qType: QType | null = null;
 			let qTopic: string | null = null;
@@ -123,13 +108,13 @@ export default class QueueNote {
 			};
 
 			// check if frontmatter["q-type"] is string
-			if (frontmatter["q-type"] != null) {
+			if (frontmatter["q-type"]) {
 				// check if q-type corresponds to a valid value in the QType enum
 				if (Object.values(QType).includes(frontmatter["q-type"])) {
 					qType = frontmatter["q-type"];
 				} else {
 					console.warn(
-						`Invalid q-type for note %c${note.basename}, treating as misc`,
+						`Invalid q-type ${frontmatter["q-type"]} for note %c${note.basename}, treating as misc`,
 						"color: orange"
 					);
 				}
@@ -270,7 +255,6 @@ export default class QueueNote {
 			return new QueueNote(
 				note,
 				nrOfLinks,
-				isImprovable,
 				qType,
 				qTopic,
 				qKeywords,
@@ -279,6 +263,24 @@ export default class QueueNote {
 				qData
 			);
 		}
+	}
+
+	async setIsImprovable() {
+		// read note content:
+		let isImprovable = false;
+		app.vault.read(this.noteFile).then((content) => {
+			const settingsCookie = sessionStorage.getItem("the-queue-settings");
+			if (settingsCookie != null) {
+				const settings = JSON.parse(settingsCookie);
+				// check if settings.improvablesKeyword is in the note
+				if (content.includes(settings?.improvablesKeyword)) {
+					this.isImprovable = true;
+					// console.log(
+					// `Note ${note.basename} is improvable, because it contains the keyword ${settings?.improvablesKeyword}`
+					// );
+				}
+			}
+		});
 	}
 
 	getType(): QType {
