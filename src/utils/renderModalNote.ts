@@ -1,6 +1,6 @@
-import QueueFilterModal from "components/elements/QueueFilterModal";
+import QueueFilterModal from "src/elements/QueueFilterModal";
 import { MarkdownRenderer, setIcon } from "obsidian";
-import QueuePrompt from "components/classes/QueuePrompt";
+import QueuePrompt from "src/classes/QueuePrompt";
 
 export function render(qPrompt: QueuePrompt, parentContext: any) {
 	// RENDER FUNCTION

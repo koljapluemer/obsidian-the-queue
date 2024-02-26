@@ -1,4 +1,4 @@
-import QueueNote from "components/classes/QueueNote";
+import QueueNote from "src/classes/QueueNote";
 
 interface pickableSelections {
 	[key: string]: QueueNote[];

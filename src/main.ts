@@ -1,7 +1,7 @@
 import { Plugin } from "obsidian";
 
-import QueueSettingsTab from "./components/elements/QueueSettingsTab";
-import TheQueueModal from "./components/elements/TheQueueModal";
+import QueueSettingsTab from "./elements/QueueSettingsTab";
+import TheQueueModal from "./elements/TheQueueModal";
 
 interface TheQueueSettings {
 	desiredRecallThreshold: number;

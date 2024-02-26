@@ -4,7 +4,7 @@ import {
 	Setting,
 } from "obsidian";
 
-import TheQueue from "../../main";
+import TheQueue from "src/main";
 
 export default class QueueSettingsTab extends PluginSettingTab {
 	plugin: TheQueue;

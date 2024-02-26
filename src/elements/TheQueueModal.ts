@@ -1,12 +1,12 @@
 import { App, Modal, Notice, Component } from "obsidian";
 
-import { pickRandomNoteWithPriorityWeighting } from "components/utils/randomSelection";
+import { pickRandomNoteWithPriorityWeighting } from "src/utils/randomSelection";
 import { Settings } from "http2";
-import { getSortedSelectionsOfPickableNotes } from "components/utils/getSortedSelectionsOfPickableNotes";
-import { render } from "components/utils/renderModalNote";
-import QueueNote from "components/classes/QueueNote";
-import QueuePrompt from "components/classes/QueuePrompt";
-import { PromptType } from "components/classes/QueuePrompt";
+import { getSortedSelectionsOfPickableNotes } from "src/utils/getSortedSelectionsOfPickableNotes";
+import { render } from "src/utils/renderModalNote";
+import QueueNote from "src/classes/QueueNote";
+import QueuePrompt from "src/classes/QueuePrompt";
+import { PromptType } from "src/classes/QueuePrompt";
 
 export default class TheQueueModal extends Modal {
 	component: Component;

@@ -1,4 +1,4 @@
-import QueueNote from "components/classes/QueueNote";
+import QueueNote from "src/classes/QueueNote";
 
 export function pickRandomNoteWithPriorityWeighting(
 	notes: QueueNote[]
