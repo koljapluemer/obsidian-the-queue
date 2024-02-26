@@ -32,19 +32,13 @@
 - dependent learn notes?
     - poetry is just *so* hard
 - hook up housekeeping functionality
+- add empty and non-existing frontmatter to test suite
 
 
 ### Bugs and minor improvements
 
-- make a class obj for each shown modal
-    - this both solves fucky logic with `orphan` *and* notes showing up again even when renamed 
-        - (no it doesn't as such)
-            - maybe I need to persist data in a more sophisticated way...maybe just saving the whole `QueueNote` or something...
-            - still it's good for the `orphan` problem
-- optional: pass current keyword filter into QueueFilterModal so that it can be preselected
 - allow less silly formatted learn cards
 - make log work again
 - handle broken/illegal `q-type`s
     - they get selected as `misc` anyhow but scoring just doesn't affect them
-- Notes with no frontmatter break (completely blank) — embarrassing slip in test coverage
 - handle `orphan` type better. Logic is all over main file, and sometimes irrelevant cards get classified as an orphan etc.

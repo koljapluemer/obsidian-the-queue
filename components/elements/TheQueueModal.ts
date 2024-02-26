@@ -69,7 +69,7 @@ export default class TheQueueModal extends Modal {
 			const pickableSelections = getSortedSelectionsOfPickableNotes(
 				this.qNotes,
 				this.keywordFilter,
-				this.currentQueuePrompt.qNote,
+				this.currentQueuePrompt?.qNote || null,
 				(this.settings as any).desiredRecallThreshold
 			);
 			// pick a random selection, then pick a random note from selection of that name
@@ -86,14 +86,7 @@ export default class TheQueueModal extends Modal {
 					randomKey as PromptType
 				);
 				foundNoteToOpen = true;
-				console.info(
-					`Opening random note ${randomNote.noteFile.name}, using promptType ${randomKey}`
-				);
 			}
-		} else {
-			console.info(
-				`Opening previous note ${lastOpenedNoteName}, using promptType ${this.currentQueuePrompt.promptType}`
-			);
 		}
 
 		if (!foundNoteToOpen) {
