@@ -459,9 +459,9 @@ export default class QueueNote {
 	}
 
 	getShouldReceiveLeechTreatment(): boolean {
-		// true if leech count is divisible by 4 and not 0
+		// true if leech count is divisible by 3 and not 0
 		// TODO: adapt these nrs, maybe even make them a setting
-		return this.getLeechCount() % 1 === 0 && this.getLeechCount() !== 0;
+		return this.getLeechCount() % 3 === 0 && this.getLeechCount() !== 0;
 	}
 
 	setDueLater(timeDuration: TimeDurationString): void {
@@ -615,10 +615,9 @@ export default class QueueNote {
 		}
 
 		if (this.getType() === "check") {
+			// note "kind-of" currently does nothing special
 			if (answer === "no") {
 				this.incrementLeechCount(1);
-			} else if (answer === "kind-of") {
-				this.incrementLeechCount(0.5);
 			} else if (answer === "yes") {
 				this.resetLeechCount();
 			}

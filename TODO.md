@@ -33,7 +33,6 @@
 - analyze long loading time
     - ideally optimize
     - otherwise add subtle loading animation or smth
-- implement leech check for `todo`, `habit`, ...
 
 ### Bugs and minor improvements
 

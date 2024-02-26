@@ -12,7 +12,10 @@ export type PromptType =
     | "dueMisc"
     | "orphans"
     | "improvables"
-    | "learnLeeches";
+    | "learnLeeches"
+    | "checkLeeches"
+    | "otherLeeches"
+    | "readingLeeches"
     ;
 
 

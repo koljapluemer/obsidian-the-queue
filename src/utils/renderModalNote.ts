@@ -122,34 +122,73 @@ export function render(qPrompt: QueuePrompt, parentContext: any) {
 				text: "You marked this note as improvable. Make it slightly nicer!",
 				cls: "button-prompt",
 			});
-		} 
+		}
 		if (qPrompt.promptType === "orphans") {
 			contentEl.createEl("p", {
 				text: "This note is an orphan. Link it with another note!",
 				cls: "button-prompt",
 			});
 		}
-		const leechPrompts = [
+		const learnLeechPrompts = [
 			"Add an image from the internet to the back to remember it more easily.",
 			"Link the learn card to another note to help your brain out.",
 			"Split the note into several easier-to-remember notes.",
 			"Make up a silly mnemonic and add it to the back of the note.",
 			"Come up with a helpful rhyme and put it on the back of the note.",
-		]
+		];
 		if (qPrompt.promptType === "learnLeeches") {
 			contentEl.createEl("p", {
-				text: "This note is a leech. " + leechPrompts[Math.floor(Math.random() * leechPrompts.length)],
+				text:
+					"This note is a leech. " +
+					learnLeechPrompts[
+						Math.floor(Math.random() * learnLeechPrompts.length)
+					],
+				cls: "button-prompt",
+			});
+		}
+		if (qPrompt.promptType === "checkLeeches") {
+			contentEl.createEl("p", {
+				text: "You are pressing 'No' a lot. Do you want to redesign the question?",
+				cls: "button-prompt",
+			});
+		}
+		if (qPrompt.promptType === "readingLeeches") {
+			contentEl.createEl("p", {
+				text: "You are delaying reading this note a lot. Do you want to edit or delete the note?",
+				cls: "button-prompt",
+			});
+		}
+		const otherLeechPrompts = [
+			"Consider to reduce the scope.",
+			"Add a *minimum valuable action* to the note that will move you an inch closer to your goal.",
+			"Consider splitting the note into several smaller activities.",
+			"Reformulate the note to make it less dreadful",
+			"Add a reward for completing the task to the note.",
+			"Add a SMART goal to the note so the activity is clearly defined.",
+		];
+		if (qPrompt.promptType === "otherLeeches") {
+			contentEl.createEl("p", {
+				text:
+					"You are delaying this task a lot. " +
+					otherLeechPrompts[
+						Math.floor(Math.random() * otherLeechPrompts.length)
+					],
 				cls: "button-prompt",
 			});
 		}
 
 		const buttonRow = contentEl.createDiv("button-row");
 
-		if (
-			qPrompt.promptType === "improvables" ||
-			qPrompt.promptType === "orphans" ||
-			qPrompt.promptType === "learnLeeches"
-		) {
+		const specialPromptTypes = [
+			"improvables",
+			"orphans",
+			"learnLeeches",
+			"checkLeeches",
+			"readingLeeches",
+			"otherLeeches",
+		];
+
+		if (specialPromptTypes.includes(qPrompt.promptType)) {
 			appendScoreButton(buttonRow, "Not Now", "not-today");
 			buttonRow
 				.createEl("button", {
@@ -162,13 +201,12 @@ export function render(qPrompt: QueuePrompt, parentContext: any) {
 						"",
 						true
 					);
-					// by decrementing the leech count, we prevent 
+					// by decrementing the leech count, we prevent
 					// the note from showing up as a leech again before
 					// we had it in a natural context at least once and it failed
 					// we're technically also running a leechReset on cards that were never registered as leech
-					// but that's fine for now 
+					// but that's fine for now
 					qPrompt.qNote.decrementLeechCount(1);
-					qPrompt.qNote.adaptByScore("not-today");
 					qPrompt.qNote.save();
 					parentContext.close();
 				});
