@@ -38,7 +38,7 @@ export default class QueueModal extends Modal {
 	 * That is 90% of what happens in this function, and also the main reason that we need the wrapper class `QueuePrompt` around `QueueNote`.
 	 *
 	 */
-	async loadNewNote(lastOpenedNoteName: string | null = null) {
+	loadNewNote(lastOpenedNoteName: string | null = null) {
 		let loadingLastNote = false;
 		let foundNoteToOpen = false;
 
@@ -63,7 +63,8 @@ export default class QueueModal extends Modal {
 						// if it's one of the special cases, overwrite it
 						if (
 							savedPromptType === "orphans" ||
-							savedPromptType === "improvables"
+							savedPromptType === "improvables" ||
+							savedPromptType === "learnLeeches"
 						) {
 							promptType = savedPromptType as PromptType;
 						}

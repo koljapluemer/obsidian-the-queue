@@ -11,7 +11,9 @@ export type PromptType =
     | "startedLearnNoteMostCloseToForgetting"
     | "dueMisc"
     | "orphans"
-    | "improvables";
+    | "improvables"
+    | "learnLeeches";
+    ;
 
 
 export default class QueuePrompt {

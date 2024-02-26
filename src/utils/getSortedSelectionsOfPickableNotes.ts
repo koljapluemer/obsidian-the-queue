@@ -25,6 +25,7 @@ export function getSortedSelectionsOfPickableNotes(
 
 	let orphans: QueueNote[] = [];
 	let improvables: QueueNote[] = [];
+	let learnLeeches: QueueNote[] = [];
 
 	let counterStartedLearnsBelowThreshold = 0;
 	let counterStartedBooksEvenIfNotDue = 0;
@@ -62,6 +63,13 @@ export function getSortedSelectionsOfPickableNotes(
 		} else if (qNote.getType() === "todo" && qNote.getIsCurrentlyDue()) {
 			dueTodos.push(qNote);
 		} else if (qNote.getType() === "learn-started") {
+			// check if should be treated as leech
+			// TODO: add a kind of actual due check here (but currently dueAt for learn cards is related to recall threshold...)
+			// or rather: prevent that we have to add more and more anti-leech stuff to a given card
+			if (qNote.getShouldReceiveLeechTreatment()) {
+				console.log(`Leech treatment for ${qNote.getNoteFile().name} because leech count is ${qNote.getLeechCount()}`);
+				learnLeeches.push(qNote);
+			}
 			// this is an array of one, containing only the note with the lowest predicted recall
 			// we have this as [] so it's consistent with the other selections
 			// exclude notes with a recall so high that rep is useless rn
@@ -128,6 +136,9 @@ export function getSortedSelectionsOfPickableNotes(
 	}
 	if (improvables.length > 0) {
 		returnObj.improvables = improvables;
+	}
+	if (learnLeeches.length > 0) {
+		returnObj.learnLeeches = learnLeeches;
 	}
 	// console.info('Selections with pickable notes: ', returnObj);
 

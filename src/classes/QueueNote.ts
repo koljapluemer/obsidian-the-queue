@@ -447,6 +447,16 @@ export default class QueueNote {
 			this.qData.leechCount = 0;
 		}
 	}
+	getLeechCount(): number {
+		return this.qData.leechCount || 0;
+	}
+
+	getShouldReceiveLeechTreatment(): boolean {
+		// true if leech count is divisible by 4 and not 0
+		// TODO: adapt these nrs, maybe even make them a setting
+		return this.getLeechCount() % 1 === 0 && this.getLeechCount() !== 0;
+	}
+
 
 	setDueLater(timeDuration: TimeDurationString): void {
 		const currentTime = new Date();

@@ -122,9 +122,23 @@ export function render(qPrompt: QueuePrompt, parentContext: any) {
 				text: "You marked this note as improvable. Make it slightly nicer!",
 				cls: "button-prompt",
 			});
-		} else if (qPrompt.promptType === "orphans") {
+		} 
+		if (qPrompt.promptType === "orphans") {
 			contentEl.createEl("p", {
 				text: "This note is an orphan. Link it with another note!",
+				cls: "button-prompt",
+			});
+		}
+		const leachPrompts = [
+			"Add an image from the internet to the back to remember it more easily.",
+			"Link the learn card to another note to help your brain out.",
+			"Split the note into several easier-to-remember notes.",
+			"Make up a silly mnemonic and add it to the back of the note.",
+			"Come up with a helpful rhyme and put it on the back of the note.",
+		]
+		if (qPrompt.promptType === "learnLeeches") {
+			contentEl.createEl("p", {
+				text: "This note is a leech. " + leachPrompts[Math.floor(Math.random() * leachPrompts.length)],
 				cls: "button-prompt",
 			});
 		}
@@ -133,7 +147,8 @@ export function render(qPrompt: QueuePrompt, parentContext: any) {
 
 		if (
 			qPrompt.promptType === "improvables" ||
-			qPrompt.promptType === "orphans"
+			qPrompt.promptType === "orphans" ||
+			qPrompt.promptType === "learnLeeches"
 		) {
 			appendScoreButton(buttonRow, "Not Now", "not-today");
 			buttonRow
