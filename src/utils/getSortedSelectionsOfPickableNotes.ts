@@ -126,6 +126,7 @@ export function getSortedSelectionsOfPickableNotes(
 	if (orphans.length > 0) {
 		returnObj.orphans = orphans;
 	}
+	console.log(`nr of improvable notes: ${improvables.length}`);
 	if (improvables.length > 0) {
 		returnObj.improvables = improvables;
 	}

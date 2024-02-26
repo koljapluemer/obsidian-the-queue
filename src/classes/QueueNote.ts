@@ -76,9 +76,8 @@ export default class QueueNote {
 		this.noteFile = noteFile;
 		this.nrOfLinks = nrOfLinks;
 		this.isImprovable = false;
-		// async function where it doesn't matter if it takes a while
-		this.setIsImprovable();
 	}
+	
 
 	// this handles the construction from dirty, real life data
 	// we pass in just the metadata from an actual note, and here we do all the optional nulls and what not
@@ -267,7 +266,6 @@ export default class QueueNote {
 
 	async setIsImprovable() {
 		// read note content:
-		let isImprovable = false;
 		app.vault.read(this.noteFile).then((content) => {
 			const settingsCookie = sessionStorage.getItem("the-queue-settings");
 			if (settingsCookie != null) {

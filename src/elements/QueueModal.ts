@@ -38,7 +38,7 @@ export default class QueueModal extends Modal {
 	 * That is 90% of what happens in this function, and also the main reason that we need the wrapper class `QueuePrompt` around `QueueNote`.
 	 * 
 	*/
-	loadNewNote(lastOpenedNoteName: string | null = null) {
+	async loadNewNote(lastOpenedNoteName: string | null = null) {
 		let loadingLastNote = false;
 		let foundNoteToOpen = false;
 
@@ -53,6 +53,7 @@ export default class QueueModal extends Modal {
 			if (possibleNotes.length > 0) {
 				loadingLastNote = true;
 				const qNote = QueueNote.createFromNoteFile(possibleNotes[0]);
+				await qNote.setIsImprovable();
 				let promptType = qNote.guessPromptType();
 				// if we have promptType saved in localStorage, use that instead
 				const savedPromptType = localStorage.getItem(
@@ -138,10 +139,18 @@ export default class QueueModal extends Modal {
 	async onOpen() {
 		// loop markdown files, create qNote for each
 		this.qNotes = this.app.vault.getMarkdownFiles().map((file) => {
-			return QueueNote.createFromNoteFile(file);
+			const qNote =  QueueNote.createFromNoteFile(file);
+			return qNote;
 		});
 		const lastNote = localStorage.getItem("lastOpenedNoteName") || null;
 		this.loadNewNote(lastNote);
+		this.analyzeNotesOnImprovability();
+	}
+
+	async analyzeNotesOnImprovability() {
+		this.qNotes.forEach((qNote) => {
+			qNote.setIsImprovable();
+		});
 	}
 
 	onClose() {
