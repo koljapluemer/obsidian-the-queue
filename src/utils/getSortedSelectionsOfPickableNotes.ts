@@ -67,7 +67,6 @@ export function getSortedSelectionsOfPickableNotes(
 			// TODO: add a kind of actual due check here (but currently dueAt for learn cards is related to recall threshold...)
 			// or rather: prevent that we have to add more and more anti-leech stuff to a given card
 			if (qNote.getShouldReceiveLeechTreatment()) {
-				console.log(`Leech treatment for ${qNote.getNoteFile().name} because leech count is ${qNote.getLeechCount()}`);
 				learnLeeches.push(qNote);
 			}
 			// this is an array of one, containing only the note with the lowest predicted recall

@@ -77,7 +77,6 @@ export default class QueueNote {
 		this.nrOfLinks = nrOfLinks;
 		this.isImprovable = false;
 	}
-	
 
 	// this handles the construction from dirty, real life data
 	// we pass in just the metadata from an actual note, and here we do all the optional nulls and what not
@@ -342,8 +341,10 @@ export default class QueueNote {
 				const settings = JSON.parse(settingsCookie);
 				const desiredRecallThreshold = settings?.desiredRecallThreshold;
 				if (desiredRecallThreshold != null) {
-					const isDue = this.getPredictedRecall() < desiredRecallThreshold.valueOf();
-					return isDue
+					const isDue =
+						this.getPredictedRecall() <
+						desiredRecallThreshold.valueOf();
+					return isDue;
 				}
 			}
 		}
@@ -441,6 +442,12 @@ export default class QueueNote {
 		this.qData.leechCount = (this.qData.leechCount || 0) + by;
 	}
 
+	decrementLeechCount(by: number): void {
+		if (this.qData.leechCount != null) {
+			this.qData.leechCount = (this.qData.leechCount || 0) - by;
+		}
+	}
+
 	resetLeechCount(): void {
 		// no need to reset if it's not set (implication is that it's 0, no need to spam metadata)
 		if (this.qData.leechCount != null) {
@@ -454,9 +461,8 @@ export default class QueueNote {
 	getShouldReceiveLeechTreatment(): boolean {
 		// true if leech count is divisible by 4 and not 0
 		// TODO: adapt these nrs, maybe even make them a setting
-		return this.getLeechCount() % 1 === 0 && this.getLeechCount() !== 0;
+		return this.getLeechCount() % 4 === 0 && this.getLeechCount() !== 0;
 	}
-
 
 	setDueLater(timeDuration: TimeDurationString): void {
 		const currentTime = new Date();

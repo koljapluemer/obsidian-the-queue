@@ -60,38 +60,27 @@ export default class QueueModal extends Modal {
 						"lastOpenedPromptType"
 					);
 					if (savedPromptType) {
-						// if it's one of the special cases, overwrite it
+						// if it's one of the special cases, just get a new note
+						// so far, we cannot elegantly check whether the task has been done for any
 						if (
 							savedPromptType === "orphans" ||
 							savedPromptType === "improvables" ||
 							savedPromptType === "learnLeeches"
 						) {
 							promptType = savedPromptType as PromptType;
+							loadingLastNote = false;
+							localStorage.removeItem("lastOpenedNoteName");
+							localStorage.removeItem("lastOpenedPromptType");
 						}
 					}
 
-
-					this.currentQueuePrompt = new QueuePrompt(
-						qNote,
-						promptType
-					);
-					foundNoteToOpen = true;
-
-					// for orphans and improvables, trust that the edit is made
-					// because change in file may not be registered very quickly, and that makes it *very* frustrating
-					// TODO: think about an elegant solution for this
-					if (
-						promptType === "orphans" ||
-						promptType === "improvables"
-					) {
-						loadingLastNote = false;
-						localStorage.removeItem("lastOpenedNoteName");
-						localStorage.removeItem("lastOpenedPromptType");
+					if (loadingLastNote) {
+						this.currentQueuePrompt = new QueuePrompt(
+							qNote,
+							promptType
+						);
+						foundNoteToOpen = true;
 					}
-				} else {
-					console.info(
-						`last note ${qNote.noteFile.name} was loaded, but is not due. Skipping.`
-					);
 				}
 			}
 		}

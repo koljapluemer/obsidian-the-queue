@@ -129,7 +129,7 @@ export function render(qPrompt: QueuePrompt, parentContext: any) {
 				cls: "button-prompt",
 			});
 		}
-		const leachPrompts = [
+		const leechPrompts = [
 			"Add an image from the internet to the back to remember it more easily.",
 			"Link the learn card to another note to help your brain out.",
 			"Split the note into several easier-to-remember notes.",
@@ -138,7 +138,7 @@ export function render(qPrompt: QueuePrompt, parentContext: any) {
 		]
 		if (qPrompt.promptType === "learnLeeches") {
 			contentEl.createEl("p", {
-				text: "This note is a leech. " + leachPrompts[Math.floor(Math.random() * leachPrompts.length)],
+				text: "This note is a leech. " + leechPrompts[Math.floor(Math.random() * leechPrompts.length)],
 				cls: "button-prompt",
 			});
 		}
@@ -162,6 +162,14 @@ export function render(qPrompt: QueuePrompt, parentContext: any) {
 						"",
 						true
 					);
+					// by decrementing the leech count, we prevent 
+					// the note from showing up as a leech again before
+					// we had it in a natural context at least once and it failed
+					// we're technically also running a leechReset on cards that were never registered as leech
+					// but that's fine for now 
+					qPrompt.qNote.decrementLeechCount(1);
+					qPrompt.qNote.adaptByScore("not-today");
+					qPrompt.qNote.save();
 					parentContext.close();
 				});
 		} else {

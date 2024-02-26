@@ -18,11 +18,6 @@
 
 ### Ideas
 
-- would love the ability to show non-note cards (would be fun at least)
-    - or maybe that's shit?
-    - but maybe convenient for *oops that last one was a leech* and stuff like that
-- implement leech check
-    - give cool options, like splitting, adding image, making a mnemonic...
 - calendar functionality
     - start with birthdays
 - implement house cleaning into the-q
@@ -38,6 +33,7 @@
 - analyze long loading time
     - ideally optimize
     - otherwise add subtle loading animation or smth
+- implement leech check for `todo`, `habit`, ...
 
 ### Bugs and minor improvements
 
