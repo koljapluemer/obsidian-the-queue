@@ -76,8 +76,15 @@ export function render(qPrompt: QueuePrompt, parentContext: any) {
 		if (qPrompt.promptType === "startedLearnNoteMostCloseToForgetting") {
 			// TODO: what if we have badly formatted learn card with no (or multiple separators)
 			const splitNote = renderedContent.split("---");
-			renderedContent = splitNote[0];
-			initiallyHiddenContent = splitNote[1];
+			if (splitNote.length > 1) {
+				renderedContent = splitNote[0];
+				// rest of note
+				initiallyHiddenContent = splitNote.slice(1).join("---");
+			} else {
+				// we just show the title, aka renderedContent is just nothing
+				renderedContent = "";
+				initiallyHiddenContent = splitNote[0];
+			}
 		}
 		// add title of note before front, with a # to make it a title
 		renderedContent = `# ${title}\n\n` + renderedContent;

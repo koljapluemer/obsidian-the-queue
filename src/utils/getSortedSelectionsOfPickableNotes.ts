@@ -94,6 +94,7 @@ export function getSortedSelectionsOfPickableNotes(
 	// also, don't include selections that are empty (including key)
 	let returnObj: pickableSelections = {};
 
+	console.log(`newLearns: ${newLearns.length}`);
 	if (counterStartedLearnsBelowThreshold < 10 && newLearns.length > 0) {
 		returnObj.newLearns = newLearns;
 	}
@@ -116,6 +117,7 @@ export function getSortedSelectionsOfPickableNotes(
 	if (dueTodos.length > 0) {
 		returnObj.dueTodos = dueTodos;
 	}
+	console.log(`startedLearnNoteMostCloseToForgetting: ${startedLearnNoteMostCloseToForgetting}`);
 	if (startedLearnNoteMostCloseToForgetting.length > 0) {
 		returnObj.startedLearnNoteMostCloseToForgetting =
 			startedLearnNoteMostCloseToForgetting;
@@ -123,6 +125,7 @@ export function getSortedSelectionsOfPickableNotes(
 	if (dueMisc.length > 0) {
 		returnObj.dueMisc = dueMisc;
 	}
+	console.log(`nr of orphans: ${orphans.length}`);
 	if (orphans.length > 0) {
 		returnObj.orphans = orphans;
 	}
