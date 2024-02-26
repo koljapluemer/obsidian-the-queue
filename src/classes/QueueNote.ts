@@ -334,6 +334,19 @@ export default class QueueNote {
 	}
 
 	getIsCurrentlyDue(): boolean {
+		// if learn-started, check if predicted recall is below threshold
+		if (this.getType() === QType.learnStarted) {
+			const settingsCookie = sessionStorage.getItem("the-queue-settings");
+
+			if (settingsCookie != null) {
+				const settings = JSON.parse(settingsCookie);
+				const desiredRecallThreshold = settings?.desiredRecallThreshold;
+				if (desiredRecallThreshold != null) {
+					const isDue = this.getPredictedRecall() < desiredRecallThreshold.valueOf();
+					return isDue
+				}
+			}
+		}
 		if (!this.qData.dueAt) {
 			return true;
 		}

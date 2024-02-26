@@ -11,7 +11,7 @@ export function getSortedSelectionsOfPickableNotes(
 	qNotes: QueueNote[],
 	keywordFilter: string,
 	currentQueueNote: QueueNote | null,
-	settings: any
+	desiredRecallThreshold: number
 ): pickableSelections {
 	let dueArticles: QueueNote[] = [];
 	let newBooks: QueueNote[] = [];
@@ -66,11 +66,11 @@ export function getSortedSelectionsOfPickableNotes(
 			// we have this as [] so it's consistent with the other selections
 			// exclude notes with a recall so high that rep is useless rn
 			const predictedRecall = qNote.getPredictedRecall();
-			if (predictedRecall < settings.desiredRecallThreshold) {
+			if (predictedRecall < desiredRecallThreshold) {
 				counterStartedLearnsBelowThreshold += 1;
 				if (qNote.getPredictedRecall() < lowestPredictedRecall) {
 					lowestPredictedRecall = predictedRecall;
-					startedLearnNoteMostCloseToForgetting.push(qNote);
+					startedLearnNoteMostCloseToForgetting = [qNote];
 				}
 			}
 		} else if (qNote.getType() === "learn") {
@@ -94,7 +94,6 @@ export function getSortedSelectionsOfPickableNotes(
 	// also, don't include selections that are empty (including key)
 	let returnObj: pickableSelections = {};
 
-	console.log(`newLearns: ${newLearns.length}`);
 	if (counterStartedLearnsBelowThreshold < 10 && newLearns.length > 0) {
 		returnObj.newLearns = newLearns;
 	}
@@ -117,7 +116,6 @@ export function getSortedSelectionsOfPickableNotes(
 	if (dueTodos.length > 0) {
 		returnObj.dueTodos = dueTodos;
 	}
-	console.log(`startedLearnNoteMostCloseToForgetting: ${startedLearnNoteMostCloseToForgetting}`);
 	if (startedLearnNoteMostCloseToForgetting.length > 0) {
 		returnObj.startedLearnNoteMostCloseToForgetting =
 			startedLearnNoteMostCloseToForgetting;
@@ -125,14 +123,13 @@ export function getSortedSelectionsOfPickableNotes(
 	if (dueMisc.length > 0) {
 		returnObj.dueMisc = dueMisc;
 	}
-	console.log(`nr of orphans: ${orphans.length}`);
 	if (orphans.length > 0) {
 		returnObj.orphans = orphans;
 	}
-	console.log(`nr of improvable notes: ${improvables.length}`);
 	if (improvables.length > 0) {
 		returnObj.improvables = improvables;
 	}
+	// console.info('Selections with pickable notes: ', returnObj);
 
 	return returnObj;
 }

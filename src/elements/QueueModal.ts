@@ -51,9 +51,9 @@ export default class QueueModal extends Modal {
 					return file.name === lastOpenedNoteName;
 				});
 			if (possibleNotes.length > 0) {
-				loadingLastNote = true;
 				const qNote = QueueNote.createFromNoteFile(possibleNotes[0]);
-				await qNote.setIsImprovable().then(() => {
+				loadingLastNote = qNote.getIsCurrentlyDue();
+				if (loadingLastNote) {
 					let promptType = qNote.guessPromptType();
 					// if we have promptType saved in localStorage, use that instead
 					const savedPromptType = localStorage.getItem(
@@ -69,7 +69,6 @@ export default class QueueModal extends Modal {
 						}
 					}
 
-					console.log(`loading last note: ${qNote.noteFile.name} with promptType: ${promptType}`);
 
 					this.currentQueuePrompt = new QueuePrompt(
 						qNote,
@@ -77,42 +76,34 @@ export default class QueueModal extends Modal {
 					);
 					foundNoteToOpen = true;
 
-					if (promptType === "orphans") {
-						// if we're looking at an orphan check:
-						// check nrOflinks now, if they were added, we are done with the task at hand
-						// and should get a new card
-						// for this, just let the function continue
-						console.log(`nr of links: ${qNote.getNrOfLinks()}`);
-						if (qNote.getNrOfLinks() > 0) {
-							loadingLastNote = false;
-							localStorage.removeItem("lastOpenedNoteName");
-							localStorage.removeItem("lastOpenedPromptType");
-						}
+					// for orphans and improvables, trust that the edit is made
+					// because change in file may not be registered very quickly, and that makes it *very* frustrating
+					// TODO: think about an elegant solution for this
+					if (
+						promptType === "orphans" ||
+						promptType === "improvables"
+					) {
+						loadingLastNote = false;
+						localStorage.removeItem("lastOpenedNoteName");
+						localStorage.removeItem("lastOpenedPromptType");
 					}
-					// if 'improvables', check if it still contains the keyword
-					if (promptType === "improvables") {
-						if (!qNote.isImprovable) {
-							loadingLastNote = false;
-							localStorage.removeItem("lastOpenedNoteName");
-							localStorage.removeItem("lastOpenedPromptType");
-						}
-					}
-				});
+				} else {
+					console.info(
+						`last note ${qNote.noteFile.name} was loaded, but is not due. Skipping.`
+					);
+				}
 			}
 		}
 
 		if (!loadingLastNote) {
-			console.log("(not loading last note), loading random note");
 			// RANDOM CARD PICK
 			// if no note was loaded, pick a random note
-			console.log(`triggering getSortedSelectionsOfPickableNotes with ${this.qNotes.length} notes, keywordFilter: ${this.keywordFilter}`);
 			const pickableSelections = getSortedSelectionsOfPickableNotes(
 				this.qNotes,
 				this.keywordFilter,
 				this.currentQueuePrompt?.qNote || null,
-				(this.settings as any).desiredRecallThreshold
+				this.settings.desiredRecallThreshold
 			);
-			console.log('pickable selections', pickableSelections);
 			// pick a random selection, then pick a random note from selection of that name
 			// count nr of keys in object
 			const keys = Object.keys(pickableSelections);
