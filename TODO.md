@@ -33,4 +33,7 @@
 
 ### Bugs and minor improvements
 
-- make log work again
+- notes with no content break the queue
+- rename ribbon button, replace icon maybe
+- add command?
+- add setting for books at the same time
