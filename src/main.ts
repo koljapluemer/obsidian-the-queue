@@ -2,6 +2,7 @@ import { Plugin } from "obsidian";
 
 import QueueSettingsTab from "./elements/QueueSettingsTab";
 import QueueModal from "./elements/QueueModal";
+import QueueLog from "./classes/QueueLog";
 
 interface TheQueueSettings {
 	desiredRecallThreshold: number;
@@ -41,6 +42,8 @@ export default class TheQueue extends Plugin {
 				localStorage.setItem("lastOpenedNoteName", file.name);
 			}
 		});
+
+		QueueLog.loadFromLocalStorage();
 	}
 
 	onunload() {

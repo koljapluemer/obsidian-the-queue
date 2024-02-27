@@ -1,3 +1,4 @@
+import QueueLog from "../classes/QueueLog";
 import QueueNote from "../classes/QueueNote";
 
 interface pickableSelections {
@@ -11,7 +12,8 @@ export function getSortedSelectionsOfPickableNotes(
 	qNotes: QueueNote[],
 	keywordFilter: string,
 	currentQueueNote: QueueNote | null,
-	desiredRecallThreshold: number
+	desiredRecallThreshold: number,
+	saveStatistics = false
 ): pickableSelections {
 	let dueArticles: QueueNote[] = [];
 	let newBooks: QueueNote[] = [];
@@ -166,7 +168,29 @@ export function getSortedSelectionsOfPickableNotes(
 	if (readingLeeches.length > 0) {
 		returnObj.readingLeeches = readingLeeches;
 	}
-	// console.info('Selections with pickable notes: ', returnObj);
+
+	if (saveStatistics) {
+		const loggingData = {
+			"Nr. of due articles": dueArticles.length,
+			"Nr. of due started books": dueStartedBooks.length,
+			"Nr. of due checks": dueChecks.length,
+			"Nr. of due habits": dueHabits.length,
+			"Nr. of due todos": dueTodos.length,
+			"Nr. of new learns": newLearns.length,
+			"Nr. of due misc": dueMisc.length,
+			"Nr. of orphans": orphans.length,
+			"Nr. of improvables": improvables.length,
+			"Nr. of learn leeches": learnLeeches.length,
+			"Nr. of check leeches": checkLeeches.length,
+			"Nr. of other leeches": otherLeeches.length,
+			"Nr. of reading leeches": readingLeeches.length,
+			"Nr. of started learns below threshold":
+				counterStartedLearnsBelowThreshold,
+			"Nr. of started books even if not due":
+				counterStartedBooksEvenIfNotDue,
+		};
+		QueueLog.addLog("due-statistics", loggingData);
+	}
 
 	return returnObj;
 }

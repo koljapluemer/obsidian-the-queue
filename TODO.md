@@ -20,21 +20,17 @@
 
 - calendar functionality
     - start with birthdays
-- implement house cleaning into the-q
-    - *adopt this orphan* would be an obvious start...
-    - or a regex or whatever or a `[[]]` or a `#` with *this needs improvement*
 - add notices (Toasts)
 - dependent learn notes?
     - poetry is just *so* hard
-- hook up housekeeping functionality
 - add empty and non-existing frontmatter to test suite
 - do something about long load time...
-    - I mean, kind of doesn't matter if it's partly async, as long as we load *some* cards...
+    - idea: I mean, kind of doesn't matter if it's partly async, as long as we load *some* cards...
 - analyze long loading time
     - ideally optimize
     - otherwise add subtle loading animation or smth
+- add a kind of `Test` button so that people can see how their note would look like in queue
 
 ### Bugs and minor improvements
 
-- allow less silly formatted learn cards
 - make log work again
