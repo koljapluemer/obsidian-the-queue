@@ -1,5 +1,6 @@
 import { App, PluginSettingTab, Setting } from "obsidian";
 import TheQueue from "../main";
+import QueueLog from "../classes/QueueLog";
 
 /** Settings Tab within the Community Plugin Settings */
 export default class QueueSettingsTab extends PluginSettingTab {
@@ -32,15 +33,14 @@ export default class QueueSettingsTab extends PluginSettingTab {
 
 		// Data export button (export q-log from localstorage as json)
 		// Data reset button
-
 		new Setting(containerEl)
 			.setName("Local Data Logging")
 			.addButton((button) =>
 				button.setButtonText("Export Logs").onClick(() => {
-					const log = localStorage.getItem(
+					const logs = localStorage.getItem(
 						`q-logs-${(app as any).appId}`
 					);
-					const blob = new Blob([log as any], {
+					const blob = new Blob([logs as any], {
 						type: "application/json",
 					});
 					const url = URL.createObjectURL(blob);
@@ -52,10 +52,7 @@ export default class QueueSettingsTab extends PluginSettingTab {
 			)
 			.addButton((button) =>
 				button.setButtonText("Reset Logs").onClick(() => {
-					localStorage.setItem(
-						`q-logs-${(app as any).appId}`,
-						JSON.stringify([])
-					);
+					QueueLog.resetLogs();
 				})
 			);
 	}

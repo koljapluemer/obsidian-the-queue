@@ -18,6 +18,7 @@ export enum QType {
 }
 
 import TheQueue from "../main";
+import QueueLog from "./QueueLog";
 
 type TimeDurationString = "a bit later" | "day later" | "custom";
 
@@ -646,6 +647,11 @@ export default class QueueNote {
 			}
 			this.setDueLater("day later");
 		}
+
+		QueueLog.addLog("note-done", {
+			noteAfterScoring: this.getQueueValuesAsObj(),
+			answer: answer,
+		});
 	}
 
 	save(): void {
@@ -691,5 +697,17 @@ export default class QueueNote {
 				}
 			}
 		});
+	}
+
+	getQueueValuesAsObj(): object {
+		return {
+			name: this.noteFile.basename,
+			qType: this.qType,
+			qTopic: this.qTopic,
+			qKeywords: this.qKeywords,
+			qPriority: this.qPriority,
+			qInterval: this.qInterval,
+			qData: this.qData,
+		};
 	}
 }

@@ -6,6 +6,7 @@ import QueueNote from "../classes/QueueNote";
 import QueuePrompt from "../classes/QueuePrompt";
 import { PromptType } from "../classes/QueuePrompt";
 import { pickRandomNoteWithPriorityWeighting } from "../utils/randomSelection";
+import QueueLog from "../classes/QueueLog";
 
 /** Basically the modal itself, mainly tasked with loading a new note. */
 export default class QueueModal extends Modal {
@@ -131,6 +132,10 @@ export default class QueueModal extends Modal {
 			"lastOpenedPromptType",
 			this.currentQueuePrompt.promptType
 		);
+		QueueLog.addLog("note-opened", {
+			note: this.currentQueuePrompt.qNote.getQueueValuesAsObj(),
+			promptType: this.currentQueuePrompt.promptType,
+		});
 
 		render(this.currentQueuePrompt, this);
 	}

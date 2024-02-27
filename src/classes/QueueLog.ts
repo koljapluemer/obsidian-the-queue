@@ -40,4 +40,13 @@ export default class QueueLog {
 		QueueLog.logs = [log, ...QueueLog.logs];
 		QueueLog.saveToLocalStorage();
 	}
+
+    static resetLogs() {
+        const parentVaultId = (app as any).appId;
+        localStorage.setItem(
+            `q-logs-${parentVaultId}`,
+            JSON.stringify([])
+        );
+        QueueLog.logs = [];
+    }
 }

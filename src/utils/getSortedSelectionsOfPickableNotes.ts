@@ -180,10 +180,10 @@ export function getSortedSelectionsOfPickableNotes(
 			"Nr. of due misc": dueMisc.length,
 			"Nr. of orphans": orphans.length,
 			"Nr. of improvables": improvables.length,
-			"Nr. of learn leeches": learnLeeches.length,
-			"Nr. of check leeches": checkLeeches.length,
-			"Nr. of other leeches": otherLeeches.length,
-			"Nr. of reading leeches": readingLeeches.length,
+			"Nr. of due learn leeches": learnLeeches.length,
+			"Nr. of due check leeches": checkLeeches.length,
+			"Nr. of due other leeches": otherLeeches.length,
+			"Nr. of due reading leeches": readingLeeches.length,
 			"Nr. of started learns below threshold":
 				counterStartedLearnsBelowThreshold,
 			"Nr. of started books even if not due":
