@@ -20,10 +20,16 @@ There is no point in creating notes you never see again!
 
 ## Installation
 
-*The Queue* is not yet available through the `Community Plugins` tab in Obsidian (WIP). You can manually install it like so:
+*The Queue* is not yet available through the `Community Plugins` tab in Obsidian (WIP). You must install it manually:
+
+1. Download this repository as a `.zip` file and unzip
+2. Locate your Obsidian plugin folder and copy the directory there
+3. Activate `The Queue` in your Community Plugins tab in your Obsidian Settings
+
+If any of these steps cause you trouble, refer to *Method 2* in [this excellent installation guide](https://www.makeuseof.com/install-obsidian-plugins/).
 
 
-- *obligatory warning: This plugin edits your metadata. *
+*Obligatory warning: This plugin works by editing the metadata/frontmatter of your notes. We took steps to avoid interference with existing workflows or settings, but if this sounds scary to you, we recommend you backup of your vault, as well as read this documentation carefully.*
 
 ## Getting Started
 
@@ -178,7 +184,15 @@ The [[Vienna Secession]] started ＿ and ended 1905.
 - If you get a flashcard wrong a lot, it will be marked as a *leech* (inspired by the [Anki concept](https://docs.ankiweb.net/leeches.html)) — see the section on [Leech Improvement](#leech-improvement) for additional information.
 
 
+
+#### To-Dos
+
+#### Habits 
+
 #### Check-Ins 
+
+#### Iterative Readings: Books and Articles
+
 #### Leech Improvement 
 
 #### Orphan Adoption
