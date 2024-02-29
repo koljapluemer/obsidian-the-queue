@@ -30,6 +30,19 @@
     - ideally optimize
     - otherwise add subtle loading animation or smth
 - add a kind of `Test` button so that people can see how their note would look like in queue
+- allow setting nr of concurrent books in the settings
+- allow disabling leeches
+- add leech improvement screenshot
+- make `needs-improvement` adaptable
+- allow disabling improvement function
+- add orphan screenshot
+- add *Tips and Tricks* to Readme
+    - Wozniak 20 rules of formulating
+    - AutoMOC recommendation
+    - could even be blog posts about 'how I use my tool to do x'
+- allow disable log
+- allow good UX for export
+- explain the learn card setting
 
 ### Bugs and minor improvements
 

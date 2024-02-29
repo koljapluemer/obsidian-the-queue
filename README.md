@@ -33,8 +33,8 @@ If any of these steps cause you trouble, refer to *Method 2* in [this excellent 
 
 ## Getting Started
 
-1. Click the little die (⚄) in your ribbon.
-2. Here you go!
+1. Click the little die icon in your ribbon. (![queue icon](doc/img/queue.png))
+2. You are in your queue, have fun!
 
 
 ## Usage, Features and Functionality
@@ -77,7 +77,7 @@ Here is an overview of all properties and what they're used for:
 | `q-type` | *see [Types of notes](#types-of-notes)* | Determines how the note will be treated and which buttons you see. *Most important*.
 | `q-interval` | any positive number (like `3`, or `0.2`) | How often a note will show up, measured in days. 
 | `q-priority` | any number | Whether this note will be prioritized compared to other notes due at the same time — the higher the value, the more likely it will be picked.
-| `q-keywords` | any text | *see [Filtering](#filtering)*
+| `q-keywords` | text, or an array of text | *see [Filtering](#filtering)*
 | `q-topic` | any text | Additional text that will show up on the top right of the note when it is displayed in the queue. As of now, purely visual.
 | `q-data` | — | An object used to keep track of various values that are internally relevant to *The Queue*. Unless you are transferring notes from another system, you will never have to touch this.
 
@@ -187,15 +187,268 @@ The [[Vienna Secession]] started ＿ and ended 1905.
 
 #### To-Dos
 
+To-dos are marked by setting `q-type: todo` in the frontmatter.
+
+##### Useful for...
+
+1. tasks that you have to do once
+
+#### Example
+
+Here is an example:
+
+`finalize documentation.md`
+```
+---
+q-type: todo
+---
+
+→ finish documentation of The Queue
+```
+
+
+![screenshot of note above in the queue](doc/img/todo_1.png)
+
+
+Once you click `Completed`, it will not show up again. If you click `Not Today`, you will see the note the next day, while `Later` delays for 10 minutes.
+
 #### Habits 
+
+Habits are a lot like to-dos — however, they are recurring. You set them with `q-type: habit`.
+
+##### Useful for...
+
+1. enhancing your productivity (e.g. *plan the rest of your day*)
+2. iteratively improving your note-taking system (e.g. *import browser bookmarks to Obsidian*)
+3. taking care of your health (e.g. *stand up and roll your shoulders*)
+4. staying on top of social obligations and relationships (e.g. *convert at least 1 email in your inbox to a to-do and delete it*)
+5. almost any kind of habit that you want to establish, honestly
+
+##### Examples
+
+Here is a habit note that will show up every 3 days:
+
+`Tidy Desk Habit.md`
+
+```
+---
+q-type: habit
+q-interval: 3
+---
+
+- clear your desk
+	- only laptop, glass of water, notebook and potted plant are allowed on it
+```
+
+![screenshot of the above note in queue](doc/img/habit_1.png)
+
+As you can see, the interval (=how often you are prompted) is set by `q-interval` and measured in days. For habits, setting `q-interval` is recommended, but not required — if it's not set, *The Queue* will show the habit once a day.
+
+###### Habits with short intervals
+
+You can set `q-interval` to any number larger than zero, even really small ones. For example, the following habit will be due roughly every 20 minutes.
+
+```
+---
+q-type: habit
+q-interval: 0.014
+---
+
+Take a deep, slow breath
+```
+
+We recommend not having too many habits with really short intervals since they can "clog" your queue. However, it's useful for certain habits, and of course you can adapt the interval at any time.
+
+###### Tracking many habits
+
+Different to many personal productivity systems, *The Queue* does not require you to actively remember habits, nor to check-off a list of them every day. Because of this, you can put hundreds of habits into your queue at little cost — if you so desire.
+
+Whether this makes sense depends on how long you engage with your queue every day. If you only look at half a dozen notes every day, but you have 50 active daily habits, you will of course not see all of them everyday, making them not really daily habits. Consider this carefully.
+
+As long as you're consistently checking your queue now and again, it's very useful for habits that are only due very rarely and thus easy to forget, like:
+
+```
+---
+q-type: habit
+q-interval: 300
+---
+
+call doctor for yearly check-up
+```
+
+I have quite a lot of those.
+
+To make sure that important habits are not drowned out, take a look at [setting note priorities](#priority).
+
+##### Setting yourself up for success with habits
+
+No matter how many habits you choose to put into your queue, we advice you to design them carefully. Having habits that feel to big, too undefined or too dreadful can quickly take out the fun. Some tips:
+
+1. Set [Smart Goals](https://www.atlassian.com/blog/productivity/how-to-write-smart-goals) on every habit card
+2. Set an optional *Minimum Viable Habit*: A tiny action in the right direction that is possible to do even when you are at your worst
+3. Specify exceptions: What do you do when it's impossible to do the habit right now?
+
+Take special care when you use `habit` notes for self-change or mental health concerns. It's now win to create a habit to feel better only to then feel worse because you're not up for doing it. Two additional recommendations here:
+
+1. Create `habit` notes for habits you already do anyways; to build trust in your ability to do so.
+2. Consider `habit` notes for things that are fun, silly, useless or unrelated to your goals, such as *eat a piece of chocolate and really enjoy it*.
+3. For new habits, start tiny. For example, if you want to establish mood tracking, try *draw a smiley about how you feel in your notebook* instead of *write a 1-page diary entry*.
+
+Please be aware that all these are just cheap hacks, attempting to simplify the extremely intricate topics of mental health and identity. Be kind to yourself.
+
+And most importantly, know that *The Queue* can not replace human contact nor a mental health professional.
 
 #### Check-Ins 
 
+*Check-Ins* are a little bit strange, but very neat. They are like habits, but formulated as a question to yourself and usually looking at the past or the general state of things. Here a few examples:
+
+- *Did you go to bed at a reasonable time yesterday?*
+- *Are you spending enough time with your family?*
+- *Do you have a glass of water within reach?*
+
+##### Useful for...
+
+1. establishing habit systems that can't be supported by prompting specific actions in the moment, for example relating to sleep, exercise or lifestyle.
+2. checking in with yourself on a broader scale, e.g. spiritually, regarding mental health, career trajectory, etc.
+3. validating that you are actually applying learned concepts, processes or ideas
+
+##### Example
+
+```
+---
+q-interval: 3
+q-priority: 10
+q-type: check
+---
+[[office health]]
+```
+
+![screenshot of check note above in the queue](doc/img/check_1.png)
+
+This check here will show up every three days, with fairly high [priority](#priority).
+
+Whether you answer `No`, `Kind of` or `Yes` actually makes no difference. There is no score, it's just you checking in with yourself.
+
+##### Be gentle & take care of yourself
+
+We ask you to be careful with this type of note. While there is likely nothing wrong with checking whether you have a glass of water on your desk, analyzing your own mental health is a serious endeavour.
+
+While "*Are you happy with yourself?*" may be the ideal prompt for one person to adjust their priorities, it may spiral into self doubt for another.
+
+If you choose to use `check` for these things, be gentle and kind. Set yourself up for easy wins, especially in the beginning or when attempting big changes in your life.
+
+And please remember, *The Queue* can not replace human contact nor a mental health professional.
+
 #### Iterative Readings: Books and Articles
+
+[Iterative Reading](https://en.wikipedia.org/wiki/Incremental_reading) is a method of getting through long reading lists. Instead of reading one article (or whatever) after another, you read everything "at the same time". *The Queue* makes this possible by randomly showing you articles you saved, prompting you to read a bit — it is up to you whether you stop after a sentence or a chapter. Bit by bit, you make progress, until you finished a given document. 
+
+To have a note show up in your queue in this manner, you have to set `article` or `book` as `q-type`.
+
+As you can see in the examples, the two types are treated almost the same. The main difference is that *The Queue* limits the number of books you read at a time, while the number of current `article`s is unlimited.
+
+##### Useful for...
+
+1. `article`:
+  - blog posts
+  - news articles
+  - videos
+  - (long-ish) emails
+  - any kind of content that takes 1 - 45 minutes to consume and understand
+2. `book`:
+  - ...well, books
+  - long-form video, including movies
+  - large essays
+  - any kind of content that feels like a project to get through
+
+##### Examples
+
+###### Article
+
+`Monthly self-expansion project.md`
+```
+---
+q-type: article
+---
+
+- *formalia*:
+	- [[Derek Sivers]]
+	- https://sive.rs/exex
+
+> idea: [[~Every month, pick something you hate or know nothing about, and get to know it well]]
+
+- another recommendation for [[The First 20 Hours]]
+- very theoretical wishy-washy though, no actual report of how it went
+
+```
+
+![screenshot of article note above in queue](doc/img/article_1.png)
+
+As you can see, you can add notes about the article on the note. In fact, we heavily recommend this.
+
+
+Also, *note the difference between the buttons `Done` and `Finished`*! 
+1. `Done` means that the note will show up tomorrow again, prompting you to read a bit 
+2. `Finished` means that you finished the whole book or article, and it will now be treated as a [standard note](#standard-notes--miscellaneous--default)
+
+
+###### Book
+
+`Dune.md`
+```
+---
+q-type: book
+---
+
+```
+
+![screenshot of the note above in queue](doc/img/book_1.png)
+
+When you have less than five active books, *The Queue* will randomly pick one of your `book`s and prompt you to start reading (which you can also decline by clicking `Not Today`).
+
+If you want to add a book to your queue that you have already started to read, set `q-type: book-started`. 
 
 #### Leech Improvement 
 
+A *[leech](https://docs.ankiweb.net/leeches.html)* is a term from Anki, where it means a learning flashcard that you are repeatedly getting wrong. We use the term more expansively to mean:
+
+1. `learn` notes that you don't remember repeatedly
+2. `habit`, `todo`, `book` and `article` notes where you repeatedly click `Not Today`
+3. `check` cards where you always answer `No`.
+
+*The Queue* automatically detects leeches and will prompt you to redesign the note in question in certain ways. 
+
+This feature is fully automatic and you don't have to do any setup.
+
+
 #### Orphan Adoption
+
+[Linking in Obsidian](https://help.obsidian.md/Linking+notes+and+files/Internal+links) is extremely useful.
+
+*The Queue* detects (of type [misc](#standard-notes--miscellaneous--default) notes with no outgoing links and will occasionally prompt you to add connections such a note.
+
+Similar to [Leech Improvement](#leech-improvement), this feature is automatic and requires no setup from your side.
+
+
+#### Note Improvement Prompt
+
+Additionally to orphan detection, *The Queue* also looks for the string `needs-improvement` anywhere on your notes.
+
+
+Generally, the idea is that you tag notes with `needs-improvement` whenever a problem catches your eye, without having to rectify the problem immediately. Problems could be anything like:
+
+1. missing meta-data
+2. missing quotations
+3. ugly layout
+4. note too long
+5. thoughts unclear
+6. information outdated
+7. ...
+
+We recommend using a tag like `#needs-improvement` or a link to a note with aliases like `[[needs-improvement|no citations]]` so that you keep a good overview over your problematic notes. It just has to include the string `needs-improvement`.
+
+Your queue will then occasionally prompt you to improve such a note.
+
 
 #### Additional, (secret) types
 
@@ -213,21 +466,43 @@ After this tangent, here is some more stuff you can do within *The Queue*:
 ### Features
 
 #### Editing
+ ![](doc/img/edit.png)
 
-#### Logging
+When you are in your queue, you can always jump to edit the note you are looking at — just click the little pen icon.
+
+We recommend doing this a lot! This way your notes become better and better, even the ones that may be forgotten otherwise.
+
+Once you are done editing, you can jump back to the same note by just clicking the queue icon (![](doc/img/queue.png)) again. 
 
 #### Filtering
 
-#### Settings
+![](doc/img/filter.png)
+
+If you have set `q-keywords` on some notes, you can use the filter icon to filter which notes show up in your queue.
+
+This can be useful when cramming for an exam or for habits that can be done while riding the bus.
+
+We recommend using this feature sparingly, as having all your notes wildly mixed is a lot of the fun.
+
+#### Priority
+
+On any note, you can set `q-priority`. The higher the priority is set for a note, the more will it be picked in comparison to notes with a lower priority value.
+
+There are now fixed values for what "high" or "low" priority is; a given `q-priority` is always compared to the other priority values in your vault. Meaning there is nothing stopping you from giving priorities like `-10000` and `20000`, or `1.2` and `1.25`.
+
+##### Technical Details
+
+The actual value you set only matters for sorting your notes from "most important" to "least important" within the selection of notes of the same type (for example, *habit notes that are due right now*).
+
+You can check out the actual selection algorithm in `src/utils/randomSelection.ts`, it's fairly readable.
 
 
-## Tips & Tricks
+#### Logging
 
-#### The orphan prompt works great with AutoMOC
+Data about the number of due notes in your queue, as well as picked queue cards is saved locally on your machine. These data never leave your machine and nobody without access to your device can see them. You can export and reset these data in the Settings of the plugin. As of now, it is only available as a single `JSON` object download. 
 
-#### Design learning flashcards well
+A comprehensive documentation as well as more accessibly statistics are in the works.
 
-- Wozniak's flashcard design tips
 
 ## Credit
 
