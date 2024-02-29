@@ -103,7 +103,7 @@ First of all, here is a list of all `q-type`s that *The Queue* is aware of:
 
 |  `q-type` value  | Note Type | Treatment |
 | --- | --- | --- |
-| `learn` | Learning Flashcard | A Spaced-Repetition flashcard where you initially only the front side. |
+| `learn` | Learning Flashcard | A Spaced-Repetition flashcard where you initially only see the front side. |
 | `todo` | To-Do | A task that you only have to do once. Will be hidden once it's finished.
 | `habit` | Habit Prompt | A recurring habit that you want to establish. Will prompt you to do the task on the note every time it comes up. |
 | `check` | Check-In | Like a habit, but phrased as a question and looking back. It's a bit hard to explain but very useful. |
@@ -118,12 +118,44 @@ First of all, here is a list of all `q-type`s that *The Queue* is aware of:
 In the following chapters, you will learn about every type of note in detail. At the end, you can customize how notes will show up in your queue to your heart's desire.
 
 #### Standard notes / Miscellaneous / Default
+
+If a note has no `q-type`, an invalid one, or `misc`, it will be handled as shown here.
+
 ##### Useful for...
 
 1. thoughts that you occasionally want to be reminded of
 2. quotes that you like but don't want to exactly memorize
 3. paintings, memes, silly things
 4. photos that you took; memories
+
+##### Examples
+
+1. A valid note with no frontmatter (treated as `misc`)
+
+`The Eruption of Vesuvius.md`
+
+```
+
+![](https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/I.C.Dahl_Vesuv.jpg/1024px-I.C.Dahl_Vesuv.jpg)
+```
+![](doc/img/misc_1.png)
+
+
+2. A valid note with `q-type: misc` said explicitly, no content besides the title, given a [priority value](#priority).
+
+`"Whom the gods wish to destroy, they give unlimited resources".md`
+
+```
+---
+q-priority: -20
+q-type: misc
+
+---
+```
+
+![](doc/img/misc_2.png)
+
+When you encounter a `misc` note in your vault, you have the option to click `Show Less Often`, `Ok, Cool` and `Show More Often`. The two outer buttons decrement/increment the note's [priority](#priority) so that it will come up less/more in the future.
 
 #### Learning flashcards
 
@@ -263,9 +295,9 @@ We recommend not having too many habits with really short intervals since they c
 
 Different to many personal productivity systems, *The Queue* does not require you to actively remember habits, nor to check-off a list of them every day. Because of this, you can put hundreds of habits into your queue at little cost — if you so desire.
 
-Whether this makes sense depends on how long you engage with your queue every day. If you only look at half a dozen notes every day, but you have 50 active daily habits, you will of course not see all of them everyday, making them not really daily habits. Consider this carefully.
+Whether this makes sense depends on how long you engage with your queue every day. If you only look at half a dozen notes on an average day but have 50 active daily habits, you will of course not see all of them everyday. Depending on the habit in question, this may be be OK, or ruin the idea. Consider this carefully.
 
-As long as you're consistently checking your queue now and again, it's very useful for habits that are only due very rarely and thus easy to forget, like:
+As long as you're consistently checking your queue now and again, it's very convenient to add habits that are only due very rarely and thus easy to forget, like:
 
 ```
 ---
@@ -288,7 +320,7 @@ No matter how many habits you choose to put into your queue, we advice you to de
 2. Set an optional *Minimum Viable Habit*: A tiny action in the right direction that is possible to do even when you are at your worst
 3. Specify exceptions: What do you do when it's impossible to do the habit right now?
 
-Take special care when you use `habit` notes for self-change or mental health concerns. It's now win to create a habit to feel better only to then feel worse because you're not up for doing it. Two additional recommendations here:
+Take special care when you use `habit` notes for self-change or mental health concerns. It's no win to create a habit to feel better only to then feel worse because you're not up for doing it. Three additional recommendations here:
 
 1. Create `habit` notes for habits you already do anyways; to build trust in your ability to do so.
 2. Consider `habit` notes for things that are fun, silly, useless or unrelated to your goals, such as *eat a piece of chocolate and really enjoy it*.
@@ -343,7 +375,7 @@ And please remember, *The Queue* can not replace human contact nor a mental heal
 
 [Iterative Reading](https://en.wikipedia.org/wiki/Incremental_reading) is a method of getting through long reading lists. Instead of reading one article (or whatever) after another, you read everything "at the same time". *The Queue* makes this possible by randomly showing you articles you saved, prompting you to read a bit — it is up to you whether you stop after a sentence or a chapter. Bit by bit, you make progress, until you finished a given document. 
 
-To have a note show up in your queue in this manner, you have to set `article` or `book` as `q-type`.
+To have a note show up in your queue in this manner, you have to set `article` or `book` as the `q-type`.
 
 As you can see in the examples, the two types are treated almost the same. The main difference is that *The Queue* limits the number of books you read at a time, while the number of current `article`s is unlimited.
 
@@ -410,13 +442,15 @@ If you want to add a book to your queue that you have already started to read, s
 
 #### Leech Improvement 
 
-A *[leech](https://docs.ankiweb.net/leeches.html)* is a term from Anki, where it means a learning flashcard that you are repeatedly getting wrong. We use the term more expansively to mean:
+*[Leech](https://docs.ankiweb.net/leeches.html)* is a term from Anki, where it means a learning flashcard that you are repeatedly getting wrong. We use the term more expansively to mean:
 
-1. `learn` notes that you don't remember repeatedly
+1. `learn` notes that you just can't memorize
 2. `habit`, `todo`, `book` and `article` notes where you repeatedly click `Not Today`
-3. `check` cards where you always answer `No`.
+3. `check` cards where you often answer `No`.
 
-*The Queue* automatically detects leeches and will prompt you to redesign the note in question in certain ways. 
+None of these is helpful; all of these are frustrating.
+
+For this reason, *The Queue* automatically detects leeches and will occasionally prompt you to redesign a leech note in certain ways. 
 
 This feature is fully automatic and you don't have to do any setup.
 
@@ -425,7 +459,7 @@ This feature is fully automatic and you don't have to do any setup.
 
 [Linking in Obsidian](https://help.obsidian.md/Linking+notes+and+files/Internal+links) is extremely useful.
 
-*The Queue* detects (of type [misc](#standard-notes--miscellaneous--default) notes with no outgoing links and will occasionally prompt you to add connections such a note.
+To support you in this regard, *The Queue* detects  notes (of type [misc](#standard-notes--miscellaneous--default)) with no outgoing links and will occasionally prompt you to add connections such a note.
 
 Similar to [Leech Improvement](#leech-improvement), this feature is automatic and requires no setup from your side.
 
@@ -445,14 +479,16 @@ Generally, the idea is that you tag notes with `needs-improvement` whenever a pr
 6. information outdated
 7. ...
 
-We recommend using a tag like `#needs-improvement` or a link to a note with aliases like `[[needs-improvement|no citations]]` so that you keep a good overview over your problematic notes. It just has to include the string `needs-improvement`.
+We recommend using a tag like `#needs-improvement` or a link to a note with aliases, like `[[needs-improvement|no citations]]`, so that you keep a good overview of your problematic notes. 
+
+Whatever your specific setup is, just include the text `needs-improvement` somewhere on a note and *The Queue* knows what's up.
 
 Your queue will then occasionally prompt you to improve such a note.
 
 
 #### Additional, (secret) types
 
-*The [type list at the beginning of the chapter](#types-of-notes) is actually not exhaustive. They are some additional types that the software uses internally. Unless you are transferring from a different system or hacking the system on an advanced level, you will never need to set them. Anyways, for completion's sake, here they are:*
+*The [type list at the beginning of the chapter](#types-of-notes) is actually not exhaustive. They are some additional types that the software uses internally. Unless you are transferring from a different system or hacking your queue on an advanced level, you will never need to set them. Anyways, for completion's sake, here they are:*
 
 |  `q-type` value  | Usage |
 | --- | --- |
@@ -470,15 +506,17 @@ After this tangent, here is some more stuff you can do within *The Queue*:
 
 When you are in your queue, you can always jump to edit the note you are looking at — just click the little pen icon.
 
-We recommend doing this a lot! This way your notes become better and better, even the ones that may be forgotten otherwise.
+We recommend doing this — a lot! This way your notes become better and better, even the ones that may be forgotten otherwise.
 
 Once you are done editing, you can jump back to the same note by just clicking the queue icon (![](doc/img/queue.png)) again. 
+
+If during editing you decide that you really don't need this note anymore, you can also delete it. *The Queue* will just pick a new note once you start it again.
 
 #### Filtering
 
 ![](doc/img/filter.png)
 
-If you have set `q-keywords` on some notes, you can use the filter icon to filter which notes show up in your queue.
+If you have set `q-keywords` on at least some notes, you can use the filter icon to filter which notes show up in your queue.
 
 This can be useful when cramming for an exam or for habits that can be done while riding the bus.
 
@@ -488,18 +526,18 @@ We recommend using this feature sparingly, as having all your notes wildly mixed
 
 On any note, you can set `q-priority`. The higher the priority is set for a note, the more will it be picked in comparison to notes with a lower priority value.
 
-There are now fixed values for what "high" or "low" priority is; a given `q-priority` is always compared to the other priority values in your vault. Meaning there is nothing stopping you from giving priorities like `-10000` and `20000`, or `1.2` and `1.25`.
+There are no fixed values for what "high" or "low" priority is; a given `q-priority` is always compared to the other priority values in your vault. So, there is nothing stopping you from giving priorities like `-10000` and `20000`, or `1.2` and `1.25`.
 
 ##### Technical Details
 
-The actual value you set only matters for sorting your notes from "most important" to "least important" within the selection of notes of the same type (for example, *habit notes that are due right now*).
+The actual `q-interval` value you set only matters for sorting your notes from "most important" to "least important" within the selection of notes of the same type (for example, *habit notes that are due right now*).
 
-You can check out the actual selection algorithm in `src/utils/randomSelection.ts`, it's fairly readable.
+You can check out the actual selection algorithm in `src/utils/randomSelection.ts`, it's fairly readable and short.
 
 
 #### Logging
 
-Data about the number of due notes in your queue, as well as picked queue cards is saved locally on your machine. These data never leave your machine and nobody without access to your device can see them. You can export and reset these data in the Settings of the plugin. As of now, it is only available as a single `JSON` object download. 
+Data about the number of due notes in your queue, as well as picked queue cards, is saved locally on your machine. These data never leave your device and nobody without access to the phone or computer you use Obsidian on can see them. You can export and reset these data in the Settings of the plugin. As of now, it is only available as a single `JSON` object download. 
 
 A comprehensive documentation as well as more accessibly statistics are in the works.
 
@@ -512,3 +550,13 @@ This ongoing project is the culmination of quite a few years of researching and 
 2. [Piotr Wozniak's writing](https://supermemo.guru), which gave me many pointers on Spaced Repetition, iterative reading and more.
 3. [ebisu](https://github.com/fasiha/ebisu.js), the algorithm that flashcards are based on.
 4. The writings of Cal Newport, Niklas Luhmann, James Clear, Jeff Olson, Maxwell Maltz, Mihaly Csikszentmihalyi and many others, who all influenced my thinking about note-taking, productivity, learning and habits.
+
+## Running Locally & Contributing
+
+Pull requests are always welcome — for ideas, complaints, feature requests or software patches.
+
+There are no specific guidelines for contributing as of now; be pleasant and kind.
+
+Detailed instructions for running the project locally are still pending, however this is just a basic `ts` project. Cloning it locally, installing dependencies with `npm i` and then running it with `npm run dev` should work fine. To use it in Obsidian, you have to put the project folder in your plugin folder.
+
+If you have any trouble, please open an issue. Cheerz!

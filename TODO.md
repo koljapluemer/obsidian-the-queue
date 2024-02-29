@@ -43,6 +43,7 @@
 - allow disable log
 - allow good UX for export
 - explain the learn card setting
+- add concepts from 20 rules to learn leech prompt options?
 
 ### Bugs and minor improvements
 
