@@ -559,4 +559,6 @@ There are no specific guidelines for contributing as of now; be pleasant and kin
 
 Detailed instructions for running the project locally are still pending, however this is just a basic `ts` project. Cloning it locally, installing dependencies with `npm i` and then running it with `npm run dev` should work fine. To use it in Obsidian, you have to put the project folder in your plugin folder.
 
+To start hacking away at the plugin, check `DOC.md` for a brief introduction on where to find what functionality.
+
 If you have any trouble, please open an issue. Cheerz!
