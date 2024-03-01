@@ -36,6 +36,12 @@ export function getSortedSelectionsOfPickableNotes(
 	let counterStartedBooksEvenIfNotDue = 0;
 	let lowestPredictedRecall = 1;
 
+	let pluginSettings;
+	const settingsCookie = sessionStorage.getItem("the-queue-settings");
+	if (settingsCookie != null) {
+		pluginSettings = JSON.parse(settingsCookie);
+	}
+
 	qNotes.forEach((qNote) => {
 		// exclude q-type: exclude
 		if (qNote.getShouldBeExcluded()) {
@@ -111,7 +117,7 @@ export function getSortedSelectionsOfPickableNotes(
 				orphans.push(qNote);
 			}
 		}
-		// any due note may be considered improvable if settings.
+		// any due note may be considered improvable if string exists.
 		if (qNote.isImprovable) {
 			improvables.push(qNote);
 		}
@@ -124,7 +130,7 @@ export function getSortedSelectionsOfPickableNotes(
 	if (counterStartedLearnsBelowThreshold < 10 && newLearns.length > 0) {
 		returnObj.newLearns = newLearns;
 	}
-	if (counterStartedBooksEvenIfNotDue < 5 && newBooks.length > 0) {
+	if (counterStartedBooksEvenIfNotDue <= pluginSettings.booksActiveMax && newBooks.length > 0) {
 		returnObj.newBooks = newBooks;
 	}
 	// rest of the selections are a simple 'do they contain anything' check

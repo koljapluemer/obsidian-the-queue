@@ -44,9 +44,8 @@
 - allow good UX for export
 - explain the learn card setting
 - add concepts from 20 rules to learn leech prompt options?
-
+- handle access of settings more elegantly than sessionCookie, Singleton?
 ### Bugs and minor improvements
 
 - rename ribbon button, replace icon maybe
 - add command?
-- add setting for books at the same time

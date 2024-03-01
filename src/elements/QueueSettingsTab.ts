@@ -55,5 +55,20 @@ export default class QueueSettingsTab extends PluginSettingTab {
 					QueueLog.resetLogs();
 				})
 			);
+
+		// how many books active at the same time
+		new Setting(containerEl)
+			.setName("Active Books")
+			.setDesc("Number of books to be active at the same time.")
+			.addSlider((slider) =>
+				slider
+					.setLimits(1, 10, 1)
+					.setValue(this.plugin.settings.booksActiveMax)
+					.setDynamicTooltip()
+					.onChange(async (value) => {
+						this.plugin.settings.booksActiveMax = value;
+						await this.plugin.saveSettings();
+					})
+			);
 	}
 }
