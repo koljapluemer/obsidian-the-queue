@@ -11,9 +11,7 @@ export function render(qPrompt: QueuePrompt, parentContext: any) {
 
 	// load the content of the random note
 	this.app.vault.cachedRead(qPrompt.qNote.noteFile).then((content: any) => {
-		if (!content) {
-			return;
-		}
+
 		// HEADER
 		const headerEl = modalEl.createDiv("headerEl");
 
