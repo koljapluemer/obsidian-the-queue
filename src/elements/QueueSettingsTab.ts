@@ -18,7 +18,7 @@ export default class QueueSettingsTab extends PluginSettingTab {
 		new Setting(containerEl)
 			.setName("Desired Recall Threshold")
 			.setDesc(
-				"The Spaced Repetition Algorithm will only show cards where the predicted recall is below this value."
+				"The Spaced Repetition Algorithm will only show notes where the predicted recall is below this value."
 			)
 			.addSlider((slider) =>
 				slider

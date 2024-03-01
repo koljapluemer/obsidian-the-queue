@@ -282,7 +282,7 @@ export default class QueueNote {
 	}
 
 	getType(): QType {
-		// a finished book is not treated different from a 'misc' card
+		// a finished book is not treated different from a 'misc' note
 		// unspecified (or illegal) types are also treated as 'misc'
 		// TODO: check if this works
 		let pragmaticType = this.qType || QType.misc;
@@ -542,7 +542,7 @@ export default class QueueNote {
 			this.startLearning();
 		}
 
-		// learning cards that we have seen before
+		// learning notes that we have seen before
 		// TODO: make stuff like this robust against metadata being broken/missing (and think about what to even do)
 		if (this.getType() === "learn-started") {
 			// score: wrong = 0, correct = 1, easy = 2

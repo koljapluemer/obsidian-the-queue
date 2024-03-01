@@ -3,7 +3,7 @@
 	"name": "The Queue",
 	"version": "1.1.0",
 	"minAppVersion": "0.15.0",
-	"description": "Randomly exposes you to notes from your vault. Supports habits, to-dos, spaced repetition flashcards, iterative reading and more. ",
+	"description": "Randomly exposes you to notes from your vault. Supports habits, to-dos, spaced repetition flashcards, iterative reading and more.",
 	"author": "Kolja Sam Pluemer",
 	"authorUrl": "koljapluemer.com/",
 	"fundingUrl": "https://www.buymeacoffee.com/blackbrokkoli",

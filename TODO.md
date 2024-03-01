@@ -25,7 +25,7 @@
     - poetry is just *so* hard
 - add empty and non-existing frontmatter to test suite
 - do something about long load time...
-    - idea: I mean, kind of doesn't matter if it's partly async, as long as we load *some* cards...
+    - idea: I mean, kind of doesn't matter if it's partly async, as long as we load *some* notes...
 - analyze long loading time
     - ideally optimize
     - otherwise add subtle loading animation or smth
@@ -42,7 +42,7 @@
     - could even be blog posts about 'how I use my tool to do x'
 - allow disable log
 - allow good UX for export
-- explain the learn card setting
+- explain the learn note limit setting
 - add concepts from 20 rules to learn leech prompt options?
 - handle access of settings more elegantly than sessionCookie, Singleton?
 ### Bugs and minor improvements

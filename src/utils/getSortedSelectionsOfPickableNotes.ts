@@ -90,8 +90,8 @@ export function getSortedSelectionsOfPickableNotes(
 			}
 		} else if (qNote.getType() === "learn-started") {
 			// check if should be treated as leech
-			// TODO: add a kind of actual due check here (but currently dueAt for learn cards is related to recall threshold...)
-			// or rather: prevent that we have to add more and more anti-leech stuff to a given card
+			// TODO: add a kind of actual due check here (but currently dueAt for learn notes is related to recall threshold...)
+			// or rather: prevent that we have to add more and more anti-leech stuff to a given note
 			if (qNote.getShouldReceiveLeechTreatment()) {
 				learnLeeches.push(qNote);
 			}
@@ -122,7 +122,7 @@ export function getSortedSelectionsOfPickableNotes(
 			improvables.push(qNote);
 		}
 	});
-	// if we have more than 10 learn cards below threshold, remove new learn cards
+	// if we have more than 10 learn notes below threshold, remove new learn notes array
 	// if we have 5 or more started books, also remove new books
 	// also, don't include selections that are empty (including key)
 	let returnObj: pickableSelections = {};

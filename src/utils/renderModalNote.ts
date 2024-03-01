@@ -59,7 +59,7 @@ export function render(qPrompt: QueuePrompt, parentContext: any) {
 
 		// MAIN CONTENT
 		const contentEl = modalEl.createDiv("contentEl");
-		const title = qPrompt.qNote.getBasename();
+		const name = qPrompt.qNote.getBasename();
 		let renderedContent = content;
 		let initiallyHiddenContent: String;
 
@@ -72,20 +72,20 @@ export function render(qPrompt: QueuePrompt, parentContext: any) {
 		}
 
 		if (qPrompt.promptType === "startedLearnNoteMostCloseToForgetting") {
-			// TODO: what if we have badly formatted learn card with no (or multiple separators)
+			// TODO: what if we have badly formatted learn note with no (or multiple separators)
 			const splitNote = renderedContent.split("---");
 			if (splitNote.length > 1) {
 				renderedContent = splitNote[0];
 				// rest of note
 				initiallyHiddenContent = splitNote.slice(1).join("---");
 			} else {
-				// we just show the title, aka renderedContent is just nothing
+				// we just show the name, aka renderedContent is just nothing
 				renderedContent = "";
 				initiallyHiddenContent = splitNote[0];
 			}
 		}
-		// add title of note before front, with a # to make it a title
-		renderedContent = `# ${title}\n\n` + renderedContent;
+		// add name of note before front, with a # to make it a name
+		renderedContent = `# ${name}\n\n` + renderedContent;
 
 		MarkdownRenderer.renderMarkdown(
 			renderedContent,
@@ -129,7 +129,7 @@ export function render(qPrompt: QueuePrompt, parentContext: any) {
 		}
 		const learnLeechPrompts = [
 			"Add an image from the internet to the back to remember it more easily.",
-			"Link the learn card to another note to help your brain out.",
+			"Link the note to another note to help your brain out.",
 			"Split the note into several easier-to-remember notes.",
 			"Make up a silly mnemonic and add it to the back of the note.",
 			"Come up with a helpful rhyme and put it on the back of the note.",
@@ -202,7 +202,7 @@ export function render(qPrompt: QueuePrompt, parentContext: any) {
 					// by decrementing the leech count, we prevent
 					// the note from showing up as a leech again before
 					// we had it in a natural context at least once and it failed
-					// we're technically also running a leechReset on cards that were never registered as leech
+					// we're technically also running a leechReset on notes that were never registered as leech
 					// but that's fine for now
 					qPrompt.qNote.decrementLeechCount(1);
 					qPrompt.qNote.save();

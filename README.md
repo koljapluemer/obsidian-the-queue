@@ -23,7 +23,7 @@ There is no point in creating notes you never see again!
 *The Queue* is not yet available through the `Community Plugins` tab in Obsidian (WIP). You must install it manually:
 
 1. Download this repository as a `.zip` file and unzip
-2. Locate your Obsidian plugin folder and copy the directory there
+2. Locate your Obsidian plugin folder and copy the project folder there
 3. Activate `The Queue` in your Community Plugins tab in your Obsidian Settings
 
 If any of these steps cause you trouble, refer to *Method 2* in [this excellent installation guide](https://www.makeuseof.com/install-obsidian-plugins/).
@@ -31,9 +31,9 @@ If any of these steps cause you trouble, refer to *Method 2* in [this excellent 
 
 *Obligatory warning: This plugin works by editing the metadata/frontmatter of your notes. We took steps to avoid interference with existing workflows or settings, but if this sounds scary to you, we recommend you backup of your vault, as well as read this documentation carefully.*
 
-## Getting Started
+## Get Started
 
-1. Click the little die icon in your ribbon. (![queue icon](doc/img/queue.png))
+1. Select the little die icon in your ribbon. (![queue icon](doc/img/queue.png))
 2. You are in your queue, have fun!
 
 
@@ -77,7 +77,7 @@ Here is an overview of all properties and what they're used for:
 | `q-type` | *see [Types of notes](#types-of-notes)* | Determines how the note will be treated and which buttons you see. *Most important*.
 | `q-interval` | any positive number (like `3`, or `0.2`) | How often a note will show up, measured in days. 
 | `q-priority` | any number | Whether this note will be prioritized compared to other notes due at the same time — the higher the value, the more likely it will be picked.
-| `q-keywords` | text, or an array of text | *see [Filtering](#filtering)*
+| `q-keywords` | text, or an array of text | *see [Filtering](#filter-notes-in-your-queue)*
 | `q-topic` | any text | Additional text that will show up on the top right of the note when it is displayed in the queue. As of now, purely visual.
 | `q-data` | — | An object used to keep track of various values that are internally relevant to *The Queue*. Unless you are transferring notes from another system, you will never have to touch this.
 
@@ -141,7 +141,7 @@ If a note has no `q-type`, an invalid one, or `misc`, it will be handled as show
 ![](doc/img/misc_1.png)
 
 
-2. A valid note with `q-type: misc` said explicitly, no content besides the title, given a [priority value](#priority).
+2. A valid note with `q-type: misc` said explicitly, no content besides the name, given a [priority value](#priority).
 
 `"Whom the gods wish to destroy, they give unlimited resources".md`
 
@@ -155,7 +155,7 @@ q-type: misc
 
 ![](doc/img/misc_2.png)
 
-When you encounter a `misc` note in your vault, you have the option to click `Show Less Often`, `Ok, Cool` and `Show More Often`. The two outer buttons decrement/increment the note's [priority](#priority) so that it will come up less/more in the future.
+When you encounter a `misc` note in your vault, you have the option to select **Show Less Often**, **Ok, Cool** and **Show More Often**. The two outer buttons decrement/increment the note's [priority](#priority) so that it will come up less/more in the future.
 
 #### Learning flashcards
 
@@ -167,7 +167,7 @@ When you encounter a `misc` note in your vault, you have the option to click `Sh
 
 ##### Examples
 
-- For simple notes, *The Queue* will interpret the title of the note as the front (the question) and the note's content as the back side (the solution). See below:
+- For simple notes, *The Queue* will interpret the name of the note as the front (the question) and the note's content as the back side (the solution). See below:
 
 `I like cold pizza.md`
 
@@ -242,7 +242,7 @@ q-type: todo
 ![screenshot of note above in the queue](doc/img/todo_1.png)
 
 
-Once you click `Completed`, it will not show up again. If you click `Not Today`, you will see the note the next day, while `Later` delays for 10 minutes.
+Once you select **Completed**, it will not show up again. Whereas if you select **Not Today**, you will see the note the next day, while **Later** delays for 10 minutes.
 
 #### Habits 
 
@@ -312,11 +312,11 @@ I have quite a lot of those.
 
 To make sure that important habits are not drowned out, take a look at [setting note priorities](#priority).
 
-##### Setting yourself up for success with habits
+##### Set yourself up for success with habits
 
 No matter how many habits you choose to put into your queue, we advice you to design them carefully. Having habits that feel to big, too undefined or too dreadful can quickly take out the fun. Some tips:
 
-1. Set [Smart Goals](https://www.atlassian.com/blog/productivity/how-to-write-smart-goals) on every habit card
+1. Set [Smart Goals](https://www.atlassian.com/blog/productivity/how-to-write-smart-goals) on every habit note
 2. Set an optional *Minimum Viable Habit*: A tiny action in the right direction that is possible to do even when you are at your worst
 3. Specify exceptions: What do you do when it's impossible to do the habit right now?
 
@@ -359,7 +359,7 @@ q-type: check
 
 This check here will show up every three days, with fairly high [priority](#priority).
 
-Whether you answer `No`, `Kind of` or `Yes` actually makes no difference. There is no score, it's just you checking in with yourself.
+Whether you answer **No**, **Kind of** or **Yes** actually makes no difference (except for [leech counting](#leech-improvement)). There is no score, it's just you checking in with yourself.
 
 ##### Be gentle & take care of yourself
 
@@ -436,7 +436,7 @@ q-type: book
 
 ![screenshot of the note above in queue](doc/img/book_1.png)
 
-When you have less than five active books, *The Queue* will randomly pick one of your `book`s and prompt you to start reading (which you can also decline by clicking `Not Today`).
+When you have less than five active books, *The Queue* will randomly pick one of your `book`s and prompt you to start reading (which you can also decline by selecting **Not Today**).
 
 If you want to add a book to your queue that you have already started to read, set `q-type: book-started`. 
 
@@ -445,8 +445,8 @@ If you want to add a book to your queue that you have already started to read, s
 *[Leech](https://docs.ankiweb.net/leeches.html)* is a term from Anki, where it means a learning flashcard that you are repeatedly getting wrong. We use the term more expansively to mean:
 
 1. `learn` notes that you just can't memorize
-2. `habit`, `todo`, `book` and `article` notes where you repeatedly click `Not Today`
-3. `check` cards where you often answer `No`.
+2. `habit`, `todo`, `book` and `article` notes where you repeatedly select **Not Today**
+3. `check` notes where you often answer **No**.
 
 None of these is helpful; all of these are frustrating.
 
@@ -492,7 +492,7 @@ Your queue will then occasionally prompt you to improve such a note.
 
 |  `q-type` value  | Usage |
 | --- | --- |
-| `learn-started` | A `learn` note after it's been shown for the first time. This distinction lets the software know whether to reveal the card immediately (because it's shown for the first time) or not |
+| `learn-started` | A `learn` note after it's been shown for the first time. This distinction lets the software know whether to reveal the full note immediately (because it's shown for the first time) or not |
 | `todo-done` | A `todo` that the user has completed. Treated the same as `exclude`. We opted for this option because we did not want to trigger destructive actions (like deleting a note) from *The Queue*. |
 | `book-started` | A `book` that you are actively reading. Used to keep track of the number of books read at the same time. |
 | `book-finished` | A `book` that is completely read. Treated the same as `misc`; the distinction only exists so that the note is still clearly recognizable as a book. |
@@ -501,18 +501,19 @@ After this tangent, here is some more stuff you can do within *The Queue*:
 
 ### Features
 
-#### Editing
+#### Edit notes
+
  ![](doc/img/edit.png)
 
-When you are in your queue, you can always jump to edit the note you are looking at — just click the little pen icon.
+When you are in your queue, you can always jump to edit the note you are looking at — just select the little pen icon.
 
 We recommend doing this — a lot! This way your notes become better and better, even the ones that may be forgotten otherwise.
 
-Once you are done editing, you can jump back to the same note by just clicking the queue icon (![](doc/img/queue.png)) again. 
+Once you are done editing, you can jump back to the same note by just selecting the queue icon (![](doc/img/queue.png)) again. 
 
 If during editing you decide that you really don't need this note anymore, you can also delete it. *The Queue* will just pick a new note once you start it again.
 
-#### Filtering
+#### Filter notes in your queue
 
 ![](doc/img/filter.png)
 
@@ -537,7 +538,7 @@ You can check out the actual selection algorithm in `src/utils/randomSelection.t
 
 #### Logging
 
-Data about the number of due notes in your queue, as well as picked queue cards, is saved locally on your machine. These data never leave your device and nobody without access to the phone or computer you use Obsidian on can see them. You can export and reset these data in the Settings of the plugin. As of now, it is only available as a single `JSON` object download. 
+Data about the number of due notes in your queue, as well as the notes displayed in your queue, is saved locally on your machine. These data never leave your device and nobody without access to the phone or computer you use Obsidian on can see them. You can export and reset these data in the Settings of the plugin. As of now, it is only available as a single `JSON` object download. 
 
 A comprehensive documentation as well as more accessibly statistics are in the works.
 

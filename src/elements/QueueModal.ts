@@ -19,11 +19,10 @@ export default class QueueModal extends Modal {
 	}
 
 	qNotes: QueueNote[] = [];
-	// currentQueueNote: QueueNote;
 	currentQueuePrompt: QueuePrompt;
 	keywordFilter: string = "All Notes";
 
-	statisticsAboutDueCardsSavedThisSession = false;
+	statisticsAboutDueNotesSavedThisSession = false;
 
 	/** Selects a new note to display and calls the render function to display it.
 	 * Essentially, this function merely gets all selections (getSortedSelectionsOfPickableNotes),
@@ -85,18 +84,18 @@ export default class QueueModal extends Modal {
 		}
 
 		if (!loadingLastNote) {
-			// RANDOM CARD PICK
+			// RANDOM NOTE PICK
 			// if no note was loaded, pick a random note
 			const pickableSelections = getSortedSelectionsOfPickableNotes(
 				this.qNotes,
 				this.keywordFilter,
 				this.currentQueuePrompt?.qNote || null,
 				this.settings.desiredRecallThreshold,
-				!this.statisticsAboutDueCardsSavedThisSession
+				!this.statisticsAboutDueNotesSavedThisSession
 			);
 			// this little variable makes sure that we save the dueStatistic in the logs
 			// only once per session
-			this.statisticsAboutDueCardsSavedThisSession = true;
+			this.statisticsAboutDueNotesSavedThisSession = true;
 			// pick a random selection, then pick a random note from selection of that name
 			// count nr of keys in object
 			const keys = Object.keys(pickableSelections);
