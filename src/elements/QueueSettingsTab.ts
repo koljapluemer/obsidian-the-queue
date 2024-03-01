@@ -59,7 +59,7 @@ export default class QueueSettingsTab extends PluginSettingTab {
 		// how many books active at the same time
 		new Setting(containerEl)
 			.setName("Active Books")
-			.setDesc("Number of books to be active at the same time.")
+			.setDesc("Number of books you want to read at the same time.")
 			.addSlider((slider) =>
 				slider
 					.setLimits(1, 10, 1)

@@ -25,25 +25,23 @@ export default class TheQueue extends Plugin {
 
 	async onload() {
 		// This creates an icon in the left ribbon.
-		this.addRibbonIcon(
-			"dice",
-			"Instant Queue",
-			(evt: MouseEvent) => {
-				/** Here, the modal where the action happens is opened; see class definition */
-				new QueueModal(this.app, this.settings).open();
-			}
-		);
+		this.addRibbonIcon("dice", "Instant Queue", (evt: MouseEvent) => {
+			/** Here, the modal where the action happens is opened; see class definition */
+			new QueueModal(this.app, this.settings).open();
+		});
 		// add settings tab
 		await this.loadSettings();
 		this.addSettingTab(new QueueSettingsTab(this.app, this));
 		// event listener for file renames
 		// this is important so that the same note can be opened in queue, even if it's renamed
-		app.vault.on("rename", function (file, oldname) {
-			// if old_name corresponds to localstorage.lastOpenedNoteName, update it localstorage
-			if (localStorage.getItem("lastOpenedNoteName") === oldname) {
-				localStorage.setItem("lastOpenedNoteName", file.name);
-			}
-		});
+		this.registerEvent(
+			app.vault.on("rename", function (file, oldname) {
+				// if old_name corresponds to localstorage.lastOpenedNoteName, update it localstorage
+				if (localStorage.getItem("lastOpenedNoteName") === oldname) {
+					localStorage.setItem("lastOpenedNoteName", file.name);
+				}
+			})
+		);
 
 		QueueLog.loadFromLocalStorage();
 	}
@@ -59,7 +57,10 @@ export default class TheQueue extends Plugin {
 			await this.loadData()
 		);
 		// save settings as session cookie
-		sessionStorage.setItem("the-queue-settings", JSON.stringify(this.settings));
+		sessionStorage.setItem(
+			"the-queue-settings",
+			JSON.stringify(this.settings)
+		);
 	}
 
 	async saveSettings() {
