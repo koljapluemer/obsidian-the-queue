@@ -34,7 +34,7 @@ const scenarioHalfLives = {
 /** Represents an Obsidian note's mirror for the Queue plugin */
 export default class QueueNote {
 	qData: {
-		model: any | null;
+		model: object | null;
 		lastSeen: Date | null;
 		dueAt: Date | null;
 		leechCount: number | null;
@@ -57,7 +57,7 @@ export default class QueueNote {
 		qPriority?: number | null,
 		qInterval?: number | null,
 		qData?: {
-			model: any | null;
+			model: object | null;
 			lastSeen: Date | null;
 			dueAt: Date | null;
 			leechCount: number | null;
@@ -95,7 +95,7 @@ export default class QueueNote {
 			let qPriority: number | null = null;
 			let qInterval: number | null = null;
 			let qData: {
-				model: any | null;
+				model: object | null;
 				lastSeen: Date | null;
 				dueAt: Date | null;
 				leechCount: number | null;
@@ -407,7 +407,7 @@ export default class QueueNote {
 		return this.qInterval;
 	}
 
-	setModel(model: any): void {
+	setModel(model: object): void {
 		this.qData.model = model;
 	}
 
@@ -512,7 +512,7 @@ export default class QueueNote {
 		return this.qPriority;
 	}
 
-	getData(): any | null {
+	getData(): object | null {
 		return this.qData;
 	}
 

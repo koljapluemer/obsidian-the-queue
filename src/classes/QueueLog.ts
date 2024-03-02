@@ -1,9 +1,9 @@
 export default class QueueLog {
 	createdAt: Date;
-	logData: any;
+	logData: object;
 	logType: string;
 
-	constructor(logType: string, logData: any) {
+	constructor(logType: string, logData: object) {
 		this.createdAt = new Date();
 		this.logData = logData;
 		this.logType = logType;
@@ -35,7 +35,7 @@ export default class QueueLog {
 		);
 	}
 
-	static addLog(logType: string, logData: any) {
+	static addLog(logType: string, logData: object) {
 		const log = new QueueLog(logType, logData);
 		QueueLog.logs = [log, ...QueueLog.logs];
 		QueueLog.saveToLocalStorage();
