@@ -70,5 +70,30 @@ export default class QueueSettingsTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					})
 			);
+
+		// Allow checkboxes for disabling Leech and improvement prompts
+		new Setting(containerEl)
+			.setName("Disable Leech Prompts")
+			.setDesc("You will not see prompts to improve notes marked as leech.")
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.disableLeechPrompts)
+					.onChange(async (value) => {
+						this.plugin.settings.disableLeechPrompts = value;
+						await this.plugin.saveSettings();
+					})
+			);
+
+		new Setting(containerEl)
+			.setName("Disable Improvement Prompts")
+			.setDesc("You will not see prompts to improve notes marked `needs-improvement`.")
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.disableImprovablesPrompts)
+					.onChange(async (value) => {
+						this.plugin.settings.disableImprovablesPrompts = value;
+						await this.plugin.saveSettings();
+					})
+			);
 	}
 }

@@ -32,9 +32,7 @@
 - add a kind of `Test` button so that people can see how their note would look like in queue
 - allow setting nr of concurrent books in the settings
 - allow disabling leeches
-- add leech improvement screenshot
 - make `needs-improvement` adaptable
-- allow disabling improvement function
 - add orphan screenshot
 - add *Tips and Tricks* to Readme
     - Wozniak 20 rules of formulating
@@ -45,6 +43,8 @@
 - explain the learn note limit setting
 - add concepts from 20 rules to learn leech prompt options?
 - handle access of settings more elegantly than sessionCookie, Singleton?
+- hookup disable prompt settings to functionality
+
 ### Bugs and minor improvements
 
 - rename ribbon button, replace icon maybe

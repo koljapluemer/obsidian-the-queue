@@ -17,7 +17,6 @@ export enum QType {
 	exclude = "exclude",
 }
 
-import TheQueue from "../main";
 import QueueLog from "./QueueLog";
 
 type TimeDurationString = "a bit later" | "day later" | "custom";

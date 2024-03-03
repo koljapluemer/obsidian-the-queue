@@ -8,12 +8,16 @@ interface TheQueueSettings {
 	desiredRecallThreshold: number;
 	improvablesKeyword: string;
 	booksActiveMax: number;
+	disableLeechPrompts: boolean;
+	disableImprovablesPrompts: boolean;
 }
 
 const DEFAULT_SETTINGS: Partial<TheQueueSettings> = {
 	desiredRecallThreshold: 0.8,
 	improvablesKeyword: "needs-improvement",
 	booksActiveMax: 5,
+	disableLeechPrompts: false,
+	disableImprovablesPrompts: false,
 };
 
 /** The outer plugin class.
