@@ -49,3 +49,4 @@
 
 - rename ribbon button, replace icon maybe
 - add command?
+- notes where leech count was reset (and is in fact set as `0` in the frontmatter) sometimes show up with leech prompt again

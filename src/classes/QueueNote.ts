@@ -591,12 +591,15 @@ export default class QueueNote {
 			if (answer === "later") {
 				this.setDueLater("a bit later");
 				this.incrementLeechCount(0.5);
-			} else {
+			} else if (answer === "not-today") {
 				this.setDueLater("day later");
 				this.incrementLeechCount(1);
-			}
-			// check if finished
-			if (answer === "finished") {
+			} else if (answer === "done") {
+				this.setDueLater("day later");
+				this.resetLeechCount();
+			} else if (answer === "finished") {
+				this.setDueLater("day later");
+				this.resetLeechCount();
 				this.finishReadingArticle();
 			}
 		}
