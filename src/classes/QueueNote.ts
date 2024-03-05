@@ -511,6 +511,7 @@ export default class QueueNote {
 		return this.qPriority;
 	}
 
+
 	getData(): object | null {
 		return this.qData;
 	}
@@ -679,21 +680,21 @@ export default class QueueNote {
 				}
 				// nested if so we don't paste an empty object on the note
 				// but we still check for every prop whether we actually need it
-				if (this.getData().model != null) {
+				if (this.getData()?.model != null) {
 					createEmptyQDataIfNeeded();
 					frontmatter["q-data"]["model"] = this.getData().model;
 				}
-				if (this.getData().lastSeen != null) {
+				if (this.getData()?.lastSeen != null) {
 					createEmptyQDataIfNeeded();
 					frontmatter["q-data"]["last-seen"] =
 						this.getData().lastSeen;
 				}
-				if (this.getData().leechCount != null) {
+				if (this.getData()?.leechCount != null) {
 					createEmptyQDataIfNeeded();
 					frontmatter["q-data"]["leech-count"] =
 						this.getData().leechCount;
 				}
-				if (this.getData().dueAt != null) {
+				if (this.getData()?.dueAt != null) {
 					createEmptyQDataIfNeeded();
 					frontmatter["q-data"]["due-at"] = this.getData().dueAt;
 				}
