@@ -8,6 +8,8 @@
 
 ### Code Quality and Friends
 
+- make points from gh bot feedback
+
 1. create checklist from Obsidian community guidelines 
     - fill in data on `package.json`
 2. find a way to do automated tests
@@ -50,3 +52,6 @@
 - rename ribbon button, replace icon maybe
 - add command?
 - notes where leech count was reset (and is in fact set as `0` in the frontmatter) sometimes show up with leech prompt again
+- see that editing with the pen icon also triggers leech decrement
+- fix type issues
+- 'Not Now' for improvable prompt for learn cards fails

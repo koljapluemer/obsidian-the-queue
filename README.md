@@ -242,7 +242,7 @@ q-type: todo
 ![screenshot of note above in the queue](doc/img/todo_1.png)
 
 
-Once you select **Completed**, it will not show up again. Whereas if you select **Not Today**, you will see the note the next day, while **Later** delays for 10 minutes.
+Once you select **Completed**, it will not show up again. Whereas if you select **Not today**, you will see the note the next day, while **Later** delays for 10 minutes.
 
 #### Habits 
 
@@ -436,7 +436,7 @@ q-type: book
 
 ![screenshot of the note above in queue](doc/img/book_1.png)
 
-When you have less than five active books, *The Queue* will randomly pick one of your `book`s and prompt you to start reading (which you can also decline by selecting **Not Today**).
+When you have less than five active books, *The Queue* will randomly pick one of your `book`s and prompt you to start reading (which you can also decline by selecting **Not today**).
 
 If you want to add a book to your queue that you have already started to read, set `q-type: book-started`. 
 
@@ -445,7 +445,7 @@ If you want to add a book to your queue that you have already started to read, s
 *[Leech](https://docs.ankiweb.net/leeches.html)* is a term from Anki, where it means a learning flashcard that you are repeatedly getting wrong. We use the term more expansively to mean:
 
 1. `learn` notes that you just can't memorize
-2. `habit`, `todo`, `book` and `article` notes where you repeatedly select **Not Today**
+2. `habit`, `todo`, `book` and `article` notes where you repeatedly select **Not today**
 3. `check` notes where you often answer **No**.
 
 None of these is helpful; all of these are frustrating.

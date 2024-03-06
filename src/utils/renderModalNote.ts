@@ -95,7 +95,7 @@ export function render(qPrompt: QueuePrompt, parentContext: any) {
 		);
 
 		/** small, internal helper function to actually add a given button and its event listener
-		 * we do this a lot, but all that ever changes is the label and the string we return (like "Not Today" and "not-today", respectively)
+		 * we do this a lot, but all that ever changes is the label and the string we return (like "Not today" and "not-today", respectively)
 		 */
 		function appendScoreButton(
 			parent: HTMLElement,
@@ -114,7 +114,7 @@ export function render(qPrompt: QueuePrompt, parentContext: any) {
 
 		// HANDLE SPECIAL USED SELECTION
 		// for orphans and improvables, we want to show a different set of buttons
-		// one 'Ok' opens the current note and closes the modal, and a standard 'Not Today' button
+		// one 'Ok' opens the current note and closes the modal, and a standard 'Not today' button
 		if (qPrompt.promptType === "improvables") {
 			contentEl.createEl("p", {
 				text: "You marked this note as improvable. Make it slightly nicer!",
@@ -187,10 +187,10 @@ export function render(qPrompt: QueuePrompt, parentContext: any) {
 		];
 
 		if (specialPromptTypes.includes(qPrompt.promptType)) {
-			appendScoreButton(buttonRow, "Not Now", "not-today");
+			appendScoreButton(buttonRow, "Not today", "not-today");
 			buttonRow
 				.createEl("button", {
-					text: "Let's Go",
+					text: "Let's go",
 				})
 				.addEventListener("click", () => {
 					// open note in editor and close modal
@@ -212,9 +212,9 @@ export function render(qPrompt: QueuePrompt, parentContext: any) {
 			// HANDLE STANDARD CASES
 
 			if (qPrompt.promptType === "newLearns") {
-				appendScoreButton(buttonRow, "Seems Hard", "hard");
-				appendScoreButton(buttonRow, "I'll Try to Remember", "medium");
-				appendScoreButton(buttonRow, "Easy, Got It", "easy");
+				appendScoreButton(buttonRow, "Seems hard", "hard");
+				appendScoreButton(buttonRow, "I'll try to remember", "medium");
+				appendScoreButton(buttonRow, "Easy, got It", "easy");
 			} else if (
 				qPrompt.promptType === "startedLearnNoteMostCloseToForgetting"
 			) {
@@ -245,12 +245,12 @@ export function render(qPrompt: QueuePrompt, parentContext: any) {
 					});
 			} else if (qPrompt.promptType === "dueHabits") {
 				// not today, do later, done
-				appendScoreButton(buttonRow, "Not Today", "not-today");
-				appendScoreButton(buttonRow, "Do Later", "later");
+				appendScoreButton(buttonRow, "Not today", "not-today");
+				appendScoreButton(buttonRow, "Do later", "later");
 				appendScoreButton(buttonRow, "Done", "done");
 				// todo
 			} else if (qPrompt.promptType === "dueTodos") {
-				appendScoreButton(buttonRow, "Not Today", "not-today");
+				appendScoreButton(buttonRow, "Not today", "not-today");
 				appendScoreButton(buttonRow, "Later", "later");
 				appendScoreButton(buttonRow, "Completed", "completed");
 			}
@@ -269,14 +269,14 @@ export function render(qPrompt: QueuePrompt, parentContext: any) {
 				buttonRow.createEl("span", {
 					text: "Read at a bit:",
 				});
-				appendScoreButton(buttonRow, "Not Today", "not-today");
+				appendScoreButton(buttonRow, "Not today", "not-today");
 				appendScoreButton(buttonRow, "Later", "later");
 				appendScoreButton(buttonRow, "Done", "done");
 				appendScoreButton(buttonRow, "Finished", "finished");
 			} else {
-				appendScoreButton(buttonRow, "Show Less Often", "show-less");
-				appendScoreButton(buttonRow, "Ok, Cool", "show-next");
-				appendScoreButton(buttonRow, "Show More Often", "show-more");
+				appendScoreButton(buttonRow, "Show less often", "show-less");
+				appendScoreButton(buttonRow, "Ok, cool", "show-next");
+				appendScoreButton(buttonRow, "Show more often", "show-more");
 			}
 		}
 	});

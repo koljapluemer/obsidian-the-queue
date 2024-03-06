@@ -36,7 +36,7 @@ export default class QueueFilterModal extends Modal {
 		});
 		let { contentEl } = this;
 		contentEl.empty();
-		contentEl.createEl("h2", { text: "Filter Queue" });
+		contentEl.createEl("h2", { text: "Filter queue" });
 		// add more text to describe
 		contentEl.createEl("p", {
 			text: "Show only notes with q-keyword:",

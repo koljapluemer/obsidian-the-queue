@@ -16,9 +16,9 @@ export default class QueueSettingsTab extends PluginSettingTab {
 		containerEl.empty();
 
 		new Setting(containerEl)
-			.setName("Desired Recall Threshold")
+			.setName("Desired recall threshold")
 			.setDesc(
-				"The Spaced Repetition Algorithm will only show notes where the predicted recall is below this value."
+				"The spaced repetition algorithm will only show notes where the predicted recall is below this value."
 			)
 			.addSlider((slider) =>
 				slider
@@ -34,9 +34,9 @@ export default class QueueSettingsTab extends PluginSettingTab {
 		// Data export button (export q-log from localstorage as json)
 		// Data reset button
 		new Setting(containerEl)
-			.setName("Local Data Logging")
+			.setName("Local data logging")
 			.addButton((button) =>
-				button.setButtonText("Export Logs").onClick(() => {
+				button.setButtonText("Export logs").onClick(() => {
 					const logs = localStorage.getItem(
 						`q-logs-${(app as any).appId}`
 					);
@@ -51,14 +51,14 @@ export default class QueueSettingsTab extends PluginSettingTab {
 				})
 			)
 			.addButton((button) =>
-				button.setButtonText("Reset Logs").onClick(() => {
+				button.setButtonText("Reset logs").onClick(() => {
 					QueueLog.resetLogs();
 				})
 			);
 
 		// how many books active at the same time
 		new Setting(containerEl)
-			.setName("Active Books")
+			.setName("Active books")
 			.setDesc("Number of books you want to read at the same time.")
 			.addSlider((slider) =>
 				slider
@@ -73,7 +73,7 @@ export default class QueueSettingsTab extends PluginSettingTab {
 
 		// Allow checkboxes for disabling Leech and improvement prompts
 		new Setting(containerEl)
-			.setName("Disable Leech Prompts")
+			.setName("Disable leech prompts")
 			.setDesc("You will not see prompts to improve notes marked as leech.")
 			.addToggle((toggle) =>
 				toggle
@@ -85,7 +85,7 @@ export default class QueueSettingsTab extends PluginSettingTab {
 			);
 
 		new Setting(containerEl)
-			.setName("Disable Improvement Prompts")
+			.setName("Disable improvement prompts")
 			.setDesc("You will not see prompts to improve notes marked `needs-improvement`.")
 			.addToggle((toggle) =>
 				toggle
