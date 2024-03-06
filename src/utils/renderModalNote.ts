@@ -107,7 +107,7 @@ export function render(qPrompt: QueuePrompt, parentContext: any) {
 			});
 			button.addEventListener("click", () => {
 				qPrompt.qNote.adaptByScore(returnValue);
-				qPrompt.qNote.save();
+				qPrompt.qNote.save(this.app);
 				parentContext.loadNewNote();
 			});
 		}
@@ -205,7 +205,7 @@ export function render(qPrompt: QueuePrompt, parentContext: any) {
 					// we're technically also running a leechReset on notes that were never registered as leech
 					// but that's fine for now
 					qPrompt.qNote.decrementLeechCount(1);
-					qPrompt.qNote.save();
+					qPrompt.qNote.save(this.app);
 					parentContext.close();
 				});
 		} else {

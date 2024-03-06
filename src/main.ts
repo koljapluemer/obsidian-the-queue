@@ -39,7 +39,7 @@ export default class TheQueue extends Plugin {
 		// event listener for file renames
 		// this is important so that the same note can be opened in queue, even if it's renamed
 		this.registerEvent(
-			app.vault.on("rename", function (file, oldname) {
+			this.app.vault.on("rename", function (file, oldname) {
 				// if old_name corresponds to localstorage.lastOpenedNoteName, update it localstorage
 				if (localStorage.getItem("lastOpenedNoteName") === oldname) {
 					localStorage.setItem("lastOpenedNoteName", file.name);

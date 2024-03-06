@@ -18,6 +18,7 @@ export enum QType {
 }
 
 import QueueLog from "./QueueLog";
+import { Model } from "ebisu-js/interfaces";
 
 type TimeDurationString = "a bit later" | "day later" | "custom";
 
@@ -80,7 +81,7 @@ export default class QueueNote {
 
 	// this handles the construction from dirty, real life data
 	// we pass in just the metadata from an actual note, and here we do all the optional nulls and what not
-	static createFromNoteFile(note: TFile): QueueNote {
+	static createFromNoteFile(note: TFile, app: any): QueueNote {
 		const metadata = app.metadataCache.getFileCache(note);
 		const frontmatter = metadata?.frontmatter;
 		const nrOfLinks = metadata?.links?.length || 0;
@@ -263,9 +264,9 @@ export default class QueueNote {
 		}
 	}
 
-	async setIsImprovable() {
+	async setIsImprovable(app: any) {
 		// read note content:
-		app.vault.read(this.noteFile).then((content) => {
+		app.vault.read(this.noteFile).then((content: any) => {
 			const settingsCookie = sessionStorage.getItem("the-queue-settings");
 			if (settingsCookie != null) {
 				const settings = JSON.parse(settingsCookie);
@@ -368,7 +369,11 @@ export default class QueueNote {
 			60 /
 			60;
 
-		return ebisu.predictRecall(this.qData.model, elapsedTime, true);
+		return ebisu.predictRecall(
+			this.qData.model as Model,
+			elapsedTime,
+			true
+		);
 	}
 
 	setNewModel(score: number): void {
@@ -390,7 +395,7 @@ export default class QueueNote {
 			60;
 		// TODO: validate if the math check out, and what that Math.max is actually doing
 		this.qData.model = ebisu.updateRecall(
-			model,
+			model as Model,
 			score,
 			2,
 			Math.max(elapsedTime, 0.01)
@@ -511,8 +516,7 @@ export default class QueueNote {
 		return this.qPriority;
 	}
 
-
-	getData(): object | null {
+	getData(): any | null {
 		return this.qData;
 	}
 
@@ -657,49 +661,54 @@ export default class QueueNote {
 		});
 	}
 
-	save(): void {
+	save(app: any): void {
 		if (!this.noteFile) {
 			console.error("No note file to save to");
 			return;
 		}
-		app.fileManager.processFrontMatter(this.noteFile, (frontmatter) => {
-			if (this.getActuallyStoredType() != null) {
-				frontmatter["q-type"] = this.getActuallyStoredType();
-			}
-			if (this.getActuallyStoredInterval() != null) {
-				frontmatter["q-interval"] = this.getActuallyStoredInterval();
-			}
-			if (this.getActuallyStoredPriority() != null) {
-				frontmatter["q-priority"] = this.getActuallyStoredPriority();
-			}
-			if (this.getData() != null) {
-				function createEmptyQDataIfNeeded() {
-					if (!frontmatter["q-data"]) {
-						frontmatter["q-data"] = {};
+		app.fileManager.processFrontMatter(
+			this.noteFile,
+			(frontmatter: any) => {
+				if (this.getActuallyStoredType() != null) {
+					frontmatter["q-type"] = this.getActuallyStoredType();
+				}
+				if (this.getActuallyStoredInterval() != null) {
+					frontmatter["q-interval"] =
+						this.getActuallyStoredInterval();
+				}
+				if (this.getActuallyStoredPriority() != null) {
+					frontmatter["q-priority"] =
+						this.getActuallyStoredPriority();
+				}
+				if (this.getData() != null) {
+					function createEmptyQDataIfNeeded() {
+						if (!frontmatter["q-data"]) {
+							frontmatter["q-data"] = {};
+						}
+					}
+					// nested if so we don't paste an empty object on the note
+					// but we still check for every prop whether we actually need it
+					if (this.getData().model != null) {
+						createEmptyQDataIfNeeded();
+						frontmatter["q-data"]["model"] = this.getData().model;
+					}
+					if (this.getData().lastSeen != null) {
+						createEmptyQDataIfNeeded();
+						frontmatter["q-data"]["last-seen"] =
+							this.getData().lastSeen;
+					}
+					if (this.getData().leechCount != null) {
+						createEmptyQDataIfNeeded();
+						frontmatter["q-data"]["leech-count"] =
+							this.getData().leechCount;
+					}
+					if (this.getData().dueAt != null) {
+						createEmptyQDataIfNeeded();
+						frontmatter["q-data"]["due-at"] = this.getData().dueAt;
 					}
 				}
-				// nested if so we don't paste an empty object on the note
-				// but we still check for every prop whether we actually need it
-				if (this.getData()?.model != null) {
-					createEmptyQDataIfNeeded();
-					frontmatter["q-data"]["model"] = this.getData().model;
-				}
-				if (this.getData()?.lastSeen != null) {
-					createEmptyQDataIfNeeded();
-					frontmatter["q-data"]["last-seen"] =
-						this.getData().lastSeen;
-				}
-				if (this.getData()?.leechCount != null) {
-					createEmptyQDataIfNeeded();
-					frontmatter["q-data"]["leech-count"] =
-						this.getData().leechCount;
-				}
-				if (this.getData()?.dueAt != null) {
-					createEmptyQDataIfNeeded();
-					frontmatter["q-data"]["due-at"] = this.getData().dueAt;
-				}
 			}
-		});
+		);
 	}
 
 	getQueueValuesAsObj(): object {

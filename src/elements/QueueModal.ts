@@ -49,7 +49,7 @@ export default class QueueModal extends Modal {
 			// find note by name
 			const lastOpenedFile = this.app.vault.getAbstractFileByPath(lastOpenedNoteName);
 			if (lastOpenedFile instanceof TFile) {
-				const qNote = QueueNote.createFromNoteFile(lastOpenedFile);
+				const qNote = QueueNote.createFromNoteFile(lastOpenedFile, this.app);
 				loadingLastNote = qNote.getIsCurrentlyDue();
 				if (loadingLastNote) {
 					let promptType = qNote.guessPromptType();
@@ -139,7 +139,7 @@ export default class QueueModal extends Modal {
 	onOpen() {
 		// loop markdown files, create qNote for each
 		this.qNotes = this.app.vault.getMarkdownFiles().map((file) => {
-			const qNote = QueueNote.createFromNoteFile(file);
+			const qNote = QueueNote.createFromNoteFile(file, this.app);
 			return qNote;
 		});
 		const lastNote = localStorage.getItem("lastOpenedNoteName") || null;
@@ -149,7 +149,7 @@ export default class QueueModal extends Modal {
 
 	async analyzeNotesOnImprovability() {
 		this.qNotes.forEach((qNote) => {
-			qNote.setIsImprovable();
+			qNote.setIsImprovable(this.app);
 		});
 	}
 
