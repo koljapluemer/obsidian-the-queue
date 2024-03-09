@@ -51,7 +51,6 @@ export default class TheQueue extends Plugin {
 	}
 
 	onunload() {
-		// TODO: remove event listener rename
 	}
 
 	async loadSettings() {

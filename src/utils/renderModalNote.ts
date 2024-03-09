@@ -72,7 +72,6 @@ export function render(qPrompt: QueuePrompt, parentContext: any) {
 		}
 
 		if (qPrompt.promptType === "startedLearnNoteMostCloseToForgetting") {
-			// TODO: what if we have badly formatted learn note with no (or multiple separators)
 			const splitNote = renderedContent.split("---");
 			if (splitNote.length > 1) {
 				renderedContent = splitNote[0];
