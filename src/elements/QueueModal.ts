@@ -12,9 +12,10 @@ import QueueLog from "../classes/QueueLog";
 export default class QueueModal extends Modal {
 	settings: any;
 
-	constructor(app: App, settings: any) {
+	constructor(app: App, settings: {}) {
 		super(app);
 		this.settings = settings;
+		console.log("Settings in QueueModal", settings);
 	}
 
 	qNotes: QueueNote[] = [];
@@ -49,7 +50,8 @@ export default class QueueModal extends Modal {
 			const lastOpenedFile = this.app.vault.getAbstractFileByPath(lastOpenedNoteName);
 			if (lastOpenedFile instanceof TFile) {
 				const qNote = QueueNote.createFromNoteFile(lastOpenedFile, this.app);
-				loadingLastNote = qNote.getIsCurrentlyDue();
+				loadingLastNote = qNote.getIsCurrentlyDue(this.settings.desiredRecallThreshold);
+			
 				if (loadingLastNote) {
 					let promptType = qNote.guessPromptType();
 					// if we have promptType saved in localStorage, use that instead
@@ -89,8 +91,8 @@ export default class QueueModal extends Modal {
 				this.qNotes,
 				this.keywordFilter,
 				this.currentQueuePrompt?.qNote || null,
-				this.settings.desiredRecallThreshold,
-				!this.statisticsAboutDueNotesSavedThisSession
+				!this.statisticsAboutDueNotesSavedThisSession,
+				this.settings
 			);
 			// this little variable makes sure that we save the dueStatistic in the logs
 			// only once per session

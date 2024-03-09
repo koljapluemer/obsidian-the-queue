@@ -12,8 +12,8 @@ export function getSortedSelectionsOfPickableNotes(
 	qNotes: QueueNote[],
 	keywordFilter: string,
 	currentQueueNote: QueueNote | null,
-	desiredRecallThreshold: number,
-	saveStatistics = false
+	saveStatistics = false,
+	settings: any
 ): pickableSelections {
 	let dueArticles: QueueNote[] = [];
 	let newBooks: QueueNote[] = [];
@@ -35,12 +35,6 @@ export function getSortedSelectionsOfPickableNotes(
 	let counterStartedLearnsBelowThreshold = 0;
 	let counterStartedBooksEvenIfNotDue = 0;
 	let lowestPredictedRecall = 1;
-
-	let pluginSettings;
-	const settingsCookie = sessionStorage.getItem("the-queue-settings");
-	if (settingsCookie != null) {
-		pluginSettings = JSON.parse(settingsCookie);
-	}
 
 	qNotes.forEach((qNote) => {
 		// exclude q-type: exclude
@@ -99,7 +93,7 @@ export function getSortedSelectionsOfPickableNotes(
 			// we have this as [] so it's consistent with the other selections
 			// exclude notes with a recall so high that rep is useless rn
 			const predictedRecall = qNote.getPredictedRecall();
-			if (predictedRecall < desiredRecallThreshold) {
+			if (qNote.getIsCurrentlyDue(settings.desiredRecallThreshold)) {
 				counterStartedLearnsBelowThreshold += 1;
 				if (qNote.getPredictedRecall() < lowestPredictedRecall) {
 					lowestPredictedRecall = predictedRecall;
@@ -109,7 +103,7 @@ export function getSortedSelectionsOfPickableNotes(
 		} else if (qNote.getType() === "learn") {
 			newLearns.push(qNote);
 		} else if (qNote.getType() === "misc") {
-			if (qNote.getIsCurrentlyDue()) {
+			if (qNote.getIsCurrentlyDue(settings.desiredRecallThreshold)) {
 				dueMisc.push(qNote);
 			}
 			// if no links, add to orphans
@@ -130,7 +124,10 @@ export function getSortedSelectionsOfPickableNotes(
 	if (counterStartedLearnsBelowThreshold < 10 && newLearns.length > 0) {
 		returnObj.newLearns = newLearns;
 	}
-	if (counterStartedBooksEvenIfNotDue <= pluginSettings.booksActiveMax && newBooks.length > 0) {
+	if (
+		counterStartedBooksEvenIfNotDue <= settings.booksActiveMax &&
+		newBooks.length > 0
+	) {
 		returnObj.newBooks = newBooks;
 	}
 	// rest of the selections are a simple 'do they contain anything' check
@@ -159,19 +156,19 @@ export function getSortedSelectionsOfPickableNotes(
 	if (orphans.length > 0) {
 		returnObj.orphans = orphans;
 	}
-	if (improvables.length > 0) {
+	if (improvables.length > 0 && !settings.disableImprovablesPrompts) {
 		returnObj.improvables = improvables;
 	}
-	if (learnLeeches.length > 0) {
+	if (learnLeeches.length > 0 && !settings.disableLeechPrompts) {
 		returnObj.learnLeeches = learnLeeches;
 	}
-	if (checkLeeches.length > 0) {
+	if (checkLeeches.length > 0 && !settings.disableLeechPrompts) {
 		returnObj.checkLeeches = checkLeeches;
 	}
-	if (otherLeeches.length > 0) {
+	if (otherLeeches.length > 0 && !settings.disableLeechPrompts) {
 		returnObj.otherLeeches = otherLeeches;
 	}
-	if (readingLeeches.length > 0) {
+	if (readingLeeches.length > 0 && !settings.disableLeechPrompts) {
 		returnObj.readingLeeches = readingLeeches;
 	}
 

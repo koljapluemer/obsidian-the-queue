@@ -333,21 +333,14 @@ export default class QueueNote {
 		return this.qKeywords || [];
 	}
 
-	getIsCurrentlyDue(): boolean {
+	getIsCurrentlyDue(desiredRecallThreshold?: number): boolean {
 		// if learn-started, check if predicted recall is below threshold
-		if (this.getType() === QType.learnStarted) {
-			const settingsCookie = sessionStorage.getItem("the-queue-settings");
-
-			if (settingsCookie != null) {
-				const settings = JSON.parse(settingsCookie);
-				const desiredRecallThreshold = settings?.desiredRecallThreshold;
-				if (desiredRecallThreshold != null) {
-					const isDue =
-						this.getPredictedRecall() <
-						desiredRecallThreshold.valueOf();
-					return isDue;
-				}
-			}
+		// we may also pass learn notes w/o threshold (when loading old notes I think)
+		// this should catch this elegantly
+		if (this.getType() === QType.learnStarted && desiredRecallThreshold !== undefined) {
+			const isDue =
+				this.getPredictedRecall() < desiredRecallThreshold.valueOf();
+			return isDue;
 		}
 		if (!this.qData.dueAt) {
 			return true;

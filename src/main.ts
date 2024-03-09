@@ -60,11 +60,6 @@ export default class TheQueue extends Plugin {
 			DEFAULT_SETTINGS,
 			await this.loadData()
 		);
-		// save settings as session cookie
-		sessionStorage.setItem(
-			"the-queue-settings",
-			JSON.stringify(this.settings)
-		);
 	}
 
 	async saveSettings() {
