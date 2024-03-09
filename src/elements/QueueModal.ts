@@ -15,7 +15,6 @@ export default class QueueModal extends Modal {
 	constructor(app: App, settings: {}) {
 		super(app);
 		this.settings = settings;
-		console.log("Settings in QueueModal", settings);
 	}
 
 	qNotes: QueueNote[] = [];

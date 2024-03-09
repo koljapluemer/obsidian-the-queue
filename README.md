@@ -464,6 +464,12 @@ To support you in this regard, *The Queue* detects  notes (of type [misc](#stand
 Similar to [Leech Improvement](#leech-improvement), this feature is automatic and requires no setup from your side.
 
 
+##### Example
+
+![example of a prompt to add connections to an orphan note](/doc/img/orphan.png)
+
+Above is an example of *The Queue* prompting you to find connections for an orphaned note. As you can see, the note in question is not bad, but it's missing obvious links (like `[[CSS]]`) so it's unlikely that it will come up in relevant contexts.
+
 #### Note Improvement Prompt
 
 Additionally to orphan detection, *The Queue* also looks for the string `needs-improvement` anywhere on your notes.
