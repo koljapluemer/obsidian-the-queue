@@ -4,7 +4,7 @@ import { App, Modal, Setting } from "obsidian";
  * Opens *another* modal, on top of the standard QueueModal
  */
 export default class QueueFilterModal extends Modal {
-	keywordFilter: string = "All Notes";
+	keywordFilter: string = "All notes";
 
 	onSubmit: (keywordFilter: string) => void;
 
@@ -42,11 +42,11 @@ export default class QueueFilterModal extends Modal {
 			text: "Show only notes with q-keyword:",
 		});
 
-		// make a radio button group with all the keywords found, plus an "All Notes" option
+		// make a radio button group with all the keywords found, plus an "All notes" option
 		new Setting(contentEl)
-			.setName("Filter by Keyword")
+			.setName("Filter by keyword")
 			.addDropdown((dropdown) => {
-				dropdown.addOption("All Notes", "All Notes");
+				dropdown.addOption("All notes", "All notes");
 				allKeywords.forEach((keyword) => {
 					dropdown.addOption(keyword as string, keyword as string);
 				});

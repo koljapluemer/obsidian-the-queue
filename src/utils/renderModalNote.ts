@@ -1,5 +1,5 @@
 import QueueFilterModal from "../elements/QueueFilterModal";
-import { MarkdownRenderer, setIcon } from "obsidian";
+import { Component, MarkdownRenderer, setIcon } from "obsidian";
 import QueuePrompt from "../classes/QueuePrompt";
 
 /** Responsible for generating the actual HTML elements in the modal that you see every time you engage with the plugin */
@@ -10,7 +10,7 @@ export function render(qPrompt: QueuePrompt, parentContext: any) {
 	modalEl.addClass("queue-modal");
 
 	// load the content of the random note
-	this.app.vault.cachedRead(qPrompt.qNote.noteFile).then((content: any) => {
+	parentContext.app.vault.cachedRead(qPrompt.qNote.noteFile).then((content: any) => {
 
 		// HEADER
 		const headerEl = modalEl.createDiv("headerEl");
@@ -40,7 +40,7 @@ export function render(qPrompt: QueuePrompt, parentContext: any) {
 		const queueSettingsButton = headerEl.createEl("button", {
 			text: parentContext.keywordFilter,
 		});
-		if (parentContext.keywordFilter === "All Notes") {
+		if (parentContext.keywordFilter === "All notes") {
 			setIcon(queueSettingsButton, "filter");
 		}
 		// on click open QueueFilterModal
@@ -91,7 +91,7 @@ export function render(qPrompt: QueuePrompt, parentContext: any) {
 			renderedContent,
 			contentEl,
 			qPrompt.qNote.getNoteFile().path,
-			contentEl
+			this as Component
 		);
 
 		/** small, internal helper function to actually add a given button and its event listener
@@ -230,7 +230,7 @@ export function render(qPrompt: QueuePrompt, parentContext: any) {
 								initiallyHiddenContent,
 							contentEl,
 							qPrompt.qNote.getNoteFile().path,
-							contentEl
+							this as Component
 						);
 						const secondButtonRow =
 							contentEl.createDiv("button-row");

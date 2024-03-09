@@ -51,8 +51,8 @@ export function getSortedSelectionsOfPickableNotes(
 		if (qNote === currentQueueNote) {
 			return;
 		}
-		// if keywordFilter is not "All Notes", check if note has that keyword
-		if (keywordFilter !== "All Notes") {
+		// if keywordFilter is not "All notes", check if note has that keyword
+		if (keywordFilter !== "All notes") {
 			if (!qNote.getKeywords().includes(keywordFilter)) {
 				return;
 			}

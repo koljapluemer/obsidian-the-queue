@@ -29,7 +29,7 @@ export default class TheQueue extends Plugin {
 
 	async onload() {
 		// This creates an icon in the left ribbon.
-		this.addRibbonIcon("sticky-note", "Instant Queue", (evt: MouseEvent) => {
+		this.addRibbonIcon("sticky-note", "Start your queue", (evt: MouseEvent) => {
 			/** Here, the modal where the action happens is opened; see class definition */
 			new QueueModal(this.app, this.settings).open();
 		});
