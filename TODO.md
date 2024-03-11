@@ -31,6 +31,8 @@
 - handle access of settings more elegantly than sessionCookie, Singleton?
 - hookup disable prompt settings to functionality
 - add demo video to `README.md`
+- build elegant exclusion UI for folders
+
 
 ### Bugs and minor improvements
 

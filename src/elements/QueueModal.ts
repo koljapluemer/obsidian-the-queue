@@ -46,11 +46,17 @@ export default class QueueModal extends Modal {
 		if (lastOpenedNoteName !== null) {
 			// in this case, load the same note we had open before (not actually random)
 			// find note by name
-			const lastOpenedFile = this.app.vault.getAbstractFileByPath(lastOpenedNoteName);
+			const lastOpenedFile =
+				this.app.vault.getAbstractFileByPath(lastOpenedNoteName);
 			if (lastOpenedFile instanceof TFile) {
-				const qNote = QueueNote.createFromNoteFile(lastOpenedFile, this.app);
-				loadingLastNote = qNote.getIsCurrentlyDue(this.settings.desiredRecallThreshold);
-			
+				const qNote = QueueNote.createFromNoteFile(
+					lastOpenedFile,
+					this.app
+				);
+				loadingLastNote = qNote.getIsCurrentlyDue(
+					this.settings.desiredRecallThreshold
+				);
+
 				if (loadingLastNote) {
 					let promptType = qNote.guessPromptType();
 					// if we have promptType saved in localStorage, use that instead
@@ -138,10 +144,15 @@ export default class QueueModal extends Modal {
 	/** Opens the modal, and loads the first note. */
 	onOpen() {
 		// loop markdown files, create qNote for each
-		this.qNotes = this.app.vault.getMarkdownFiles().map((file) => {
+		// use for loop instead
+		this.qNotes = [];
+		for (const file of this.app.vault.getMarkdownFiles()) {
+			// if path includes `Doc/', exclude
+			// TODO: do not hardcode this
+			if (file.path.includes("Doc/")) continue;
 			const qNote = QueueNote.createFromNoteFile(file, this.app);
-			return qNote;
-		});
+			this.qNotes.push(qNote);
+		}
 		const lastNote = localStorage.getItem("lastOpenedNoteName") || null;
 		this.loadNewNote(lastNote);
 		this.analyzeNotesOnImprovability();
