@@ -7,7 +7,7 @@ above-fold: true
 image: the-q-examples.png
 image-alt: Examples of interacting with The Queue
 languages: 
-link-github:
+link-github: https://github.com/koljapluemer/obsidian-the-queue
 link-other:
 link-other-descr:
 link-post:
