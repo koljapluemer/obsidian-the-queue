@@ -1,6 +1,6 @@
 # Obsidian — The Queue
 
-![collage of UI examples in the Queue](https://koljapluemer.com/assets/img/the-q-examples.png)
+![collage of UI examples in the Queue](/doc/img/project.png)
 
 There is no point in creating notes you never see again! 
 
