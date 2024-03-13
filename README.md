@@ -530,6 +530,8 @@ This can be useful when cramming for an exam or for habits that can be done whil
 
 We recommend using this feature sparingly, as having all your notes wildly mixed is a lot of the fun.
 
+You can also exclude folders from showing up in your queue in the `Settings`. This may be useful when you have things like a template folder or other collections of notes that make no sense to include in your queue.
+
 #### Priority
 
 On any note, you can set `q-priority`. The higher the priority is set for a note, the more will it be picked in comparison to notes with a lower priority value.

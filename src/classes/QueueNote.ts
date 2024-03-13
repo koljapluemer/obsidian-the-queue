@@ -247,10 +247,6 @@ export default class QueueNote {
 				}
 			}
 
-			// console.info(
-			// 	`Loaded note ${note.basename} from file, creating following object: \n qType: ${qType} \n qTopic: ${qTopic} \n qKeywords: ${qKeywords} \n qPriority: ${qPriority} \n qInterval: ${qInterval} \n qData: ${qData}`
-			// );
-
 			return new QueueNote(
 				note,
 				nrOfLinks,
@@ -273,9 +269,6 @@ export default class QueueNote {
 				// check if settings.improvablesKeyword is in the note
 				if (content.includes(settings?.improvablesKeyword)) {
 					this.isImprovable = true;
-					// console.log(
-					// `Note ${note.basename} is improvable, because it contains the keyword ${settings?.improvablesKeyword}`
-					// );
 				}
 			}
 		});
