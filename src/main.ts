@@ -10,6 +10,7 @@ interface TheQueueSettings {
 	booksActiveMax: number;
 	disableLeechPrompts: boolean;
 	disableImprovablesPrompts: boolean;
+	excludedFolders: string[];
 }
 
 const DEFAULT_SETTINGS: Partial<TheQueueSettings> = {
@@ -18,6 +19,7 @@ const DEFAULT_SETTINGS: Partial<TheQueueSettings> = {
 	booksActiveMax: 5,
 	disableLeechPrompts: false,
 	disableImprovablesPrompts: false,
+	excludedFolders: [],
 };
 
 /** The outer plugin class.

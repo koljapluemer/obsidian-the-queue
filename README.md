@@ -558,6 +558,7 @@ This ongoing project is the culmination of quite a few years of researching and 
 2. [Piotr Wozniak's writing](https://supermemo.guru), which gave me many pointers on Spaced Repetition, iterative reading and more.
 3. [ebisu](https://github.com/fasiha/ebisu.js), the algorithm that flashcards are based on.
 4. The writings of Cal Newport, Niklas Luhmann, James Clear, Jeff Olson, Maxwell Maltz, Mihaly Csikszentmihalyi and many others, who all influenced my thinking about note-taking, productivity, learning and habits.
+5. The folder settings' code is inspired by [Templater](https://github.com/SilentVoid13/Templater/blob/0596dc2c756e8c581d55ca3fd897abcb01f6c271/src/settings/suggesters/FolderSuggester.ts), which in turn credits [Liam's Periodic Notes Plugin](https://github.com/liamcain/obsidian-periodic-notes)
 
 ## Running Locally & Contributing
 

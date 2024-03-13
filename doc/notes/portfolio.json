@@ -1,1 +1,16 @@
-{"title": "Obsidian \u2014 The Queue", "subtitle": "An Obsidian.md plugin randomly exposing you to your notes. Supports habits, to-dos, spaced repetition flashcards, iterative reading and more.", "status": "mvp", "showOnPortfolio": true, "shownAboveFold": true, "image": "the-q-examples.png", "imageAltProperty": "Examples of interacting with The Queue",  "link-github": "https://github.com/koljapluemer/obsidian-the-queue",      "repo-name": "obsidian-the-queue"}
+{
+  "title": "Obsidian — The Queue",
+  "subtitle": "An Obsidian.md plugin randomly exposing you to your notes. Supports habits, to-dos, spaced repetition flashcards, iterative reading and more.",
+  "status": "mvp",
+  "showOnPortfolio": true,
+  "showAboveFold": true,
+  "image": "the-q-examples.png",
+  "imageAltProperty": "Examples of interacting with The Queue",
+  "repo-name": "obsidian-the-queue",
+  "links": [
+    {
+      "title": "GitHub Repository",
+      "url": "https://github.com/koljapluemer/obsidian-the-queue"
+    }
+  ]
+}

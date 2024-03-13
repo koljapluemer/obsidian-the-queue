@@ -29,10 +29,7 @@
 - explain the learn note limit setting
 - add concepts from 20 rules to learn leech prompt options?
 - handle access of settings more elegantly than sessionCookie, Singleton?
-- hookup disable prompt settings to functionality
 - add demo video to `README.md`
-- build elegant exclusion UI for folders
-
 
 ### Bugs and minor improvements
 
