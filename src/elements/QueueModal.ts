@@ -1,4 +1,4 @@
-import { App, Modal, Notice, TFile } from "obsidian";
+import { App, Component, Modal, Notice, TFile } from "obsidian";
 
 import { getSortedSelectionsOfPickableNotes } from "../utils/getSortedSelectionsOfPickableNotes";
 import { render } from "../utils/renderModalNote";
@@ -11,10 +11,13 @@ import QueueLog from "../classes/QueueLog";
 /** Basically the modal itself, mainly tasked with loading a new note. */
 export default class QueueModal extends Modal {
 	settings: any;
+	component: Component;
 
 	constructor(app: App, settings: {}) {
 		super(app);
 		this.settings = settings;
+		this.component = new Component();
+		this.component.load();
 	}
 
 	qNotes: QueueNote[] = [];
@@ -138,7 +141,7 @@ export default class QueueModal extends Modal {
 			promptType: this.currentQueuePrompt.promptType,
 		});
 
-		render(this.currentQueuePrompt, this);
+		render(this.currentQueuePrompt, this, this.component);
 	}
 
 	/** Opens the modal, and loads the first note. */
