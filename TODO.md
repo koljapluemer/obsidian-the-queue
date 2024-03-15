@@ -8,7 +8,6 @@
     3. or: start unit testing what can be tested easily with [this guide](https://www.freecodecamp.org/news/how-to-start-unit-testing-javascript/)
 - calendar functionality
     - start with birthdays
-- add notices (Toasts)
 - dependent learn notes?
     - poetry is just *so* hard
 - add empty and non-existing frontmatter to test suite
@@ -19,7 +18,6 @@
     - otherwise add subtle loading animation or smth
 - add a kind of `Test` button so that people can see how their note would look like in queue
 - make `needs-improvement` adaptable
-- add orphan screenshot
 - add *Tips and Tricks* to Readme
     - Wozniak 20 rules of formulating
     - AutoMOC recommendation
