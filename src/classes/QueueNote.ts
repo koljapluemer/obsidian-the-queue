@@ -266,6 +266,7 @@ export default class QueueNote {
 			const settingsCookie = sessionStorage.getItem("the-queue-settings");
 			if (settingsCookie != null) {
 				const settings = JSON.parse(settingsCookie);
+				// TODO: do not do this via cookie
 				// check if settings.improvablesKeyword is in the note
 				if (content.includes(settings?.improvablesKeyword)) {
 					this.isImprovable = true;

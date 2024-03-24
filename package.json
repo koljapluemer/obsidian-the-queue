@@ -1,7 +1,7 @@
 {
 	"name": "obsidian-sample-plugin",
-	"version": "1.0.0",
-	"description": "This is a sample plugin for Obsidian (https://obsidian.md)",
+	"version": "1.1.1",
+	"description": "Obsidian Plugin that randomly exposes you to notes from your vault. Supports habits, to-dos, spaced repetition flashcards, iterative reading and more.",
 	"main": "src/main.ts",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
