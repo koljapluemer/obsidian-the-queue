@@ -28,6 +28,7 @@
 - add concepts from 20 rules to learn leech prompt options?
 - handle access of settings more elegantly than sessionCookie, Singleton?
 - add demo video to `README.md`
+- allow weighing collections instead of the awkward duplication hack 
 
 ### Bugs and minor improvements
 
@@ -36,3 +37,5 @@
 - see that editing with the pen icon also triggers leech decrement
 - fix type issues
 - 'Not Now' for improvable prompt for learn cards fails
+- new books added even if above designated number?
+- improvables appears to have stopped working

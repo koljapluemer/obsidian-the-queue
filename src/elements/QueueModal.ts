@@ -6,6 +6,7 @@ import QueueNote from "../classes/QueueNote";
 import QueuePrompt from "../classes/QueuePrompt";
 import { PromptType } from "../classes/QueuePrompt";
 import { pickRandomNoteWithPriorityWeighting } from "../utils/randomSelection";
+import { pickObjectFromWeightedArray } from "../utils/randomSelection";
 import QueueLog from "../classes/QueueLog";
 
 /** Basically the modal itself, mainly tasked with loading a new note. */
@@ -95,6 +96,12 @@ export default class QueueModal extends Modal {
 		if (!loadingLastNote) {
 			// RANDOM NOTE PICK
 			// if no note was loaded, pick a random note
+
+			// this little variable makes sure that we save the dueStatistic in the logs
+			// only once per session
+			this.statisticsAboutDueNotesSavedThisSession = true;
+
+			// Random Notes Selection Process
 			const pickableSelections = getSortedSelectionsOfPickableNotes(
 				this.qNotes,
 				this.keywordFilter,
@@ -102,15 +109,23 @@ export default class QueueModal extends Modal {
 				!this.statisticsAboutDueNotesSavedThisSession,
 				this.settings
 			);
-			// this little variable makes sure that we save the dueStatistic in the logs
-			// only once per session
-			this.statisticsAboutDueNotesSavedThisSession = true;
+			// create a weighted obj array from the pickable selections
+			// every selection has a weight of one, except startedLearnNoteMostCloseToForgetting, which has a weigh of 3
+			const weightedSelections = [];
+			for (const key in pickableSelections) {
+				if (key === "startedLearnNoteMostCloseToForgetting") {
+					weightedSelections.push({ weight: 3, item: key });
+				} else {
+					weightedSelections.push({ weight: 1, item: key });
+				}
+			}
+
 			// pick a random selection, then pick a random note from selection of that name
 			// count nr of keys in object
 			const keys = Object.keys(pickableSelections);
 			if (keys.length > 0) {
 				// pick a random value from the object
-				const randomKey = keys[Math.floor(Math.random() * keys.length)];
+				const randomKey = pickObjectFromWeightedArray(weightedSelections) as string;
 				const randomNote = pickRandomNoteWithPriorityWeighting(
 					pickableSelections[randomKey]
 				);
