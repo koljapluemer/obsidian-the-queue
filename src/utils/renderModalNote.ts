@@ -1,5 +1,5 @@
 import QueueFilterModal from "../elements/QueueFilterModal";
-import { Component, MarkdownRenderer, setIcon } from "obsidian";
+import { Component, MarkdownRenderer, normalizePath, setIcon } from "obsidian";
 import QueuePrompt from "../classes/QueuePrompt";
 
 /** Responsible for generating the actual HTML elements in the modal that you see every time you engage with the plugin */
@@ -95,11 +95,14 @@ export function render(
 			}
 			// add name of note before front, with a # to make it a name
 			renderedContent = `# ${name}\n\n` + renderedContent;
+			const path = "/" + normalizePath(qPrompt.qNote.getNoteFile().path)
+			console.log("render with path", path)
 
-			MarkdownRenderer.renderMarkdown(
+			MarkdownRenderer.render(
+				parentContext.app,
 				renderedContent,
 				contentEl,
-				qPrompt.qNote.getNoteFile().path,
+				path,
 				component
 			);
 
@@ -237,13 +240,16 @@ export function render(
 							text: "Reveal",
 						})
 						.addEventListener("click", () => {
+							const path = qPrompt.qNote.getNoteFile().path;
+							console.log("path", path)
 							contentEl.empty();
-							MarkdownRenderer.renderMarkdown(
+							MarkdownRenderer.render(
+								parentContext.app,
 								renderedContent +
 									"\n---\n" +
 									initiallyHiddenContent,
 								contentEl,
-								qPrompt.qNote.getNoteFile().path,
+								path,
 								component
 							);
 							const secondButtonRow =

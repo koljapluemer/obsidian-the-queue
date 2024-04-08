@@ -52,7 +52,10 @@ export default class QueueSettingsTab extends PluginSettingTab {
 					const url = URL.createObjectURL(blob);
 					const a = document.createElement("a");
 					a.href = url;
-					a.download = `q-logs-${(app as any).appId}.json`;
+					// add date (2023-12-04) to filename
+					a.download = `q-logs-${(app as any).appId}-${
+						new Date().toISOString().split("T")[0]
+					}.json`;
 					a.click();
 				})
 			)
@@ -120,32 +123,33 @@ export default class QueueSettingsTab extends PluginSettingTab {
 			}
 		});
 		// heading
-		this.containerEl.createEl("h2", { text: "Folders excluded from queue" });
+		this.containerEl.createEl("h2", {
+			text: "Folders excluded from queue",
+		});
 
 		// make checkbox for each folder
 		folders.forEach((folder) => {
-			new Setting(containerEl)
-				.setName(folder.name)
-				.addToggle((toggle) =>
-					toggle
-						.setValue(
-							this.plugin.settings.excludedFolders.includes(
-								folder.path
-							)
+			new Setting(containerEl).setName(folder.name).addToggle((toggle) =>
+				toggle
+					.setValue(
+						this.plugin.settings.excludedFolders.includes(
+							folder.path
 						)
-						.onChange(async (value) => {
-							if (value) {
-								this.plugin.settings.excludedFolders.push(
-									folder.path
-								);
-							} else {
-								this.plugin.settings.excludedFolders = this.plugin.settings.excludedFolders.filter(
+					)
+					.onChange(async (value) => {
+						if (value) {
+							this.plugin.settings.excludedFolders.push(
+								folder.path
+							);
+						} else {
+							this.plugin.settings.excludedFolders =
+								this.plugin.settings.excludedFolders.filter(
 									(path) => path !== folder.path
 								);
-							}
-							await this.plugin.saveSettings();
-						})
-				);
+						}
+						await this.plugin.saveSettings();
+					})
+			);
 		});
 	}
 }
