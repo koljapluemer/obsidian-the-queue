@@ -193,5 +193,6 @@ export default class QueueModal extends Modal {
 	onClose() {
 		let { contentEl } = this;
 		contentEl.empty();
+		this.component.unload();
 	}
 }

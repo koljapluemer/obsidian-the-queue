@@ -96,7 +96,6 @@ export function render(
 			// add name of note before front, with a # to make it a name
 			renderedContent = `# ${name}\n\n` + renderedContent;
 			const path = "/" + normalizePath(qPrompt.qNote.getNoteFile().path)
-			console.log("render with path", path)
 
 			MarkdownRenderer.render(
 				parentContext.app,
@@ -241,7 +240,6 @@ export function render(
 						})
 						.addEventListener("click", () => {
 							const path = qPrompt.qNote.getNoteFile().path;
-							console.log("path", path)
 							contentEl.empty();
 							MarkdownRenderer.render(
 								parentContext.app,
