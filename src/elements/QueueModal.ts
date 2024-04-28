@@ -180,13 +180,13 @@ export default class QueueModal extends Modal {
 			this.qNotes.push(qNote);
 		}
 		const lastNote = localStorage.getItem("lastOpenedNoteName") || null;
-		this.loadNewNote(lastNote);
 		this.analyzeNotesOnImprovability();
+		this.loadNewNote(lastNote);
 	}
 
 	async analyzeNotesOnImprovability() {
 		this.qNotes.forEach((qNote) => {
-			qNote.setIsImprovable(this.app);
+			qNote.setIsImprovable(this.app, this.settings);
 		});
 	}
 

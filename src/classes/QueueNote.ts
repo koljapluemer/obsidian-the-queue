@@ -260,17 +260,15 @@ export default class QueueNote {
 		}
 	}
 
-	async setIsImprovable(app: any) {
+	async setIsImprovable(app: any, settings: any) {
 		// read note content:
-		app.vault.read(this.noteFile).then((content: any) => {
-			const settingsCookie = sessionStorage.getItem("the-queue-settings");
-			if (settingsCookie != null) {
-				const settings = JSON.parse(settingsCookie);
-				// TODO: do not do this via cookie
-				// check if settings.improvablesKeyword is in the note
-				if (content.includes(settings?.improvablesKeyword)) {
-					this.isImprovable = true;
-				}
+		app.vault.cachedRead(this.noteFile).then((content: any) => {
+			// TODO: do not do this via cookie
+			// check if settings.improvablesKeyword is in the note
+			if (content.includes(settings.improvablesKeyword)) {
+				this.isImprovable = true;
+			} else {
+				this.isImprovable = false;
 			}
 		});
 	}
@@ -330,7 +328,10 @@ export default class QueueNote {
 		// if learn-started, check if predicted recall is below threshold
 		// we may also pass learn notes w/o threshold (when loading old notes I think)
 		// this should catch this elegantly
-		if (this.getType() === QType.learnStarted && desiredRecallThreshold !== undefined) {
+		if (
+			this.getType() === QType.learnStarted &&
+			desiredRecallThreshold !== undefined
+		) {
 			const isDue =
 				this.getPredictedRecall() < desiredRecallThreshold.valueOf();
 			return isDue;
