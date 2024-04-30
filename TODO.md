@@ -18,15 +18,10 @@
     - otherwise add subtle loading animation or smth
 - add a kind of `Test` button so that people can see how their note would look like in queue
 - make `needs-improvement` adaptable
-- add *Tips and Tricks* to Readme
-    - Wozniak 20 rules of formulating
-    - AutoMOC recommendation
-    - could even be blog posts about 'how I use my tool to do x'
 - allow disabling log
 - allow good UX for export
 - explain the learn note limit setting
 - add concepts from 20 rules to learn leech prompt options?
-- handle access of settings more elegantly than sessionCookie, Singleton?
 - add demo video to `README.md`
 - allow weighing collections instead of the awkward duplication hack 
 
@@ -38,4 +33,3 @@
 - fix type issues
 - 'Not Now' for improvable prompt for learn cards fails
 - new books added even if above designated number?
-- improvables appears to have stopped working
