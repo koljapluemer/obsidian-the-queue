@@ -118,6 +118,8 @@ export default class QueueModal extends Modal {
 					weightedSelections.push({ weight: 3, item: key });
 				} else if (key == "dueChecks") {
 					weightedSelections.push({ weight: 5, item: key });
+				} else if (key == "orphans") {
+					weightedSelections.push({ weight: 2, item: key });
 				} else {
 					weightedSelections.push({ weight: 1, item: key });
 				}
