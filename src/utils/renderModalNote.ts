@@ -80,7 +80,7 @@ export function render(
 			}
 
 			if (
-				qPrompt.promptType === "startedLearnNoteMostCloseToForgetting"
+				qPrompt.promptType === "learnStarted"
 			) {
 				const splitNote = renderedContent.split("---");
 				if (splitNote.length > 1) {
@@ -232,7 +232,7 @@ export function render(
 					appendScoreButton(buttonRow, "Easy, got It", "easy");
 				} else if (
 					qPrompt.promptType ===
-					"startedLearnNoteMostCloseToForgetting"
+					"learnStarted"
 				) {
 					buttonRow
 						.createEl("button", {

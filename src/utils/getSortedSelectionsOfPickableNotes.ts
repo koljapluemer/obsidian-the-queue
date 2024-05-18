@@ -22,7 +22,7 @@ export function getSortedSelectionsOfPickableNotes(
 	let dueHabits: QueueNote[] = [];
 	let dueTodos: QueueNote[] = [];
 	let newLearns: QueueNote[] = [];
-	let dueFRSRNotes: QueueNote[] = [];
+	let learnStarted: QueueNote[] = [];
 	let dueMisc: QueueNote[] = [];
 
 	let orphans: QueueNote[] = [];
@@ -87,7 +87,7 @@ export function getSortedSelectionsOfPickableNotes(
 			}
 			// check fsrs opinion as well
 			if (qNote.getIsCurrentlyDue(undefined, true)) {
-				dueFRSRNotes.push(qNote);
+				learnStarted.push(qNote);
 			}
 		} else if (qNote.getType() === "learn") {
 			newLearns.push(qNote);
@@ -109,7 +109,7 @@ export function getSortedSelectionsOfPickableNotes(
 	// also, don't include selections that are empty (including key)
 	let returnObj: pickableSelections = {};
 
-	if (dueFRSRNotes.length < 10 && newLearns.length > 0) {
+	if (learnStarted.length < 10 && newLearns.length > 0) {
 		returnObj.newLearns = newLearns;
 	}
 	if (
@@ -134,8 +134,8 @@ export function getSortedSelectionsOfPickableNotes(
 	if (dueTodos.length > 0) {
 		returnObj.dueTodos = dueTodos;
 	}
-	if (dueFRSRNotes.length > 0) {
-		returnObj.dueFRSRNotes = dueFRSRNotes;
+	if (learnStarted.length > 0) {
+		returnObj.learnStarted = learnStarted;
 	}
 	if (dueMisc.length > 0) {
 		returnObj.dueMisc = dueMisc;
@@ -167,7 +167,7 @@ export function getSortedSelectionsOfPickableNotes(
 			"Nr. of due habits": dueHabits.length,
 			"Nr. of due todos": dueTodos.length,
 			"Nr. of new learns": newLearns.length,
-			"Nr. of FSRS due notes": dueFRSRNotes.length,
+			"Nr. of FSRS due notes": learnStarted.length,
 			"Nr. of due misc": dueMisc.length,
 			"Nr. of orphans": orphans.length,
 			"Nr. of improvables": improvables.length,

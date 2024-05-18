@@ -109,10 +109,9 @@ export default class QueueModal extends Modal {
 			this.statisticsAboutDueNotesSavedThisSession = true;
 
 			// create a weighted obj array from the pickable selections
-			// every selection has a weight of one, except startedLearnNoteMostCloseToForgetting, which has a weigh of 3
 			const weightedSelections = [];
 			for (const key in pickableSelections) {
-				if (key === "startedLearnNoteMostCloseToForgetting") {
+				if (key === "learnStarted") {
 					weightedSelections.push({ weight: 3, item: key });
 				} else if (key == "dueChecks") {
 					weightedSelections.push({ weight: 5, item: key });
@@ -160,6 +159,7 @@ export default class QueueModal extends Modal {
 			note: this.currentQueuePrompt.qNote.getQueueValuesAsObj(),
 			promptType: this.currentQueuePrompt.promptType,
 		});
+
 
 		render(this.currentQueuePrompt, this, this.component);
 	}

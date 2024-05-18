@@ -37,3 +37,6 @@
 - new books added even if above designated number?
 
 
+
+- prompt type is always newLearn (at least the buttons show up, even though it's a know card)
+

@@ -206,15 +206,7 @@ The [[Vienna Secession]] started ＿ and ended 1905.
 
 ##### Functionality
 
-- Which flashcard is shown when is determined by [ebisu](https://github.com/fasiha/ebisu.js), an innovative Spaced Repetition algorithm.
-    - Essentially *ebisu* determines which note is most likely to be forgotten soon.
-    - Your answer after every repetition influences this value.
-- Flashcards that are encountered for the first time show up with a different interface, where both front and back are displayed immediately — after all, you are not expected to have them memorized yet.
-    - Your answer about the perceived difficulty of the flashcard will influence when it is show for the second time.
-
-![Screenshot of a flashcard that is show for the first time](doc/img/learn_3.png)
-
-- If you get a flashcard wrong a lot, it will be marked as a *leech* (inspired by the [Anki concept](https://docs.ankiweb.net/leeches.html)) — see the section on [Leech Improvement](#leech-improvement) for additional information.
+*under construction*. Learning card system was recently switched from ebisu to FSRS.
 
 
 
@@ -558,7 +550,8 @@ This ongoing project is the culmination of quite a few years of researching and 
 
 1. [Obsidian.md](https://obsidian.md/), which is not only the software this is built upon but also how I organize my thinking around it.
 2. [Piotr Wozniak's writing](https://supermemo.guru), which gave me many pointers on Spaced Repetition, iterative reading and more.
-3. [ebisu](https://github.com/fasiha/ebisu.js), the algorithm that flashcards are based on.
+3. [ebisu](https://github.com/fasiha/ebisu.js), the algorithm that flashcards used to be based on.
+4. [FSRS](https://github.com/open-spaced-repetition/ts-fsrs), the new flashcard algo.
 4. The writings of Cal Newport, Niklas Luhmann, James Clear, Jeff Olson, Maxwell Maltz, Mihaly Csikszentmihalyi and many others, who all influenced my thinking about note-taking, productivity, learning and habits.
 5. The folder settings' code is inspired by [Templater](https://github.com/SilentVoid13/Templater/blob/0596dc2c756e8c581d55ca3fd897abcb01f6c271/src/settings/suggesters/FolderSuggester.ts), which in turn credits [Liam's Periodic Notes Plugin](https://github.com/liamcain/obsidian-periodic-notes)
 

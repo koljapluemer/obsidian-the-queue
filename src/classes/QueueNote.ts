@@ -1,4 +1,3 @@
-import * as ebisu from "ebisu-js";
 
 import { TFile } from "obsidian";
 import { PromptType } from "./QueuePrompt";
@@ -32,7 +31,6 @@ export enum QType {
 }
 
 import QueueLog from "./QueueLog";
-import { Model } from "ebisu-js/interfaces";
 
 type TimeDurationString = "a bit later" | "day later" | "custom";
 
@@ -48,7 +46,6 @@ const scenarioHalfLives = {
 /** Represents an Obsidian note's mirror for the Queue plugin */
 export default class QueueNote {
 	qData: {
-		model: object | null;
 		lastSeen: Date | null;
 		dueAt: Date | null;
 		leechCount: number | null;
@@ -72,7 +69,6 @@ export default class QueueNote {
 		qPriority?: number | null,
 		qInterval?: number | null,
 		qData?: {
-			model: object | null;
 			lastSeen: Date | null;
 			dueAt: Date | null;
 			leechCount: number | null;
@@ -85,7 +81,6 @@ export default class QueueNote {
 		this.qPriority = qPriority || null;
 		this.qInterval = qInterval || null;
 		this.qData = qData || {
-			model: null,
 			dueAt: null,
 			lastSeen: null,
 			leechCount: null,
@@ -112,13 +107,11 @@ export default class QueueNote {
 			let qPriority: number | null = null;
 			let qInterval: number | null = null;
 			let qData: {
-				model: object | null;
 				lastSeen: Date | null;
 				dueAt: Date | null;
 				leechCount: number | null;
 				fsrsData: object | null;
 			} | null = {
-				model: null,
 				lastSeen: null,
 				dueAt: null,
 				leechCount: null,
@@ -182,21 +175,6 @@ export default class QueueNote {
 						`Invalid q-interval for note %c${note.basename}`,
 						"color: orange"
 					);
-				}
-			}
-
-			// same for q-data.model, check for type object
-
-			if (frontmatter["q-data"]) {
-				if (frontmatter["q-data"]["model"] != null) {
-					if (typeof frontmatter["q-data"].model === "object") {
-						qData.model = frontmatter["q-data"]["model"];
-					} else {
-						console.warn(
-							`Invalid q-data.model for note %c${note.basename}`,
-							"color: orange"
-						);
-					}
 				}
 			}
 
@@ -327,7 +305,7 @@ export default class QueueNote {
 			return "newLearns";
 		}
 		if (this.getType() === "learn-started") {
-			return "startedLearnNoteMostCloseToForgetting";
+			return "learnStarted";
 		}
 		if (this.getType() === "book") {
 			return "newBooks";
@@ -378,58 +356,12 @@ export default class QueueNote {
 		return currentTime > this.qData.dueAt;
 	}
 
-	getPredictedRecall(): number {
-		if (!this.qData.lastSeen || !this.qData.model) {
-			console.warn(
-				`No last seen string for note ${this.noteFile.basename}, returning recall % of 0`
-			);
-			return 0;
-		}
-		const elapsedTime =
-			(new Date().getTime() - new Date(this.qData.lastSeen).getTime()) /
-			1000 /
-			60 /
-			60;
-
-		return ebisu.predictRecall(
-			this.qData.model as Model,
-			elapsedTime,
-			true
-		);
-	}
-
-	setNewModel(score: number, qData: object): void {
-		let model = this.qData.model;
+	setNewModel(score: number): void {
 		let lastSeen = this.qData.lastSeen;
 		// save previous seen date, if it's not null (otherwise set to now)
 		// this is needed for fsrs later
 		const seenBeforeThis = lastSeen || new Date();
-		if (lastSeen == null || model == null) {
-			console.warn(
-				`There is no saved learning data for note ${this.noteFile.basename}, model may be distorted.`
-			);
-			model = ebisu.defaultModel(
-				(scenarioHalfLives as any)[score.toString()]
-			);
-			lastSeen = new Date();
-		}
-		const elapsedTime =
-			(new Date().getTime() - new Date(lastSeen).getTime()) /
-			1000 /
-			60 /
-			60;
-		this.qData.model = ebisu.updateRecall(
-			model as Model,
-			score,
-			4,
-			Math.max(elapsedTime, 0.01)
-		);
-		this.qData.lastSeen = new Date();
-
 		// FSRS
-
-		// const fsrs_card = createEmptyCard(seenBeforeThis);
-
 		// check if qData.fsrsData is set, if not, create a new one
 		if (!this.qData.fsrsData) {
 			this.qData.fsrsData = createEmptyCard(seenBeforeThis);
@@ -455,10 +387,6 @@ export default class QueueNote {
 
 	getActuallyStoredInterval(): number | null {
 		return this.qInterval;
-	}
-
-	setModel(model: object): void {
-		this.qData.model = model;
 	}
 
 	setLastSeen(lastSeen: Date): void {
@@ -584,10 +512,6 @@ export default class QueueNote {
 
 	adaptByScore(answer: string) {
 		if (this.getType() === "learn") {
-			const model = ebisu.defaultModel(
-				(scenarioHalfLives as any)[answer]
-			);
-			this.setModel(model);
 			this.setLastSeen(new Date());
 			this.startLearning();
 		}
@@ -611,7 +535,7 @@ export default class QueueNote {
 			} else {
 				this.resetLeechCount();
 			}
-			this.setNewModel(score, this.qData);
+			this.setNewModel(score);
 		}
 
 		// note: "book" means *unstarted* book
@@ -742,9 +666,8 @@ export default class QueueNote {
 					}
 					// nested if so we don't paste an empty object on the note
 					// but we still check for every prop whether we actually need it
-					if (this.getData().model != null) {
+					if (this.getData().fsrsData != null) {
 						createEmptyQDataIfNeeded();
-						frontmatter["q-data"]["model"] = this.getData().model;
 						frontmatter["q-data"]["fsrs-data"] =
 							this.getData().fsrsData || {};
 					}

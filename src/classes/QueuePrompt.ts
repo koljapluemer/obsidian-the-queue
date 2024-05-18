@@ -8,7 +8,7 @@ export type PromptType =
     | "dueHabits"
     | "dueTodos"
     | "newLearns"
-    | "startedLearnNoteMostCloseToForgetting"
+    | "learnStarted"
     | "dueMisc"
     | "orphans"
     | "improvables"
