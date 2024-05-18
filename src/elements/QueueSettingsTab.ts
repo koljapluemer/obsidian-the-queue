@@ -21,22 +21,6 @@ export default class QueueSettingsTab extends PluginSettingTab {
 		const { containerEl } = this;
 		containerEl.empty();
 
-		new Setting(containerEl)
-			.setName("Desired recall threshold")
-			.setDesc(
-				"The spaced repetition algorithm will only show notes where the predicted recall is below this value."
-			)
-			.addSlider((slider) =>
-				slider
-					.setLimits(0.6, 0.97, 0.01)
-					.setValue(this.plugin.settings.desiredRecallThreshold)
-					.setDynamicTooltip()
-					.onChange(async (value) => {
-						this.plugin.settings.desiredRecallThreshold = value;
-						await this.plugin.saveSettings();
-					})
-			);
-
 		// Data export button (export q-log from localstorage as json)
 		// Data reset button
 		new Setting(containerEl)

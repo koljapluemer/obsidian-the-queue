@@ -358,38 +358,18 @@ export default class QueueNote {
 		return this.qKeywords || [];
 	}
 
-	getIsCurrentlyDue(
-		desiredRecallThreshold?: number,
-		askFSRS = false
-	): boolean {
+	getIsCurrentlyDue(): boolean {
 		// if we ask fsrs, check this.qData.fsrsData.due
-		if (askFSRS) {
+		if (this.getType() === QType.learnStarted) {
 			if (this.qData.fsrsData) {
 				const fsrsDue = this.qData.fsrsData.due;
 				if (fsrsDue) {
 					const currentTime = new Date();
 					const dueDate = new Date(fsrsDue);
-					// whether note is due
-					console.log(
-						`Note ${this.noteFile.basename} is due at ${formatDate(
-							fsrsDue
-						)}, returning ${currentTime > dueDate}`
-					);
 					return currentTime > dueDate;
 				}
 			}
 			return false;
-		}
-		// if learn-started, check if predicted recall is below threshold
-		// we may also pass learn notes w/o threshold (when loading old notes I think)
-		// this should catch this elegantly
-		if (
-			this.getType() === QType.learnStarted &&
-			desiredRecallThreshold !== undefined
-		) {
-			const isDue =
-				this.getPredictedRecall() < desiredRecallThreshold.valueOf();
-			return isDue;
 		}
 		if (!this.qData.dueAt) {
 			return true;

@@ -24,6 +24,8 @@
 - add concepts from 20 rules to learn leech prompt options?
 - add demo video to `README.md`
 - allow weighing collections instead of the awkward duplication hack 
+    - basically implemented, check if it actually works
+- allow setting how many due learn cards are allowed
 
 ### Bugs and minor improvements
 
@@ -35,5 +37,3 @@
 - new books added even if above designated number?
 
 
-
-- make sure FSRS model when exists is not overwritten by new model on scoring

@@ -57,9 +57,7 @@ export default class QueueModal extends Modal {
 					lastOpenedFile,
 					this.app
 				);
-				loadingLastNote = qNote.getIsCurrentlyDue(
-					this.settings.desiredRecallThreshold
-				);
+				loadingLastNote = qNote.getIsCurrentlyDue();
 
 				if (loadingLastNote) {
 					let promptType = qNote.guessPromptType();

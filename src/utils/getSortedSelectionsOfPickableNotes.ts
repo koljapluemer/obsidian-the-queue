@@ -22,7 +22,6 @@ export function getSortedSelectionsOfPickableNotes(
 	let dueHabits: QueueNote[] = [];
 	let dueTodos: QueueNote[] = [];
 	let newLearns: QueueNote[] = [];
-	let startedLearnNoteMostCloseToForgetting: QueueNote[] = [];
 	let dueFRSRNotes: QueueNote[] = [];
 	let dueMisc: QueueNote[] = [];
 
@@ -33,7 +32,6 @@ export function getSortedSelectionsOfPickableNotes(
 	let otherLeeches: QueueNote[] = [];
 	let readingLeeches: QueueNote[] = [];
 
-	let counterStartedLearnsBelowThreshold = 0;
 	let counterStartedBooksEvenIfNotDue = 0;
 	let lowestPredictedRecall = 1;
 
@@ -84,22 +82,8 @@ export function getSortedSelectionsOfPickableNotes(
 				otherLeeches.push(qNote);
 			}
 		} else if (qNote.getType() === "learn-started") {
-			// check if should be treated as leech
-			// TODO: add a kind of actual due check here (but currently dueAt for learn notes is related to recall threshold...)
-			// or rather: prevent that we have to add more and more anti-leech stuff to a given note
 			if (qNote.getShouldReceiveLeechTreatment()) {
 				learnLeeches.push(qNote);
-			}
-			// this is an array of one, containing only the note with the lowest predicted recall
-			// we have this as [] so it's consistent with the other selections
-			// exclude notes with a recall so high that rep is useless rn
-			const predictedRecall = qNote.getPredictedRecall();
-			if (qNote.getIsCurrentlyDue(settings.desiredRecallThreshold)) {
-				counterStartedLearnsBelowThreshold += 1;
-				if (qNote.getPredictedRecall() < lowestPredictedRecall) {
-					lowestPredictedRecall = predictedRecall;
-					startedLearnNoteMostCloseToForgetting = [qNote];
-				}
 			}
 			// check fsrs opinion as well
 			if (qNote.getIsCurrentlyDue(undefined, true)) {
@@ -108,7 +92,7 @@ export function getSortedSelectionsOfPickableNotes(
 		} else if (qNote.getType() === "learn") {
 			newLearns.push(qNote);
 		} else if (qNote.getType() === "misc") {
-			if (qNote.getIsCurrentlyDue(settings.desiredRecallThreshold)) {
+			if (qNote.getIsCurrentlyDue()) {
 				dueMisc.push(qNote);
 			}
 			// if no links, add to orphans
@@ -121,12 +105,11 @@ export function getSortedSelectionsOfPickableNotes(
 			improvables.push(qNote);
 		}
 	});
-	// if we have more than 10 learn notes below threshold, remove new learn notes array
 	// if we have 5 or more started books, also remove new books
 	// also, don't include selections that are empty (including key)
 	let returnObj: pickableSelections = {};
 
-	if (counterStartedLearnsBelowThreshold < 10 && newLearns.length > 0) {
+	if (dueFRSRNotes.length < 10 && newLearns.length > 0) {
 		returnObj.newLearns = newLearns;
 	}
 	if (
@@ -150,10 +133,6 @@ export function getSortedSelectionsOfPickableNotes(
 	}
 	if (dueTodos.length > 0) {
 		returnObj.dueTodos = dueTodos;
-	}
-	if (startedLearnNoteMostCloseToForgetting.length > 0) {
-		returnObj.startedLearnNoteMostCloseToForgetting =
-			startedLearnNoteMostCloseToForgetting;
 	}
 	if (dueFRSRNotes.length > 0) {
 		returnObj.dueFRSRNotes = dueFRSRNotes;
@@ -196,13 +175,10 @@ export function getSortedSelectionsOfPickableNotes(
 			"Nr. of due check leeches": checkLeeches.length,
 			"Nr. of due other leeches": otherLeeches.length,
 			"Nr. of due reading leeches": readingLeeches.length,
-			"Nr. of started learns below threshold":
-				counterStartedLearnsBelowThreshold,
 			"Nr. of started books even if not due":
 				counterStartedBooksEvenIfNotDue,
 		};
 		QueueLog.addLog("due-statistics", loggingData);
-		console.log("Logging due statistics", loggingData);
 	}
 
 	return returnObj;

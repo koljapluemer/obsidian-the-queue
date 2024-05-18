@@ -5,7 +5,6 @@ import QueueModal from "./elements/QueueModal";
 import QueueLog from "./classes/QueueLog";
 
 interface TheQueueSettings {
-	desiredRecallThreshold: number;
 	improvablesKeyword: string;
 	booksActiveMax: number;
 	disableLeechPrompts: boolean;
@@ -14,7 +13,6 @@ interface TheQueueSettings {
 }
 
 const DEFAULT_SETTINGS: Partial<TheQueueSettings> = {
-	desiredRecallThreshold: 0.8,
 	improvablesKeyword: "needs-improvement",
 	booksActiveMax: 5,
 	disableLeechPrompts: false,
