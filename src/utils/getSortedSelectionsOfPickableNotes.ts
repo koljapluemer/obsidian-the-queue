@@ -202,6 +202,7 @@ export function getSortedSelectionsOfPickableNotes(
 				counterStartedBooksEvenIfNotDue,
 		};
 		QueueLog.addLog("due-statistics", loggingData);
+		console.log("Logging due statistics", loggingData);
 	}
 
 	return returnObj;

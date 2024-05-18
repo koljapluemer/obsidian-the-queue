@@ -367,13 +367,15 @@ export default class QueueNote {
 			if (this.qData.fsrsData) {
 				const fsrsDue = this.qData.fsrsData.due;
 				if (fsrsDue) {
-					console.log(
-						`FSRS due for ${this.noteFile.basename}: ${formatDate(
-							fsrsDue
-						)}`
-					);
 					const currentTime = new Date();
-					return currentTime > fsrsDue;
+					const dueDate = new Date(fsrsDue);
+					// whether note is due
+					console.log(
+						`Note ${this.noteFile.basename} is due at ${formatDate(
+							fsrsDue
+						)}, returning ${currentTime > dueDate}`
+					);
+					return currentTime > dueDate;
 				}
 			}
 			return false;
