@@ -97,7 +97,6 @@ export default class QueueModal extends Modal {
 			// RANDOM NOTE PICK
 			// if no note was loaded, pick a random note
 
-
 			// Random Notes Selection Process
 			const pickableSelections = getSortedSelectionsOfPickableNotes(
 				this.qNotes,
@@ -107,17 +106,18 @@ export default class QueueModal extends Modal {
 				this.settings
 			);
 
-
 			// this little variable makes sure that we save the dueStatistic in the logs
 			// only once per session
 			this.statisticsAboutDueNotesSavedThisSession = true;
-			
+
 			// create a weighted obj array from the pickable selections
 			// every selection has a weight of one, except startedLearnNoteMostCloseToForgetting, which has a weigh of 3
 			const weightedSelections = [];
 			for (const key in pickableSelections) {
 				if (key === "startedLearnNoteMostCloseToForgetting") {
 					weightedSelections.push({ weight: 3, item: key });
+				} else if (key == "dueChecks") {
+					weightedSelections.push({ weight: 5, item: key });
 				} else {
 					weightedSelections.push({ weight: 1, item: key });
 				}
@@ -128,7 +128,9 @@ export default class QueueModal extends Modal {
 			const keys = Object.keys(pickableSelections);
 			if (keys.length > 0) {
 				// pick a random value from the object
-				const randomKey = pickObjectFromWeightedArray(weightedSelections) as string;
+				const randomKey = pickObjectFromWeightedArray(
+					weightedSelections
+				) as string;
 				const randomNote = pickRandomNoteWithPriorityWeighting(
 					pickableSelections[randomKey]
 				);
