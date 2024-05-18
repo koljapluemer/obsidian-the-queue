@@ -52,7 +52,7 @@ export default class QueueNote {
 		lastSeen: Date | null;
 		dueAt: Date | null;
 		leechCount: number | null;
-		fsrs: object | null;
+		fsrsData: object | null;
 	};
 	qInterval: number | null;
 	qPriority: number | null;
@@ -76,7 +76,7 @@ export default class QueueNote {
 			lastSeen: Date | null;
 			dueAt: Date | null;
 			leechCount: number | null;
-			fsrs: object | null;
+			fsrsData: object | null;
 		}
 	) {
 		this.qType = (qType as QType) || null;
@@ -89,7 +89,7 @@ export default class QueueNote {
 			dueAt: null,
 			lastSeen: null,
 			leechCount: null,
-			fsrs: null,
+			fsrsData: null,
 		};
 		this.noteFile = noteFile;
 		this.nrOfLinks = nrOfLinks;
@@ -116,11 +116,13 @@ export default class QueueNote {
 				lastSeen: Date | null;
 				dueAt: Date | null;
 				leechCount: number | null;
+				fsrsData: object | null;
 			} | null = {
 				model: null,
 				lastSeen: null,
 				dueAt: null,
 				leechCount: null,
+				fsrsData: null,
 			};
 			// check if frontmatter["q-type"] is string
 			if (frontmatter["q-type"]) {
@@ -220,6 +222,22 @@ export default class QueueNote {
 								frontmatter["q-data"]["last-seen"]
 							);
 						}
+					}
+				}
+			}
+
+			// same for q-data.fsrs-data, check for type object
+			if (frontmatter["q-data"]) {
+				if (frontmatter["q-data"]["fsrs-data"] != null) {
+					if (
+						typeof frontmatter["q-data"]["fsrs-data"] === "object"
+					) {
+						qData.fsrsData = frontmatter["q-data"]["fsrs-data"];
+					} else {
+						console.warn(
+							`Invalid q-data.fsrs-data for note %c${note.basename}`,
+							"color: orange"
+						);
 					}
 				}
 			}
@@ -340,7 +358,26 @@ export default class QueueNote {
 		return this.qKeywords || [];
 	}
 
-	getIsCurrentlyDue(desiredRecallThreshold?: number): boolean {
+	getIsCurrentlyDue(
+		desiredRecallThreshold?: number,
+		askFSRS = false
+	): boolean {
+		// if we ask fsrs, check this.qData.fsrsData.due
+		if (askFSRS) {
+			if (this.qData.fsrsData) {
+				const fsrsDue = this.qData.fsrsData.due;
+				if (fsrsDue) {
+					console.log(
+						`FSRS due for ${this.noteFile.basename}: ${formatDate(
+							fsrsDue
+						)}`
+					);
+					const currentTime = new Date();
+					return currentTime > fsrsDue;
+				}
+			}
+			return false;
+		}
 		// if learn-started, check if predicted recall is below threshold
 		// we may also pass learn notes w/o threshold (when loading old notes I think)
 		// this should catch this elegantly
@@ -379,7 +416,7 @@ export default class QueueNote {
 		);
 	}
 
-	setNewModel(score: number): void {
+	setNewModel(score: number, qData: object): void {
 		let model = this.qData.model;
 		let lastSeen = this.qData.lastSeen;
 		// save previous seen date, if it's not null (otherwise set to now)
@@ -409,7 +446,14 @@ export default class QueueNote {
 
 		// FSRS
 
-		const fsrs_card = createEmptyCard(seenBeforeThis);
+		// const fsrs_card = createEmptyCard(seenBeforeThis);
+
+		// check if qData.fsrsData is set, if not, create a new one
+		if (!this.qData.fsrsData) {
+			this.qData.fsrsData = createEmptyCard(seenBeforeThis);
+		}
+		const fsrs_card = this.qData.fsrsData;
+
 		const now = new Date();
 		const potential_card_schedules: RecordLog = f.repeat(fsrs_card, now);
 		const rating_dict = {
@@ -420,7 +464,7 @@ export default class QueueNote {
 		};
 		const rating: Rating = rating_dict[score];
 		const fsrs_model: RecordLogItem = potential_card_schedules[rating];
-		this.qData.fsrs = fsrs_model.card;
+		this.qData.fsrsData = fsrs_model.card;
 	}
 
 	getInterval(): number {
@@ -585,7 +629,7 @@ export default class QueueNote {
 			} else {
 				this.resetLeechCount();
 			}
-			this.setNewModel(score);
+			this.setNewModel(score, this.qData);
 		}
 
 		// note: "book" means *unstarted* book
@@ -687,7 +731,6 @@ export default class QueueNote {
 			noteAfterScoring: this.getQueueValuesAsObj(),
 			answer: answer,
 		});
-		console.log("Note after scoring: ", this.getQueueValuesAsObj());
 	}
 
 	save(app: any): void {
@@ -720,7 +763,8 @@ export default class QueueNote {
 					if (this.getData().model != null) {
 						createEmptyQDataIfNeeded();
 						frontmatter["q-data"]["model"] = this.getData().model;
-						frontmatter["q-data"]["fsrs"] = this.getData().fsrs || {};
+						frontmatter["q-data"]["fsrs-data"] =
+							this.getData().fsrsData || {};
 					}
 					if (this.getData().lastSeen != null) {
 						createEmptyQDataIfNeeded();

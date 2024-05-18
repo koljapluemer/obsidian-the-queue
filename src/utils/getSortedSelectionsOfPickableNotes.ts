@@ -23,6 +23,7 @@ export function getSortedSelectionsOfPickableNotes(
 	let dueTodos: QueueNote[] = [];
 	let newLearns: QueueNote[] = [];
 	let startedLearnNoteMostCloseToForgetting: QueueNote[] = [];
+	let dueFRSRNotes: QueueNote[] = [];
 	let dueMisc: QueueNote[] = [];
 
 	let orphans: QueueNote[] = [];
@@ -100,6 +101,10 @@ export function getSortedSelectionsOfPickableNotes(
 					startedLearnNoteMostCloseToForgetting = [qNote];
 				}
 			}
+			// check fsrs opinion as well
+			if (qNote.getIsCurrentlyDue(undefined, true)) {
+				dueFRSRNotes.push(qNote);
+			}
 		} else if (qNote.getType() === "learn") {
 			newLearns.push(qNote);
 		} else if (qNote.getType() === "misc") {
@@ -150,6 +155,9 @@ export function getSortedSelectionsOfPickableNotes(
 		returnObj.startedLearnNoteMostCloseToForgetting =
 			startedLearnNoteMostCloseToForgetting;
 	}
+	if (dueFRSRNotes.length > 0) {
+		returnObj.dueFRSRNotes = dueFRSRNotes;
+	}
 	if (dueMisc.length > 0) {
 		returnObj.dueMisc = dueMisc;
 	}
@@ -180,6 +188,7 @@ export function getSortedSelectionsOfPickableNotes(
 			"Nr. of due habits": dueHabits.length,
 			"Nr. of due todos": dueTodos.length,
 			"Nr. of new learns": newLearns.length,
+			"Nr. of FSRS due notes": dueFRSRNotes.length,
 			"Nr. of due misc": dueMisc.length,
 			"Nr. of orphans": orphans.length,
 			"Nr. of improvables": improvables.length,

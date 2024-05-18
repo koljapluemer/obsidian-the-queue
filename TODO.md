@@ -33,3 +33,7 @@
 - fix type issues
 - 'Not Now' for improvable prompt for learn cards fails
 - new books added even if above designated number?
+
+
+
+- make sure FSRS model when exists is not overwritten by new model on scoring
