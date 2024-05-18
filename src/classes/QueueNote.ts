@@ -1,6 +1,20 @@
 import * as ebisu from "ebisu-js";
+
 import { TFile } from "obsidian";
 import { PromptType } from "./QueuePrompt";
+
+import {
+	createEmptyCard,
+	formatDate,
+	fsrs,
+	generatorParameters,
+	Rating,
+	Grades,
+	RecordLogItem,
+	RecordLog,
+} from "ts-fsrs";
+const params = generatorParameters({ enable_fuzz: true });
+const f = fsrs(params);
 
 export enum QType {
 	learn = "learn",
@@ -38,6 +52,7 @@ export default class QueueNote {
 		lastSeen: Date | null;
 		dueAt: Date | null;
 		leechCount: number | null;
+		fsrs: object | null;
 	};
 	qInterval: number | null;
 	qPriority: number | null;
@@ -61,6 +76,7 @@ export default class QueueNote {
 			lastSeen: Date | null;
 			dueAt: Date | null;
 			leechCount: number | null;
+			fsrs: object | null;
 		}
 	) {
 		this.qType = (qType as QType) || null;
@@ -73,6 +89,7 @@ export default class QueueNote {
 			dueAt: null,
 			lastSeen: null,
 			leechCount: null,
+			fsrs: null,
 		};
 		this.noteFile = noteFile;
 		this.nrOfLinks = nrOfLinks;
@@ -105,7 +122,6 @@ export default class QueueNote {
 				dueAt: null,
 				leechCount: null,
 			};
-
 			// check if frontmatter["q-type"] is string
 			if (frontmatter["q-type"]) {
 				// check if q-type corresponds to a valid value in the QType enum
@@ -366,6 +382,9 @@ export default class QueueNote {
 	setNewModel(score: number): void {
 		let model = this.qData.model;
 		let lastSeen = this.qData.lastSeen;
+		// save previous seen date, if it's not null (otherwise set to now)
+		// this is needed for fsrs later
+		const seenBeforeThis = lastSeen || new Date();
 		if (lastSeen == null || model == null) {
 			console.warn(
 				`There is no saved learning data for note ${this.noteFile.basename}, model may be distorted.`
@@ -380,14 +399,28 @@ export default class QueueNote {
 			1000 /
 			60 /
 			60;
-		// TODO: validate if the math check out, and what that Math.max is actually doing
 		this.qData.model = ebisu.updateRecall(
 			model as Model,
 			score,
-			2,
+			4,
 			Math.max(elapsedTime, 0.01)
 		);
 		this.qData.lastSeen = new Date();
+
+		// FSRS
+
+		const fsrs_card = createEmptyCard(seenBeforeThis);
+		const now = new Date();
+		const potential_card_schedules: RecordLog = f.repeat(fsrs_card, now);
+		const rating_dict = {
+			1: Rating.Again,
+			2: Rating.Hard,
+			3: Rating.Good,
+			4: Rating.Easy,
+		};
+		const rating: Rating = rating_dict[score];
+		const fsrs_model: RecordLogItem = potential_card_schedules[rating];
+		this.qData.fsrs = fsrs_model.card;
 	}
 
 	getInterval(): number {
@@ -535,8 +568,17 @@ export default class QueueNote {
 
 		// learning notes that we have seen before
 		if (this.getType() === "learn-started") {
-			// score: wrong = 0, correct = 1, easy = 2
-			const score = answer === "wrong" ? 0 : answer === "correct" ? 1 : 2;
+			const scoreValueDict = {
+				wrong: 1,
+				hard: 2,
+				correct: 3,
+				easy: 4,
+			} as any;
+			let score = scoreValueDict[answer];
+			// if 'undefined', set to 1(it's a new card)
+			if (score === undefined) {
+				score = 2;
+			}
 			// handle leech counting
 			if (score === 0) {
 				this.incrementLeechCount(1);
@@ -645,6 +687,7 @@ export default class QueueNote {
 			noteAfterScoring: this.getQueueValuesAsObj(),
 			answer: answer,
 		});
+		console.log("Note after scoring: ", this.getQueueValuesAsObj());
 	}
 
 	save(app: any): void {
@@ -677,6 +720,7 @@ export default class QueueNote {
 					if (this.getData().model != null) {
 						createEmptyQDataIfNeeded();
 						frontmatter["q-data"]["model"] = this.getData().model;
+						frontmatter["q-data"]["fsrs"] = this.getData().fsrs || {};
 					}
 					if (this.getData().lastSeen != null) {
 						createEmptyQDataIfNeeded();

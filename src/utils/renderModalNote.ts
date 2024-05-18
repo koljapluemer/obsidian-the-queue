@@ -95,7 +95,7 @@ export function render(
 			}
 			// add name of note before front, with a # to make it a name
 			renderedContent = `# ${name}\n\n` + renderedContent;
-			const path = "/" + normalizePath(qPrompt.qNote.getNoteFile().path)
+			const path = "/" + normalizePath(qPrompt.qNote.getNoteFile().path);
 
 			MarkdownRenderer.render(
 				parentContext.app,
@@ -258,6 +258,7 @@ export function render(
 								"Wrong",
 								"wrong"
 							);
+							appendScoreButton(secondButtonRow, "Hard", "hard");
 							appendScoreButton(
 								secondButtonRow,
 								"Correct",
