@@ -440,7 +440,7 @@ export default class QueueNote {
 	getShouldReceiveLeechTreatment(): boolean {
 		// true if leech count is divisible by 3 and not 0
 		// TODO: adapt these nrs, maybe even make them a setting
-		return this.getLeechCount() % 3 === 0 && this.getLeechCount() !== 0;
+		return this.getLeechCount() % 4 === 0 && this.getLeechCount() !== 0;
 	}
 
 	setDueLater(timeDuration: TimeDurationString): void {
