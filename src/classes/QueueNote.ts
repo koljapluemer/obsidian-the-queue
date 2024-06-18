@@ -612,9 +612,8 @@ export default class QueueNote {
 
 		// just handle the special case of todo being completed (due is handled in the condition before)
 		if (this.getType() === "todo") {
-			if (answer === "later") {
-				this.setDueLater("a bit later");
-				this.incrementLeechCount(0.5);
+			if (answer === "made-progress") {
+				this.setDueLater("day later");
 			} else if (answer === "not-today") {
 				this.setDueLater("day later");
 				this.incrementLeechCount(1);

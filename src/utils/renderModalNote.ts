@@ -274,7 +274,7 @@ export function render(
 					// todo
 				} else if (qPrompt.promptType === "dueTodos") {
 					appendScoreButton(buttonRow, "Not today", "not-today");
-					appendScoreButton(buttonRow, "Later", "later");
+					appendScoreButton(buttonRow, "Made Progress", "made-progress");
 					appendScoreButton(buttonRow, "Completed", "completed");
 				}
 				// check:
