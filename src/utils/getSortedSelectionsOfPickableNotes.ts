@@ -86,7 +86,7 @@ export function getSortedSelectionsOfPickableNotes(
 				learnLeeches.push(qNote);
 			}
 			// check fsrs opinion as well
-			if (qNote.getIsCurrentlyDue(undefined, true)) {
+			if (qNote.getIsCurrentlyDue()) {
 				learnStarted.push(qNote);
 			}
 		} else if (qNote.getType() === "learn") {

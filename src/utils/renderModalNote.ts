@@ -97,6 +97,7 @@ export function render(
 			renderedContent = `# ${name}\n\n` + renderedContent;
 			const path = "/" + normalizePath(qPrompt.qNote.getNoteFile().path);
 
+			// @ts-ignore
 			MarkdownRenderer.render(
 				parentContext.app,
 				renderedContent,
@@ -241,6 +242,7 @@ export function render(
 						.addEventListener("click", () => {
 							const path = qPrompt.qNote.getNoteFile().path;
 							contentEl.empty();
+							// @ts-ignore
 							MarkdownRenderer.render(
 								parentContext.app,
 								renderedContent +

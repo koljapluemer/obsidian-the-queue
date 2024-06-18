@@ -43,3 +43,6 @@
 
 - prompt type is always newLearn (at least the buttons show up, even though it's a know card)
 
+### Next
+
+- [ ] get a new release out

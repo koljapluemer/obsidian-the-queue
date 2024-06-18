@@ -1,4 +1,3 @@
-
 import { TFile } from "obsidian";
 import { PromptType } from "./QueuePrompt";
 
@@ -11,6 +10,7 @@ import {
 	Grades,
 	RecordLogItem,
 	RecordLog,
+	Card,
 } from "ts-fsrs";
 const params = generatorParameters({ enable_fuzz: true });
 const f = fsrs(params);
@@ -49,7 +49,9 @@ export default class QueueNote {
 		lastSeen: Date | null;
 		dueAt: Date | null;
 		leechCount: number | null;
-		fsrsData: object | null;
+		fsrsData: {
+			due: Date | null;
+		} | null;
 	};
 	qInterval: number | null;
 	qPriority: number | null;
@@ -80,11 +82,14 @@ export default class QueueNote {
 		this.qKeywords = qKeywords || null;
 		this.qPriority = qPriority || null;
 		this.qInterval = qInterval || null;
+		// @ts-ignore
 		this.qData = qData || {
-			dueAt: null,
 			lastSeen: null,
 			leechCount: null,
-			fsrsData: null,
+			fsrsData: {
+				due: null,
+			},
+			dueAt: null,
 		};
 		this.noteFile = noteFile;
 		this.nrOfLinks = nrOfLinks;
@@ -368,16 +373,26 @@ export default class QueueNote {
 		}
 		const fsrs_card = this.qData.fsrsData;
 
+		// assert that fsrs_card is not null, otherwise print error and return
+		if (!fsrs_card) {
+			console.error("fsrs_card is null, cannot continue");
+			return;
+		}
+
 		const now = new Date();
-		const potential_card_schedules: RecordLog = f.repeat(fsrs_card, now);
-		const rating_dict = {
+		const potential_card_schedules: RecordLog = f.repeat(
+			fsrs_card as Card,
+			now
+		);
+		const rating_dict: { [key: number]: Rating } = {
 			1: Rating.Again,
 			2: Rating.Hard,
 			3: Rating.Good,
 			4: Rating.Easy,
 		};
 		const rating: Rating = rating_dict[score];
-		const fsrs_model: RecordLogItem = potential_card_schedules[rating];
+		const fsrs_model: RecordLogItem =
+			potential_card_schedules[rating as keyof RecordLog];
 		this.qData.fsrsData = fsrs_model.card;
 	}
 
