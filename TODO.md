@@ -27,6 +27,7 @@
     - basically implemented, check if it actually works
 - allow setting how many due learn cards are allowed
 - give option to autodelete old todos
+- bring back gh style feedback with little squares
 
 ### Bugs and minor improvements
 
@@ -37,11 +38,10 @@
 - 'Not Now' for improvable prompt for learn cards fails
 - new books added even if above designated number?
 - fix up the escomplete (it's outdated among others for Obs doc)
-- ...then, kill the red bars from ts
 - adapt documentation to reflect new todo handling
 
 
-- prompt type is always newLearn (at least the buttons show up, even though it's a know card)
+- see issue on gh: q freezing after 1 card, or not loading at all.
 
 ### Next
 
