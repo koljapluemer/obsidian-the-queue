@@ -45,4 +45,4 @@
 
 ### Next
 
-- [ ] get a new release out
+- see that long notes have a scrollbar so that buttons aren't covered (see Light and Colors in the Outdoors for an example)
