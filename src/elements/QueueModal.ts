@@ -169,7 +169,10 @@ export default class QueueModal extends Modal {
 		// loop markdown files, create qNote for each
 		// use for loop instead
 		this.qNotes = [];
+		let noteCounter = 0;
 		for (const file of this.app.vault.getMarkdownFiles()) {
+			noteCounter += 1
+			console.log(noteCounter);
 			// check if path includes excluded folders
 			if (
 				this.settings.excludedFolders.some((excludedFolder: string) =>
