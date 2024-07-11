@@ -12,14 +12,14 @@
 	"author": "",
 	"license": "MIT",
 	"devDependencies": {
-		"@types/node": "^20.14.5",
-		"@typescript-eslint/eslint-plugin": "7.13.1",
-		"@typescript-eslint/parser": "7.13.1",
+		"@types/node": "^20.14.10",
+		"@typescript-eslint/eslint-plugin": "7.16.0",
+		"@typescript-eslint/parser": "7.16.0",
 		"builtin-modules": "4.0.0",
-		"esbuild": "0.21.5",
+		"esbuild": "0.23.0",
 		"obsidian": "latest",
 		"tslib": "2.6.3",
-		"typescript": "5.4.5"
+		"typescript": "5.5.3"
 	},
 	"dependencies": {
 		"ts-fsrs": "^3.5.7"
