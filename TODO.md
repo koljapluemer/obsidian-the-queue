@@ -29,6 +29,11 @@
 - give option to autodelete old todos
 - bring back gh style feedback with little squares
 
+#### Redesign in View Leaf
+
+- maybe want to go for `EditableFileView` extension? 
+    - [inspiration](https://github.com/lachholden/obsidian-recipe-view/blob/a1b92eb0c078994e4493a53f22c8bef70ef812fc/src/recipe-view.ts#L8)
+
 ### Bugs and minor improvements
 
 - add command?
@@ -42,7 +47,9 @@
 
 
 - see issue on gh: q freezing after 1 card, or not loading at all.
+- see that note overview stat is not saved when filter is active (massive distorition)
 
 ### Next
 
 - see that long notes have a scrollbar so that buttons aren't covered (see Light and Colors in the Outdoors for an example)
+
