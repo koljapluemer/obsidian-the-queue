@@ -1,4 +1,4 @@
-import { Plugin, MarkdownView } from "obsidian";
+import { Plugin, WorkspaceLeaf, ItemView, WorkspaceSplit } from "obsidian";
 
 import QueueSettingsTab from "./elements/QueueSettingsTab";
 import QueueModal from "./elements/QueueModal";
@@ -19,6 +19,8 @@ const DEFAULT_SETTINGS: Partial<TheQueueSettings> = {
 	disableImprovablesPrompts: false,
 	excludedFolders: [],
 };
+
+const VIEW_TYPE_BUTTON_BAR = "button-bar-view";
 
 /** The outer plugin class.
  * Tasked with adding the ribbon button opening the modal, initializing the settings, and housekeeping like clearing up when closing.
@@ -53,7 +55,7 @@ export default class TheQueue extends Plugin {
 		this.addRibbonIcon("clock", "Start queue in view", (evt: MouseEvent) => {
 			/** Here, the modal where the action happens is opened; see class definition */
 			console.log('opening...')
-			this.addButtonBarToActiveView();
+			this.activateButtonBarView();
 			// new QueueModal(this.app, this.settings).open();
 		});
 	}
@@ -73,39 +75,63 @@ export default class TheQueue extends Plugin {
 		await this.saveData(this.settings);
 	}
 
+	async activateButtonBarView() {
+        // Get a new leaf (pane) and set it to the custom view
+        const leaf = this.app.workspace.getRightLeaf(false);
+        await leaf.setViewState({
+            type: VIEW_TYPE_BUTTON_BAR,
+            active: true
+        });
+        this.app.workspace.revealLeaf(leaf);
+    }
+}
 
 
-    addButtonBarToActiveView() {
-		console.log('adding button bar...')
-        const activeView = this.app.workspace.getActiveViewOfType(MarkdownView);
-        if (activeView) {
-            const container = activeView.containerEl.querySelector('.view-content');
-            if (container) {
-                // Create the button bar
-                const buttonBar = document.createElement('div');
-                buttonBar.style.display = 'flex';
-                buttonBar.style.justifyContent = 'flex-end';
-                buttonBar.style.marginBottom = '10px';
-                
-                // Add buttons to the bar
-                const button1 = document.createElement('button');
-                button1.textContent = 'Button 1';
-                button1.onclick = () => {
-                    new Notice('Button 1 clicked!');
-                };
+class ButtonBarView extends ItemView {
+    constructor(leaf: WorkspaceLeaf) {
+        super(leaf);
+    }
 
-                const button2 = document.createElement('button');
-                button2.textContent = 'Button 2';
-                button2.onclick = () => {
-                    new Notice('Button 2 clicked!');
-                };
+    // The display name of the view
+    getViewType(): string {
+        return VIEW_TYPE_BUTTON_BAR;
+    }
 
-                buttonBar.appendChild(button1);
-                buttonBar.appendChild(button2);
+    getDisplayText(): string {
+        return "Button Bar View";
+    }
 
-                // Insert the button bar into the view
-                container.prepend(buttonBar);
-            }
-        }
+    // Where you define the view's content
+    async onOpen() {
+        const container = this.containerEl.children[1];
+        
+        // Create the button bar
+        const buttonBar = document.createElement('div');
+        buttonBar.style.display = 'flex';
+        buttonBar.style.justifyContent = 'flex-end';
+        buttonBar.style.marginBottom = '10px';
+
+        // Add buttons
+        const button1 = document.createElement('button');
+        button1.textContent = 'Button 1';
+        button1.onclick = () => {
+            new Notice('Button 1 clicked!');
+        };
+
+        const button2 = document.createElement('button');
+        button2.textContent = 'Button 2';
+        button2.onclick = () => {
+            new Notice('Button 2 clicked!');
+        };
+
+        buttonBar.appendChild(button1);
+        buttonBar.appendChild(button2);
+
+        // Append the button bar to the view container
+        container.appendChild(buttonBar);
+    }
+
+    async onClose() {
+        // Any cleanup on closing the view can be handled here
     }
 }
