@@ -1,4 +1,4 @@
-import { Plugin, WorkspaceLeaf, ItemView, WorkspaceSplit } from "obsidian";
+import { Plugin, WorkspaceLeaf, ItemView, WorkspaceSplit, EditableFileView } from "obsidian";
 
 import QueueSettingsTab from "./elements/QueueSettingsTab";
 import QueueModal from "./elements/QueueModal";
@@ -30,6 +30,15 @@ export default class TheQueue extends Plugin {
 	settings: TheQueueSettings;
 
 	async onload() {
+
+		// tutorial
+		this.registerView(
+			QUEUE_VIEW,
+			(leaf) => new QueueView(leaf)
+		);
+
+
+
 		// This creates an icon in the left ribbon.
 		this.addRibbonIcon("sticky-note", "Start your queue", (evt: MouseEvent) => {
 			console.log('hi, opening...')
@@ -55,10 +64,30 @@ export default class TheQueue extends Plugin {
 		this.addRibbonIcon("clock", "Start queue in view", (evt: MouseEvent) => {
 			/** Here, the modal where the action happens is opened; see class definition */
 			console.log('opening...')
-			this.activateButtonBarView();
-			// new QueueModal(this.app, this.settings).open();
+			this.activateQueueView();
 		});
 	}
+
+
+	async activateQueueView() {
+		const { workspace } = this.app;
+	
+		let leaf: WorkspaceLeaf | null = null;
+		const leaves = workspace.getLeavesOfType(QUEUE_VIEW);
+	
+		if (leaves.length > 0) {
+		  // A leaf with our view already exists, use that
+		  leaf = leaves[0];
+		} else {
+		  // Our view could not be found in the workspace, create a new leaf
+		  // in the right sidebar for it
+		  leaf = workspace.getRightLeaf(false);
+		  await leaf.setViewState({ type: QUEUE_VIEW, active: true });
+		}
+	
+		// "Reveal" the leaf in case it is in a collapsed sidebar
+		workspace.revealLeaf(leaf);
+	  }
 
 	onunload() {
 	}
@@ -74,64 +103,27 @@ export default class TheQueue extends Plugin {
 	async saveSettings() {
 		await this.saveData(this.settings);
 	}
-
-	async activateButtonBarView() {
-        // Get a new leaf (pane) and set it to the custom view
-        const leaf = this.app.workspace.getRightLeaf(false);
-        await leaf.setViewState({
-            type: VIEW_TYPE_BUTTON_BAR,
-            active: true
-        });
-        this.app.workspace.revealLeaf(leaf);
-    }
 }
 
 
-class ButtonBarView extends ItemView {
-    constructor(leaf: WorkspaceLeaf) {
-        super(leaf);
-    }
+export const QUEUE_VIEW = "queue-view";
 
-    // The display name of the view
-    getViewType(): string {
-        return VIEW_TYPE_BUTTON_BAR;
-    }
+export class QueueView extends EditableFileView {
+  constructor(leaf: WorkspaceLeaf) {
+    super(leaf);
+  }
 
-    getDisplayText(): string {
-        return "Button Bar View";
-    }
+  getViewType() {
+    return QUEUE_VIEW;
+  }
 
-    // Where you define the view's content
-    async onOpen() {
-        const container = this.containerEl.children[1];
-        
-        // Create the button bar
-        const buttonBar = document.createElement('div');
-        buttonBar.style.display = 'flex';
-        buttonBar.style.justifyContent = 'flex-end';
-        buttonBar.style.marginBottom = '10px';
+  async onOpen() {
+    // const container = this.containerEl.children[1];
+    // container.empty();
+    // container.createEl("h4", { text: "Example view" });
+  }
 
-        // Add buttons
-        const button1 = document.createElement('button');
-        button1.textContent = 'Button 1';
-        button1.onclick = () => {
-            new Notice('Button 1 clicked!');
-        };
-
-        const button2 = document.createElement('button');
-        button2.textContent = 'Button 2';
-        button2.onclick = () => {
-            new Notice('Button 2 clicked!');
-        };
-
-        buttonBar.appendChild(button1);
-        buttonBar.appendChild(button2);
-
-        // Append the button bar to the view container
-        container.appendChild(buttonBar);
-    }
-
-    async onClose() {
-        // Any cleanup on closing the view can be handled here
-    }
+  async onClose() {
+    // Nothing to clean up.
+  }
 }
