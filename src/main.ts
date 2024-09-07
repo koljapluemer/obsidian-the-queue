@@ -11,7 +11,7 @@ export default class TheQueue extends Plugin {
     this.queueManager = new QueueManager(this.app);
 
     // Add a ribbon button to open a random note
-    const ribbonIconEl = this.addRibbonIcon('dice', 'Open Random Note', () => {
+    const ribbonIconEl = this.addRibbonIcon('clock', 'Open Random Note', () => {
       this.queueManager.openRandomNote(); // QueueManager handles the logic
     });
 
