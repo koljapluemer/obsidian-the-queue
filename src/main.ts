@@ -1,4 +1,4 @@
-import { Plugin, WorkspaceLeaf, ItemView, WorkspaceSplit, EditableFileView } from "obsidian";
+import { Plugin, WorkspaceLeaf, ItemView, WorkspaceSplit, EditableFileView, MarkdownView } from "obsidian";
 
 import QueueSettingsTab from "./elements/QueueSettingsTab";
 import QueueModal from "./elements/QueueModal";
@@ -64,7 +64,8 @@ export default class TheQueue extends Plugin {
 		this.addRibbonIcon("clock", "Start queue in view", (evt: MouseEvent) => {
 			/** Here, the modal where the action happens is opened; see class definition */
 			console.log('opening...')
-			this.activateQueueView();
+			// this.activateQueueView();
+			this.addButtonToEditor();
 		});
 	}
 
@@ -89,6 +90,32 @@ export default class TheQueue extends Plugin {
 		workspace.revealLeaf(leaf);
 	  }
 
+	  async addButtonToEditor() {
+		const activeView = this.app.workspace.getActiveViewOfType(MarkdownView);
+	
+		if (activeView) {
+		  const editorContainer = activeView.containerEl;
+	
+		  // Create the button element
+		  const button = document.createElement('button');
+		  button.textContent = 'Click Me';
+		  button.style.marginTop = '10px';  // Add some margin for spacing
+		  button.style.position = 'absolute';  // Stick the button to the bottom
+		  button.style.bottom = '10px';
+	
+		  // Append the button to the editor container
+		  editorContainer.appendChild(button);
+	
+		  // Add an event listener to the button
+		  button.addEventListener('click', () => {
+			new Notice('Button clicked!');
+		  });
+		} else {
+		  console.warn('No active markdown view found');
+		}
+	  }
+	
+
 	onunload() {
 	}
 
@@ -108,7 +135,7 @@ export default class TheQueue extends Plugin {
 
 export const QUEUE_VIEW = "queue-view";
 
-export class QueueView extends EditableFileView {
+export class QueueView extends MarkdownView {
   constructor(leaf: WorkspaceLeaf) {
     super(leaf);
   }
@@ -127,3 +154,5 @@ export class QueueView extends EditableFileView {
     // Nothing to clean up.
   }
 }
+
+
