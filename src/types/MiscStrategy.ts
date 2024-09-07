@@ -1,23 +1,30 @@
 import { NoteTypeStrategy } from './NoteTypeStrategy';
 import { QueueNote } from '../models/QueueNote';
+import { ButtonFactory } from '../factories/ButtonFactory';
+import { showLessAction, okCoolAction, showMoreOftenAction } from '../actions/actions';
+import { QueueManager } from '../managers/QueueManager';
 
 export class MiscStrategy implements NoteTypeStrategy {
-  // Return the button for a "misc" type note
-  getButtons(note: QueueNote): HTMLElement[] {
-    const nextButton = document.createElement('button');
-    nextButton.textContent = 'Cool, Next';
-    nextButton.addEventListener('click', () => {
-      this.handleButtonClick('next', note);
-    });
+  private queueManager: QueueManager;
 
-    return [nextButton];
+  constructor(queueManager: QueueManager) {
+    this.queueManager = queueManager;
   }
 
-  // Handle the "next" action for misc notes
-  handleButtonClick(action: string, note: QueueNote): void {
-    if (action === 'next') {
-      console.log('Moving to the next misc note');
-      // Custom behavior for misc notes (e.g., loading another random note)
-    }
+  // Get buttons for the "misc" type
+  getButtons(note: QueueNote): HTMLElement[] {
+    const buttons: HTMLElement[] = [];
+
+    // Create "Show Less" button
+    const showLessButton = ButtonFactory.createButton('Show Less', showLessAction(note, this.queueManager));
+
+    // Create "Ok, Cool" button
+    const okCoolButton = ButtonFactory.createButton('Ok, Cool', okCoolAction(note, this.queueManager));
+
+    // Create "Show More Often" button
+    const showMoreOftenButton = ButtonFactory.createButton('Show More Often', showMoreOftenAction(note, this.queueManager));
+
+    buttons.push(showLessButton, okCoolButton, showMoreOftenButton);
+    return buttons;
   }
 }

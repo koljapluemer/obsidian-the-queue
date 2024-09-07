@@ -1,78 +1,205 @@
-import { TFile } from 'obsidian';
-import { NoteTypeStrategy } from '../types/NoteTypeStrategy';
+import { TFile, App } from "obsidian";
+import { NoteTypeStrategy } from "../types/NoteTypeStrategy";
 
-// QueueNoteOptions interface to define the structure for note options
+export type QType = "habit" | "misc" | "article";
+
 export interface QueueNoteOptions {
-  dueAt: Date;
-  interval: number;
-  priority: number;
-  type: string;
+	dueAt?: Date;
+	interval?: number;
+	priority?: number;
+	type?: QType;
+	keywords?: Array<string>;
+	data?: {
+		lastSeen?: Date;
+		dueAt?: Date;
+		leechCount?: number;
+		fsrsData?: object;
+	};
 }
 
 export class QueueNote {
-  file: TFile;
-  dueAt: Date;
-  interval: number;
-  priority: number;
-  type: string;
-  private strategy: NoteTypeStrategy; // The strategy to handle specific behavior
+	private strategy: NoteTypeStrategy | null = null;
 
-  constructor(file: TFile, options: QueueNoteOptions) {
-    this.file = file;
-    this.dueAt = options.dueAt;
-    this.interval = options.interval;
-    this.priority = options.priority;
-    this.type = options.type;
-  }
+	constructor(
+		public file: TFile,
+		public app: App,
+		private _type?: QType,
+		private _keywords?: Array<string>,
+		private _priority?: number,
+		private _interval?: number,
+		private _data?: {
+			lastSeen?: Date;
+			dueAt?: Date;
+			leechCount?: number;
+			fsrsData?: object;
+		}
+	) {}
 
-  // Set the strategy for this note (Habit, Misc, etc.)
-  setStrategy(strategy: NoteTypeStrategy) {
-    this.strategy = strategy;
-  }
+	// Set the strategy for this note
+	setStrategy(strategy: NoteTypeStrategy): void {
+		this.strategy = strategy;
+	}
 
-  // Check if the note is due based on the dueAt field
-  isDue(): boolean {
-    const now = new Date();
-    return now >= this.dueAt;
-  }
+	// Check if the note is due
+	isDue(): boolean {
+		if (!this._data?.dueAt) {
+			return true; // Assume it's due if no due date is set
+		}
+		const now = new Date();
+		return now >= this._data.dueAt;
+	}
 
-  // Postpone the due date by the interval
-  postpone() {
-    this.dueAt.setDate(this.dueAt.getDate() + this.interval);
-  }
+	// Getters and setters for all properties
 
-  // Get buttons based on the strategy for this note
-  getButtons(): HTMLElement[] {
-    return this.strategy.getButtons(this);
-  }
+	get type(): QType | null {
+		return this._type || null;
+	}
 
-  // Save the updates to the note's frontmatter
-  async saveUpdates() {
-    const frontmatter = this.getFrontmatter();
-    if (frontmatter) {
-      frontmatter['q-data']['due-at'] = this.dueAt.toISOString();
-      frontmatter['q-interval'] = this.interval;
-      frontmatter['q-priority'] = this.priority;
-      await this.saveFrontmatter(frontmatter);
-    }
-  }
+	set type(value: QType | null) {
+		this._type = value || undefined;
+	}
 
-  // Get the frontmatter of the note
-  private getFrontmatter() {
-    return this.file.app.metadataCache.getFileCache(this.file)?.frontmatter || null;
-  }
+	get keywords(): Array<string> | null {
+		return this._keywords || null;
+	}
 
-  // Save the updated frontmatter back to the file (can be implemented in utils.ts)
-  private async saveFrontmatter(frontmatter: any) {
-    const content = await this.file.vault.read(this.file);
-    const updatedContent = this.updateFrontmatter(content, frontmatter);
-    await this.file.vault.modify(this.file, updatedContent);
-  }
+	set keywords(value: Array<string> | null) {
+		this._keywords = value || undefined;
+	}
 
-  // Update the frontmatter section in the note content
-  private updateFrontmatter(content: string, frontmatter: any): string {
-    // Logic to replace the frontmatter section of the content
-    // Can use frontmatter serialization logic from utils.ts
-    return content; // Placeholder for actual implementation
-  }
+	get priority(): number | null {
+		return this._priority || null;
+	}
+
+	set priority(value: number | null) {
+		this._priority = value !== null ? value : undefined;
+	}
+
+	get interval(): number | null {
+		return this._interval || null;
+	}
+
+	set interval(value: number | null) {
+		this._interval = value !== null ? value : undefined;
+	}
+
+	get data(): {
+		lastSeen?: Date;
+		dueAt?: Date;
+		leechCount?: number;
+		fsrsData?: object;
+	} | null {
+		return this._data || null;
+	}
+
+	set data(
+		value: {
+			lastSeen?: Date;
+			dueAt?: Date;
+			leechCount?: number;
+			fsrsData?: object;
+		} | null
+	) {
+		this._data = value || undefined;
+	}
+
+	get dueAt(): Date | null {
+		return this._data?.dueAt || null;
+	}
+
+	set dueAt(value: Date | undefined) {
+		if (!this._data) {
+			this._data = {
+				lastSeen: undefined,
+				dueAt: undefined,
+				leechCount: undefined,
+				fsrsData: undefined,
+			};
+		}
+		this._data.dueAt = value;
+	}
+
+	// Static method to create a QueueNote from frontmatter
+	static fromFrontmatter(file: TFile, app: App): QueueNote | null {
+		const frontmatter = app.metadataCache.getFileCache(file)?.frontmatter;
+		if (!frontmatter) {
+			return null;
+		}
+
+		const type: QType = frontmatter["q-type"] || undefined;
+		const keywords: Array<string> = frontmatter["q-keywords"] || undefined;
+		const priority: number = frontmatter["q-priority"] || undefined;
+		const interval: number = frontmatter["q-interval"] || undefined;
+
+		const data = {
+			lastSeen: frontmatter["q-data"]?.["last-seen"]
+				? new Date(frontmatter["q-data"]["last-seen"])
+				: undefined,
+			dueAt: frontmatter["q-data"]?.["due-at"]
+				? new Date(frontmatter["q-data"]["due-at"])
+				: undefined,
+			leechCount: frontmatter["q-data"]?.["leech-count"] || undefined,
+			fsrsData: frontmatter["q-data"]?.["fsrs-data"] || undefined,
+		};
+
+		return new QueueNote(
+			file,
+			app,
+			type,
+			keywords,
+			priority,
+			interval,
+			data
+		);
+	}
+
+	// Save the updated note properties to the frontmatter
+	async saveUpdates() {
+		const frontmatter = this.getFrontmatter();
+		if (frontmatter) {
+			frontmatter["q-type"] = this.type;
+			frontmatter["q-keywords"] = this.keywords;
+			frontmatter["q-priority"] = this.priority;
+			frontmatter["q-interval"] = this.interval;
+
+			frontmatter["q-data"] = {
+				"last-seen": this.data?.lastSeen?.toISOString() || undefined,
+				"due-at": this.data?.dueAt?.toISOString() || undefined,
+				"leech-count": this.data?.leechCount || undefined,
+				"fsrs-data": this.data?.fsrsData || undefined,
+			};
+
+			await this.saveFrontmatter(frontmatter);
+		}
+	}
+
+	// Fetch frontmatter from the note
+	getFrontmatter() {
+		return (
+			this.app.metadataCache.getFileCache(this.file)?.frontmatter || null
+		);
+	}
+
+	// Save the updated frontmatter to the file
+	async saveFrontmatter(frontmatter: any) {
+		const content = await this.file.vault.read(this.file);
+		const updatedContent = this.updateFrontmatter(content, frontmatter);
+		await this.file.vault.modify(this.file, updatedContent);
+	}
+
+	// Helper method to update frontmatter in the content
+	private updateFrontmatter(content: string, frontmatter: any): string {
+		return content; // Placeholder logic for updating frontmatter
+	}
+
+	increasePriority(): void {
+		// If priority is not set, assume it starts from 0
+		const currentPriority = this.priority ?? 0;
+		this.priority = currentPriority + 1;
+	}
+
+	decreasePriority(): void {
+		const currentPriority = this.priority ?? 0;
+		this.priority = Math.max(0, currentPriority - 1);
+	}
 }

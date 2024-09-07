@@ -18,7 +18,7 @@ export class QueueManager {
 		if (existingQueueView) {
 			// Focus on the existing QueueView
 			log.info("QueueView already open");
-			this.app.workspace.setActiveLeaf(existingQueueView.leaf, true);
+			this.app.workspace.setActiveLeaf(existingQueueView.leaf);
 		} else {
 			log.info("No QueueView open, opening a new one");
 			// 2. Open a new QueueView and load a random file
@@ -58,7 +58,7 @@ export class QueueManager {
 		const queueNote = QueueNoteFactory.create(randomFile, this.app);
 
 		// Create and set up the QueueView with the random file
-		const queueView = new QueueView(leaf, queueNote);
+		const queueView = new QueueView(leaf, queueNote, this);
 		leaf.openFile(randomFile); // Ensure the file is opened in the leaf
 	}
 

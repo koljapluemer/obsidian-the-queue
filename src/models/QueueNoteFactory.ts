@@ -31,10 +31,11 @@ export class QueueNoteFactory {
   private static createNoteByType(file: TFile, options: QueueNoteOptions): QueueNote {
     let strategy: NoteTypeStrategy;
 
+    // for now, everything is a misc note
     switch (options.type) {
-      case 'habit':
-        strategy = new HabitStrategy();
-        break;
+    //   case 'habit':
+    //     strategy = new HabitStrategy();
+    //     break;
       case 'misc':
       default:
         strategy = new MiscStrategy();
