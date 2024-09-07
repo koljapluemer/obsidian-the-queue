@@ -1,65 +1,44 @@
 import { TFile, App } from 'obsidian';
-import { QueueNote, QueueNoteOptions } from './QueueNote';
-import { HabitStrategy } from '../types/HabitStrategy';
-import { MiscStrategy } from '../types/MiscStrategy';
+import { QueueNote } from './QueueNote';
+import { MiscStrategy } from '../types/MiscStrategy';  // Example strategies
+import { QueueManager } from '../managers/QueueManager';  // QueueManager
 import { NoteTypeStrategy } from '../types/NoteTypeStrategy';
+import { QType } from './QueueNote';
 
 export class QueueNoteFactory {
-  // Factory method to create a QueueNote based on the frontmatter of the file
-  static create(file: TFile, app: App): QueueNote {
-    // Extract frontmatter from the file using Obsidian's metadataCache
+  static create(file: TFile, app: App, queueManager: QueueManager): QueueNote {
+    // Extract frontmatter from the file
     const frontmatter = app.metadataCache.getFileCache(file)?.frontmatter;
 
-    // If there's no frontmatter, use default values
-    if (!frontmatter || !frontmatter['q-data']) {
-      return this.createMiscNote(file);
-    }
+    // Determine the note properties from frontmatter
+    const qType = frontmatter?.['q-type'] || 'misc';
+    const keywords = frontmatter?.['q-keywords'] || [];
+    const priority = frontmatter?.['q-priority'] || 0;
+    const interval = frontmatter?.['q-interval'] || 1;
 
-    // Parse frontmatter to extract q-type and other relevant data
-    const options: QueueNoteOptions = {
-      dueAt: new Date(frontmatter['q-data']['due-at']),
-      interval: frontmatter['q-interval'] || 1,
-      priority: frontmatter['q-priority'] || 0,
-      type: frontmatter['q-type'] || 'misc',
+    const data = {
+      lastSeen: frontmatter?.['q-data']?.['last-seen'] ? new Date(frontmatter['q-data']['last-seen']) : undefined,
+      dueAt: frontmatter?.['q-data']?.['due-at'] ? new Date(frontmatter['q-data']['due-at']) : undefined,
+      leechCount: frontmatter?.['q-data']?.['leech-count'] || 0,
+      fsrsData: frontmatter?.['q-data']?.['fsrs-data'] || undefined,
     };
 
-    // Return a specific note type based on q-type
-    return this.createNoteByType(file, options);
+    // Create the QueueNote instance
+    const queueNote = new QueueNote(file, app, qType, keywords, priority, interval, data);
+
+    // Set the appropriate strategy based on the note qType and pass the queueManager
+    const strategy = this.getStrategyForType(qType, queueNote, queueManager);
+    queueNote.setStrategy(strategy);
+
+    return queueNote;
   }
 
-  // Create a QueueNote with a specific strategy based on the q-type
-  private static createNoteByType(file: TFile, options: QueueNoteOptions): QueueNote {
-    let strategy: NoteTypeStrategy;
-
-    // for now, everything is a misc note
-    switch (options.type) {
-    //   case 'habit':
-    //     strategy = new HabitStrategy();
-    //     break;
+  // Determine and return the strategy based on the q-qType
+  static getStrategyForType(qType: string, note: QueueNote, queueManager: QueueManager): NoteTypeStrategy {
+    switch (qType) {
       case 'misc':
       default:
-        strategy = new MiscStrategy();
-        break;
+        return new MiscStrategy(queueManager);  // MiscStrategy needs QueueManager
     }
-
-    // Instantiate the QueueNote and assign the correct strategy
-    const note = new QueueNote(file, options);
-    note.setStrategy(strategy); // Assign the strategy to the note
-    return note;
-  }
-
-  // Default creation for misc-type notes
-  private static createMiscNote(file: TFile): QueueNote {
-    const options: QueueNoteOptions = {
-      dueAt: new Date(),
-      interval: 1,
-      priority: 0,
-      type: 'misc',
-    };
-
-    const strategy = new MiscStrategy();
-    const note = new QueueNote(file, options);
-    note.setStrategy(strategy); // Assign the misc strategy
-    return note;
   }
 }

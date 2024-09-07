@@ -1,7 +1,7 @@
 import { NoteTypeStrategy } from './NoteTypeStrategy';
 import { QueueNote } from '../models/QueueNote';
-import { ButtonFactory } from '../factories/ButtonFactory';
-import { showLessAction, okCoolAction, showMoreOftenAction } from '../actions/actions';
+import { ButtonFactory } from '../buttons/ButtonFactory';
+import { showLessAction, okCoolAction, showMoreOftenAction } from '../buttons/actions';
 import { QueueManager } from '../managers/QueueManager';
 
 export class MiscStrategy implements NoteTypeStrategy {

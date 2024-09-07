@@ -55,7 +55,7 @@ export class QueueManager {
 		}
 
 		// Create a QueueNote for the random file
-		const queueNote = QueueNoteFactory.create(randomFile, this.app);
+		const queueNote = QueueNoteFactory.create(randomFile, this.app, this);
 
 		// Create and set up the QueueView with the random file
 		const queueView = new QueueView(leaf, queueNote, this);
@@ -81,7 +81,7 @@ export class QueueManager {
 			return;
 		}
 
-		const queueNote = QueueNoteFactory.create(randomFile, this.app);
+		const queueNote = QueueNoteFactory.create(randomFile, this.app, this);
 
 		// Update the QueueView with the new QueueNote
 		queueView.note = queueNote;

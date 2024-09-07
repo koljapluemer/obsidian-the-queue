@@ -3,11 +3,12 @@ import { NoteTypeStrategy } from "../types/NoteTypeStrategy";
 
 export type QType = "habit" | "misc" | "article";
 
+
 export interface QueueNoteOptions {
 	dueAt?: Date;
 	interval?: number;
 	priority?: number;
-	type?: QType;
+	qType?: QType;
 	keywords?: Array<string>;
 	data?: {
 		lastSeen?: Date;
@@ -23,7 +24,7 @@ export class QueueNote {
 	constructor(
 		public file: TFile,
 		public app: App,
-		private _type?: QType,
+		private _qType?: QType,
 		private _keywords?: Array<string>,
 		private _priority?: number,
 		private _interval?: number,
@@ -40,6 +41,13 @@ export class QueueNote {
 		this.strategy = strategy;
 	}
 
+    getButtons(): HTMLElement[] {
+        if (this.strategy) {
+            return this.strategy.getButtons(this);
+        }
+        return [];
+    }
+
 	// Check if the note is due
 	isDue(): boolean {
 		if (!this._data?.dueAt) {
@@ -51,12 +59,12 @@ export class QueueNote {
 
 	// Getters and setters for all properties
 
-	get type(): QType | null {
-		return this._type || null;
+	get qType(): QType | null {
+		return this._qType || null;
 	}
 
-	set type(value: QType | null) {
-		this._type = value || undefined;
+	set qType(value: QType | null) {
+		this._qType = value || undefined;
 	}
 
 	get keywords(): Array<string> | null {
@@ -126,7 +134,7 @@ export class QueueNote {
 			return null;
 		}
 
-		const type: QType = frontmatter["q-type"] || undefined;
+		const qType: QType = frontmatter["q-qType"] || undefined;
 		const keywords: Array<string> = frontmatter["q-keywords"] || undefined;
 		const priority: number = frontmatter["q-priority"] || undefined;
 		const interval: number = frontmatter["q-interval"] || undefined;
@@ -145,7 +153,7 @@ export class QueueNote {
 		return new QueueNote(
 			file,
 			app,
-			type,
+			qType,
 			keywords,
 			priority,
 			interval,
@@ -157,7 +165,7 @@ export class QueueNote {
 	async saveUpdates() {
 		const frontmatter = this.getFrontmatter();
 		if (frontmatter) {
-			frontmatter["q-type"] = this.type;
+			frontmatter["q-type"] = this.qType;
 			frontmatter["q-keywords"] = this.keywords;
 			frontmatter["q-priority"] = this.priority;
 			frontmatter["q-interval"] = this.interval;
