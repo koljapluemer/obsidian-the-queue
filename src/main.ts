@@ -22,16 +22,16 @@ export default class QueuePlugin extends Plugin {
 
 		// Create the button bar container
 		this.buttonBar = document.createElement("div");
-    //  set css class:
-    this.buttonBar.classList.add("floating-button-bar");
-
-
+		//  set css class:
+		this.buttonBar.classList.add("floating-button-bar");
 
 		// Create "Show Next" button
 		const showNextButton = document.createElement("button");
 		showNextButton.textContent = "Show Next";
 		showNextButton.addEventListener("click", () => {
-      this.loadRandomFile();
+			this.currentQueueNote?.setDueInNDays(1);
+			this.currentQueueNote?.saveUpdates();
+			this.loadRandomFile();
 		});
 
 		// Add buttons to the bar

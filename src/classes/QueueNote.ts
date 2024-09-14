@@ -1,7 +1,6 @@
-import { TFile, App } from "obsidian";
+import { App, Notice, TFile } from "obsidian";
 
 export type QType = "habit" | "misc" | "article";
-
 
 export interface QueueNoteOptions {
 	dueAt?: Date;
@@ -112,6 +111,12 @@ export class QueueNote {
 		this._data.dueAt = value;
 	}
 
+	setDueInNDays(n: number): void {
+		const now = new Date();
+		now.setDate(now.getDate() + n);
+		this.dueAt = now;
+	}
+
 	// Static method to create a QueueNote from frontmatter
 	static fromFile(file: TFile, app: App): QueueNote | null {
 		const frontmatter = app.metadataCache.getFileCache(file)?.frontmatter;
@@ -149,41 +154,31 @@ export class QueueNote {
 
 	// Save the updated note properties to the frontmatter
 	async saveUpdates() {
+		console.log("Saving updates...");
 		const frontmatter = this.getFrontmatter();
-		if (frontmatter) {
-			frontmatter["q-type"] = this.qType;
-			frontmatter["q-keywords"] = this.keywords;
-			frontmatter["q-priority"] = this.priority;
-			frontmatter["q-interval"] = this.interval;
+		console.log("frontmatter to save:", frontmatter);
+		console.log("frontmatter exists");
+		frontmatter["q-type"] = this.qType;
+		frontmatter["q-keywords"] = this.keywords;
+		frontmatter["q-priority"] = this.priority;
+		frontmatter["q-interval"] = this.interval;
 
-			frontmatter["q-data"] = {
-				"last-seen": this.data?.lastSeen?.toISOString() || undefined,
-				"due-at": this.data?.dueAt?.toISOString() || undefined,
-				"leech-count": this.data?.leechCount || undefined,
-				"fsrs-data": this.data?.fsrsData || undefined,
-			};
+		frontmatter["q-data"] = {
+			// last-seen: timestamp right now
+			"last-seen": new Date().toISOString(),
+			"due-at": this.data?.dueAt?.toISOString() || undefined,
+			"leech-count": this.data?.leechCount || undefined,
+			"fsrs-data": this.data?.fsrsData || undefined,
+		};
 
-			await this.saveFrontmatter(frontmatter);
-		}
+		await this.updateSpecifiedFrontmatter(this.file, frontmatter, this.app);
 	}
 
 	// Fetch frontmatter from the note
 	getFrontmatter() {
 		return (
-			this.app.metadataCache.getFileCache(this.file)?.frontmatter || null
+			this.app.metadataCache.getFileCache(this.file)?.frontmatter || {}
 		);
-	}
-
-	// Save the updated frontmatter to the file
-	async saveFrontmatter(frontmatter: any) {
-		const content = await this.file.vault.read(this.file);
-		const updatedContent = this.updateFrontmatter(content, frontmatter);
-		await this.file.vault.modify(this.file, updatedContent);
-	}
-
-	// Helper method to update frontmatter in the content
-	private updateFrontmatter(content: string, frontmatter: any): string {
-		return content; // Placeholder logic for updating frontmatter
 	}
 
 	increasePriority(): void {
@@ -195,5 +190,46 @@ export class QueueNote {
 	decreasePriority(): void {
 		const currentPriority = this.priority ?? 0;
 		this.priority = Math.max(0, currentPriority - 1);
+	}
+
+	// Helper function to recursively merge frontmatter updates
+	deepMerge(target: any, source: any) {
+		for (const key of Object.keys(source)) {
+			// if value if undefined, skip
+			if (source[key] === undefined || source[key] === null || source[key] === "") {
+				continue;
+			}
+
+			if (
+				source[key] &&
+				typeof source[key] === "object" &&
+				!Array.isArray(source[key])
+			) {
+				if (!target[key]) {
+					target[key] = {};
+				}
+				this.deepMerge(target[key], source[key]);
+			} else {
+				target[key] = source[key];
+			}
+		}
+	}
+
+	async updateSpecifiedFrontmatter(
+		file: TFile,
+		updates: Record<string, any>,
+		app: App
+	) {
+		try {
+			// Use processFrontMatter to update or add properties
+			await app.fileManager.processFrontMatter(file, (frontmatter) => {
+				// Recursively merge updates into the current frontmatter
+				this.deepMerge(frontmatter, updates);
+			});
+
+			new Notice("Frontmatter updated successfully");
+		} catch (error) {
+			new Notice(`Failed to update frontmatter: ${error.message}`);
+		}
 	}
 }
