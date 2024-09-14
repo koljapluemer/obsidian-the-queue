@@ -1,42 +1,65 @@
-import { Plugin, WorkspaceLeaf, TFile } from "obsidian";
-import { QueueView } from "./views/QueueView";
-import { getRandomFile } from "./utils/helpers";
+import { Notice, Plugin } from 'obsidian';
 
-export default class QueuePlugin extends Plugin {
-	async onload() {
-		console.log("Loading QueuePlugin...");
+export default class FloatingButtonBarPlugin extends Plugin {
+  private buttonBar: HTMLDivElement | null = null;
 
-		// Register a new ribbon button
-		this.addRibbonIcon(
-			"dice",
-			"Open Random Note in QueueView",
-			async () => {
-				// Get or create a new QueueView
-				const leaf = this.app.workspace.getLeaf(false);
-				const randomFile = getRandomFile(this.app.vault);
+  onload() {
+    console.log('Loading Floating Button Bar Plugin...');
+    this.createFloatingButtonBar();
+  }
 
-				if (randomFile) {
-					const file = await randomFile;
-					if (file) {
-						leaf.openFile(file);
-						leaf.setViewState({
-							type: "queue",
-							state: { file: randomFile.path },
-						});
-					}
-				}
-			}
-		);
+  onunload() {
+    console.log('Unloading Floating Button Bar Plugin...');
+    this.removeFloatingButtonBar();
+  }
 
-		// Register the custom QueueView
-		this.registerView(
-			"queue",
-			(leaf: WorkspaceLeaf) => new QueueView(leaf, new TFile())
-		);
-	}
+  // Create the floating button bar and attach it to the .app-container
+  createFloatingButtonBar() {
+    // Ensure there's only one instance of the button bar
+    if (this.buttonBar) return;
 
-	onunload() {
-		console.log("Unloading QueuePlugin...");
-		this.app.workspace.detachLeavesOfType("queue");
-	}
+    // Create the button bar container
+    this.buttonBar = document.createElement('div');
+    this.buttonBar.classList.add('floating-button-bar');
+    this.buttonBar.style.position = 'fixed';
+    this.buttonBar.style.bottom = '20px';
+    this.buttonBar.style.right = '20px';
+    this.buttonBar.style.zIndex = '1000'; // Ensure it's on top
+    this.buttonBar.style.backgroundColor = '#333';
+    this.buttonBar.style.padding = '10px';
+    this.buttonBar.style.borderRadius = '8px';
+    this.buttonBar.style.display = 'flex';
+    this.buttonBar.style.gap = '10px';
+
+    // Create "Show Next" button
+    const showNextButton = document.createElement('button');
+    showNextButton.textContent = 'Show Next';
+    showNextButton.addEventListener('click', () => {
+      console.log('Show Next button clicked');
+      new Notice('Show Next action triggered.');
+    });
+
+    // Create "Delete" button
+    const deleteButton = document.createElement('button');
+    deleteButton.textContent = 'Delete';
+    deleteButton.addEventListener('click', () => {
+      console.log('Delete button clicked');
+      new Notice('Delete action triggered.');
+    });
+
+    // Add buttons to the bar
+    this.buttonBar.appendChild(showNextButton);
+    this.buttonBar.appendChild(deleteButton);
+
+    // Attach the button bar to the .app-container
+    document.querySelector('.app-container')?.appendChild(this.buttonBar);
+  }
+
+  // Remove the button bar when the plugin is unloaded
+  removeFloatingButtonBar() {
+    if (this.buttonBar) {
+      this.buttonBar.remove();
+      this.buttonBar = null;
+    }
+  }
 }
