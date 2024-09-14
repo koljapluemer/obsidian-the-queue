@@ -1,12 +1,11 @@
 import { App, Notice, TFile } from "obsidian";
 
-export type QType = "habit" | "misc" | "article";
 
 export interface QueueNoteOptions {
 	dueAt?: Date;
 	interval?: number;
 	priority?: number;
-	qType?: QType;
+	qType?: string;
 	keywords?: Array<string>;
 	data?: {
 		lastSeen?: Date;
@@ -20,7 +19,7 @@ export class QueueNote {
 	constructor(
 		public file: TFile,
 		public app: App,
-		private _qType?: QType,
+		private _qType?: string,
 		private _keywords?: Array<string>,
 		private _priority?: number,
 		private _interval?: number,
@@ -43,11 +42,11 @@ export class QueueNote {
 
 	// Getters and setters for all properties
 
-	get qType(): QType | null {
+	get qType(): string | null {
 		return this._qType || null;
 	}
 
-	set qType(value: QType | null) {
+	set qType(value: string | null) {
 		this._qType = value || undefined;
 	}
 
@@ -125,7 +124,7 @@ export class QueueNote {
 			return null;
 		}
 
-		const qType: QType = frontmatter["q-type"] || undefined;
+		const qType: string = frontmatter["q-type"] || undefined;
 		const keywords: Array<string> = frontmatter["q-keywords"] || undefined;
 		const priority: number = frontmatter["q-priority"] || undefined;
 		const interval: number = frontmatter["q-interval"] || undefined;

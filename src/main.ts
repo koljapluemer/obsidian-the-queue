@@ -24,18 +24,85 @@ export default class QueuePlugin extends Plugin {
 		this.buttonBar = document.createElement("div");
 		//  set css class:
 		this.buttonBar.classList.add("floating-button-bar");
+		console.log("current note's qType", this.currentQueueNote?.qType);
+		switch (this.currentQueueNote?.qType) {
+			// habit:
+			// not today, do later, done:
+			case "habit":
+				// Create "Not Today" button
+				const notTodayButton = document.createElement("button");
+				notTodayButton.textContent = "Not Today";
+				notTodayButton.addEventListener("click", () => {
+					this.currentQueueNote?.setDueInNDays(1);
+					this.currentQueueNote?.saveUpdates();
+					this.loadRandomFile();
+				});
+				this.buttonBar.appendChild(notTodayButton);
 
-		// Create "Show Next" button
-		const showNextButton = document.createElement("button");
-		showNextButton.textContent = "Show Next";
-		showNextButton.addEventListener("click", () => {
-			this.currentQueueNote?.setDueInNDays(1);
-			this.currentQueueNote?.saveUpdates();
-			this.loadRandomFile();
-		});
+				// Create "Do Later" button
+				const doLaterButton = document.createElement("button");
+				doLaterButton.textContent = "Do Later";
+				doLaterButton.addEventListener("click", () => {
+					this.currentQueueNote?.setDueInNDays(3);
+					this.currentQueueNote?.saveUpdates();
+					this.loadRandomFile();
+				});
+				this.buttonBar.appendChild(doLaterButton);
 
-		// Add buttons to the bar
-		this.buttonBar.appendChild(showNextButton);
+				// Create "Done" button
+				const doneButton = document.createElement("button");
+				doneButton.textContent = "Done";
+				doneButton.addEventListener("click", () => {
+					this.currentQueueNote?.setDueInNDays(7);
+					this.currentQueueNote?.saveUpdates();
+					this.loadRandomFile();
+				});
+				this.buttonBar.appendChild(doneButton);
+				break;
+			// check: yes, no, kind of
+			case "article":
+				// Create "Yes" button
+				const yesButton = document.createElement("button");
+				yesButton.textContent = "Yes";
+				yesButton.addEventListener("click", () => {
+					this.currentQueueNote?.setDueInNDays(1);
+					this.currentQueueNote?.saveUpdates();
+					this.loadRandomFile();
+				});
+				this.buttonBar.appendChild(yesButton);
+
+				// Create "No" button
+				const noButton = document.createElement("button");
+				noButton.textContent = "No";
+				noButton.addEventListener("click", () => {
+					this.currentQueueNote?.setDueInNDays(7);
+					this.currentQueueNote?.saveUpdates();
+					this.loadRandomFile();
+				});
+				this.buttonBar.appendChild(noButton);
+
+				// Create "Kind of" button
+				const kindOfButton = document.createElement("button");
+				kindOfButton.textContent = "Kind of";
+				kindOfButton.addEventListener("click", () => {
+					this.currentQueueNote?.setDueInNDays(3);
+					this.currentQueueNote?.saveUpdates();
+					this.loadRandomFile();
+				});
+				this.buttonBar.appendChild(kindOfButton);
+				break;
+			default:
+				// Create "Show Next" button
+				const showNextButton = document.createElement("button");
+				showNextButton.textContent = "Show Next";
+				showNextButton.addEventListener("click", () => {
+					this.currentQueueNote?.setDueInNDays(1);
+					this.currentQueueNote?.saveUpdates();
+					this.loadRandomFile();
+				});
+				this.buttonBar.appendChild(showNextButton);
+				break;
+		}
 
 		// Attach the button bar to the .app-container
 		document.querySelector(".app-container")?.appendChild(this.buttonBar);
@@ -61,6 +128,7 @@ export default class QueuePlugin extends Plugin {
 			// Create a QueueNote instance for the random file
 			this.currentQueueNote = QueueNote.fromFile(randomFile, this.app);
 			console.log("current note", this.currentQueueNote);
+			this.createFloatingButtonBar();
 		}
 	}
 
