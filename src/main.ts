@@ -1,5 +1,6 @@
 import { Notice, Plugin, TFile } from "obsidian";
 import { QueueNote } from "./classes/QueueNote";
+import NoteTypeHabit from "./classes/NoteTypeHabit";
 
 export default class QueuePlugin extends Plugin {
 	private buttonBar: HTMLDivElement | null = null;
@@ -14,7 +15,6 @@ export default class QueuePlugin extends Plugin {
 		console.log("Unloading Floating Button Bar Plugin...");
 		this.removeFloatingButtonBar();
 	}
-
 
 	// Create the floating button bar and attach it to the .app-container
 	createFloatingButtonBar() {
