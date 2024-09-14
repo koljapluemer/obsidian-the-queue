@@ -15,10 +15,14 @@ export default class QueuePlugin extends Plugin {
 		this.removeFloatingButtonBar();
 	}
 
+
 	// Create the floating button bar and attach it to the .app-container
 	createFloatingButtonBar() {
 		// Ensure there's only one instance of the button bar
-		if (this.buttonBar) return;
+		if (this.buttonBar) {
+			// Remove the existing button bar
+			this.removeFloatingButtonBar();
+		}
 
 		// Create the button bar container
 		this.buttonBar = document.createElement("div");
@@ -127,7 +131,7 @@ export default class QueuePlugin extends Plugin {
 
 			// Create a QueueNote instance for the random file
 			this.currentQueueNote = QueueNote.fromFile(randomFile, this.app);
-			console.log("current note", this.currentQueueNote);
+			console.log("current note:", this.currentQueueNote);
 			this.createFloatingButtonBar();
 		}
 	}
