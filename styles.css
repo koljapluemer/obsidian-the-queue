@@ -1,3 +1,17 @@
+.queue-note-buttons {
+    padding: 24px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    margin: auto;
+    gap: 10px;
+    flex-shrink: 2;
+    flex: 0 1 0;
+    border-top: var(--tab-outline-width) solid var(--tab-outline-color);
+}
+
+/* LEGACY CSS */
+
 .queue-modal {
     display: flex;
     flex-direction: column;
