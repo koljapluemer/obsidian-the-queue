@@ -31,86 +31,208 @@ export default class QueuePlugin extends Plugin {
 		this.buttonBar.classList.add("floating-button-bar");
 		console.log("current note's qType", this.currentQueueNote?.qType);
 		switch (this.currentQueueNote?.qType) {
-			// habit:
-			// not today, do later, done:
-			case "habit":
-				// Create "Not Today" button
-				const notTodayButton = document.createElement("button");
-				notTodayButton.textContent = "Not Today";
-				notTodayButton.addEventListener("click", () => {
+			// learn-started: wrong, hard, correct, easy (set due in 1 day)
+			case "learn-started":
+				this.addButton("Wrong", () => {
 					this.currentQueueNote?.setDueInNDays(1);
 					this.currentQueueNote?.saveUpdates();
 					this.loadRandomFile();
 				});
-				this.buttonBar.appendChild(notTodayButton);
-
-				// Create "Do Later" button
-				const doLaterButton = document.createElement("button");
-				doLaterButton.textContent = "Do Later";
-				doLaterButton.addEventListener("click", () => {
-					this.currentQueueNote?.setDueInNDays(3);
+				this.addButton("Hard", () => {
+					this.currentQueueNote?.setDueInNDays(1);
 					this.currentQueueNote?.saveUpdates();
 					this.loadRandomFile();
 				});
-				this.buttonBar.appendChild(doLaterButton);
-
-				// Create "Done" button
-				const doneButton = document.createElement("button");
-				doneButton.textContent = "Done";
-				doneButton.addEventListener("click", () => {
-					this.currentQueueNote?.setDueInNDays(7);
+				this.addButton("Correct", () => {
+					this.currentQueueNote?.setDueInNDays(1);
 					this.currentQueueNote?.saveUpdates();
 					this.loadRandomFile();
 				});
-				this.buttonBar.appendChild(doneButton);
+				this.addButton("Easy", () => {
+					this.currentQueueNote?.setDueInNDays(1);
+					this.currentQueueNote?.saveUpdates();
+					this.loadRandomFile();
+				});
 				break;
+
+			// learn: seems hard, I'll try to remember, easy, got it (set due in 1 day)
+			case "learn":
+				this.addButton("Seems Hard", () => {
+					this.currentQueueNote?.setDueInNDays(1);
+					this.currentQueueNote?.saveUpdates();
+					this.loadRandomFile();
+				});
+				this.addButton("I'll Try to Remember", () => {
+					this.currentQueueNote?.setDueInNDays(1);
+					this.currentQueueNote?.saveUpdates();
+					this.loadRandomFile();
+				});
+				this.addButton("Easy, Got It", () => {
+					this.currentQueueNote?.setDueInNDays(1);
+					this.currentQueueNote?.saveUpdates();
+					this.loadRandomFile();
+				});
+				break;
+
+			// todo: not today, do later, made progress, finished
+			case "todo":
+				this.addButton("Not Today", () => {
+					this.currentQueueNote?.setDueInNDays(1);
+					this.currentQueueNote?.saveUpdates();
+					this.loadRandomFile();
+				});
+				this.addButton("Do Later", () => {
+					this.currentQueueNote?.setDueInNMinutes(10);
+					this.currentQueueNote?.saveUpdates();
+					this.loadRandomFile();
+				});
+				this.addButton("Made Progress", () => {
+					this.currentQueueNote?.setDueInNDays(1);
+					this.currentQueueNote?.saveUpdates();
+					this.loadRandomFile();
+				});
+				this.addButton("Finished", () => {
+					this.currentQueueNote?.updateFrontmatter(
+						"q-type",
+						"todo-finished"
+					);
+					this.currentQueueNote?.saveUpdates();
+					this.loadRandomFile();
+				});
+				break;
+
+			// habit: not today, do later, done
+			case "habit":
+				this.addButton("Not Today", () => {
+					this.currentQueueNote?.setDueInNDays(1);
+					this.currentQueueNote?.saveUpdates();
+					this.loadRandomFile();
+				});
+				this.addButton("Do Later", () => {
+					this.currentQueueNote?.setDueInNMinutes(10);
+					this.currentQueueNote?.saveUpdates();
+					this.loadRandomFile();
+				});
+				this.addButton("Done", () => {
+					this.currentQueueNote?.setDueInNDays(1);
+					this.currentQueueNote?.saveUpdates();
+					this.loadRandomFile();
+				});
+				break;
+
 			// check: yes, no, kind of
 			case "check":
-				// Create "Yes" button
-				const yesButton = document.createElement("button");
-				yesButton.textContent = "Yes";
-				yesButton.addEventListener("click", () => {
-					this.currentQueueNote?.setDueInNDays(1);
+				this.addButton("Yes", () => {
 					this.currentQueueNote?.saveUpdates();
 					this.loadRandomFile();
 				});
-				this.buttonBar.appendChild(yesButton);
-
-				// Create "No" button
-				const noButton = document.createElement("button");
-				noButton.textContent = "No";
-				noButton.addEventListener("click", () => {
-					this.currentQueueNote?.setDueInNDays(7);
+				this.addButton("No", () => {
 					this.currentQueueNote?.saveUpdates();
 					this.loadRandomFile();
 				});
-				this.buttonBar.appendChild(noButton);
-
-				// Create "Kind of" button
-				const kindOfButton = document.createElement("button");
-				kindOfButton.textContent = "Kind of";
-				kindOfButton.addEventListener("click", () => {
-					this.currentQueueNote?.setDueInNDays(3);
+				this.addButton("Kind of", () => {
 					this.currentQueueNote?.saveUpdates();
 					this.loadRandomFile();
 				});
-				this.buttonBar.appendChild(kindOfButton);
 				break;
-			default:
-				// Create "Show Next" button
-				const showNextButton = document.createElement("button");
-				showNextButton.textContent = "Show Next";
-				showNextButton.addEventListener("click", () => {
+
+			// article: same as habit, but with "read a bit" prompt
+			case "article":
+				this.showPrompt("Read a bit");
+				this.addButton("Not Today", () => {
 					this.currentQueueNote?.setDueInNDays(1);
 					this.currentQueueNote?.saveUpdates();
 					this.loadRandomFile();
 				});
-				this.buttonBar.appendChild(showNextButton);
+				this.addButton("Do Later", () => {
+					this.currentQueueNote?.setDueInNMinutes(10);
+					this.currentQueueNote?.saveUpdates();
+					this.loadRandomFile();
+				});
+				this.addButton("Done", () => {
+					this.currentQueueNote?.setDueInNDays(1);
+					this.currentQueueNote?.saveUpdates();
+					this.loadRandomFile();
+				});
+				break;
+
+			// book: same as article, but with a "finished" button to change q-type to "book-finished"
+			case "book":
+				this.showPrompt("Read a bit");
+				this.addButton("Not Today", () => {
+					this.currentQueueNote?.setDueInNDays(1);
+					this.currentQueueNote?.saveUpdates();
+					this.loadRandomFile();
+				});
+				this.addButton("Do Later", () => {
+					this.currentQueueNote?.setDueInNMinutes(10);
+					this.currentQueueNote?.saveUpdates();
+					this.loadRandomFile();
+				});
+				this.addButton("Done", () => {
+					this.currentQueueNote?.setDueInNDays(1);
+					this.currentQueueNote?.saveUpdates();
+					this.loadRandomFile();
+				});
+				this.addButton("Finished", () => {
+					this.currentQueueNote?.updateFrontmatter(
+						"q-type",
+						"book-finished"
+					);
+					this.currentQueueNote?.saveUpdates();
+					this.loadRandomFile();
+				});
+				break;
+
+			// misc: show less, ok cool, show more often (set due in 1 day)
+			case "misc":
+				this.addButton("Show Less", () => {
+					this.currentQueueNote?.setDueInNDays(1);
+					this.currentQueueNote?.saveUpdates();
+					this.loadRandomFile();
+				});
+				this.addButton("Ok, Cool", () => {
+					this.currentQueueNote?.setDueInNDays(1);
+					this.currentQueueNote?.saveUpdates();
+					this.loadRandomFile();
+				});
+				this.addButton("Show More Often", () => {
+					this.currentQueueNote?.setDueInNDays(1);
+					this.currentQueueNote?.saveUpdates();
+					this.loadRandomFile();
+				});
+				break;
+
+			default:
+				// Default action if no qType matches
+				this.addButton("Show Next", () => {
+					this.loadRandomFile();
+				});
 				break;
 		}
 
 		// Attach the button bar to the .app-container
 		document.querySelector(".app-container")?.appendChild(this.buttonBar);
+	}
+
+	// Helper to add a button to the button bar
+	addButton(text: string, onClick: () => void) {
+		const button = document.createElement("button");
+		button.textContent = text;
+		button.addEventListener("click", onClick);
+		if (this.buttonBar) {
+			this.buttonBar.appendChild(button);
+		}
+	}
+
+	// Helper to show a prompt above the buttons
+	showPrompt(text: string) {
+		const prompt = document.createElement("div");
+		prompt.textContent = text;
+		prompt.style.marginBottom = "10px"; // Style the prompt
+		if (this.buttonBar) {
+			this.buttonBar.appendChild(prompt);
+		}
 	}
 
 	// Remove the button bar when the plugin is unloaded
