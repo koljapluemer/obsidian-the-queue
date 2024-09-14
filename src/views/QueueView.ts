@@ -1,60 +1,79 @@
-import { MarkdownView, Notice, WorkspaceLeaf } from 'obsidian';
+import { MarkdownView, Notice, WorkspaceLeaf } from "obsidian";
+
+export const VIEW_TYPE_QUEUE = "queue-view";
 
 export class QueueView extends MarkdownView {
-  constructor(leaf: WorkspaceLeaf) {
-    super(leaf);
-  }
+	constructor(leaf: WorkspaceLeaf) {
+		super(leaf);
+	}
 
-  // We use onload or similar lifecycle hooks to inject the buttons after the view is rendered
-  onload() {
-    this.injectButtons(); // Call the button injection method after the view loads
-  }
+	// Define the view type for QueueView
+	getViewType() {
+		return VIEW_TYPE_QUEUE;
+	}
 
-  // Method to inject buttons after the properties (frontmatter)
-  injectButtons() {
-    const propertiesContainer = this.containerEl.querySelector(".metadata-container");
+	// Define a display name for the view
+	getDisplayText() {
+		return "Queue View";
+	}
 
-    // Ensure the properties container exists
-    if (propertiesContainer) {
-      // Check if the button container already exists
-      if (!this.containerEl.querySelector(".my-button-container")) {
-        // Create a div to hold the buttons
-        const buttonContainer = document.createElement("div");
-        buttonContainer.addClass("my-button-container"); // Custom class for easy identification
+	// Use Obsidian's lifecycle method to handle when the view is opened
+	async onOpen() {
+    super.onOpen();
+		const propertiesContainer = this.containerEl.querySelector(
+			".metadata-container"
+		);
+		const customHeading = document.createElement("h2");
+		customHeading.textContent = "Queue View";
+		if (propertiesContainer) {
+			propertiesContainer.insertAdjacentElement(
+				"beforebegin",
+				customHeading
+			);
+		} else {
+			console.warn("Properties container not found!");
+		}
+	}
 
-        // Create "Show Next" button
-        const showNextButton = document.createElement("button");
-        showNextButton.textContent = "Show Next";
-        showNextButton.addEventListener("click", () => {
-          console.log("Show Next button clicked");
-          new Notice("Loading next file...");
-        });
+	// Method to inject buttons after the frontmatter (properties section)
+	injectButtons() {
+		const propertiesContainer = this.containerEl.querySelector(
+			".metadata-container"
+		);
 
-        // Create "Delete" button
-        const deleteButton = document.createElement("button");
-        deleteButton.textContent = "Delete";
-        deleteButton.addEventListener("click", () => {
-          console.log("Delete button clicked");
-          new Notice("Note deleted");
-        });
+		if (propertiesContainer) {
+			if (!this.containerEl.querySelector(".queue-button-container")) {
+				const buttonContainer = document.createElement("div");
+				buttonContainer.addClass("queue-button-container");
 
-        // Add buttons to the container
-        buttonContainer.appendChild(showNextButton);
-        buttonContainer.appendChild(deleteButton);
+				// Create "Show Next" button
+				const showNextButton = document.createElement("button");
+				showNextButton.textContent = "Show Next";
+				showNextButton.addEventListener("click", () => {
+					console.log("Show Next button clicked");
+					new Notice("Loading next file...");
+				});
 
-        // Inject the button container after the properties section
-        propertiesContainer.insertAdjacentElement("afterend", buttonContainer);
-      }
-    }
-  }
+				// Create "Delete" button
+				const deleteButton = document.createElement("button");
+				deleteButton.textContent = "Delete";
+				deleteButton.addEventListener("click", () => {
+					console.log("Delete button clicked");
+					new Notice("Note deleted");
+				});
 
-  // Ensure this view is registered as the correct type
-  getViewType() {
-    return 'queue-view';
-  }
+				// Add buttons to the container
+				buttonContainer.appendChild(showNextButton);
+				buttonContainer.appendChild(deleteButton);
 
-  // Override the default display text
-  getDisplayText() {
-    return 'Queue View';
-  }
+				// Inject the button container after the properties section
+				propertiesContainer.insertAdjacentElement(
+					"afterend",
+					buttonContainer
+				);
+			}
+		} else {
+			console.warn("Properties container not found!");
+		}
+	}
 }

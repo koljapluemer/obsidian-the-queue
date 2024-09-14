@@ -1,11 +1,11 @@
 import { Plugin, WorkspaceLeaf, TFile } from 'obsidian';
-import { QueueView } from './views/QueueView';
+import { QueueView, VIEW_TYPE_QUEUE } from './views/QueueView';
 import { getRandomFileFromVault } from './utils/helpers';
 
 export default class QueuePlugin extends Plugin {
   async onload() {
     // Register the new view type for QueueView
-    this.registerView('queue-view', (leaf: WorkspaceLeaf) => new QueueView(leaf));
+    this.registerView(VIEW_TYPE_QUEUE, (leaf: WorkspaceLeaf) => new QueueView(leaf));
 
     // Add a ribbon button to open a random file in the QueueView
     this.addRibbonIcon('dice', 'Open Random in Queue', async () => {
@@ -18,14 +18,27 @@ export default class QueuePlugin extends Plugin {
 
   // Method to open a file in QueueView
   async openInQueueView(file: TFile) {
-    const leaf = this.app.workspace.getLeaf(false); // Open on the right side
-    await leaf.openFile(file, { active: true });
+    const { workspace } = this.app;
+    console.log(`Opening file in QueueView: ${file.name}`);
 
-    // Ensure we are using the custom QueueView
-    if (!(leaf.view instanceof QueueView)) {
-      leaf.setViewState({ type: 'queue-view' }); // Switch to QueueView explicitly
+    let leaf: WorkspaceLeaf | null = null;
+    const leaves = workspace.getLeavesOfType(VIEW_TYPE_QUEUE);
+
+    if (leaves.length > 0) {
+      // A leaf with our view already exists, use that
+      leaf = leaves[0];
+    } else {
+      // Our view could not be found in the workspace, create a new leaf
+      // in the right sidebar for it
+      leaf = workspace.getLeaf(false);
+      await leaf.setViewState({ type: VIEW_TYPE_QUEUE, active: true });
     }
 
-    this.app.workspace.setActiveLeaf(leaf, { focus: true });
+    // "Reveal" the leaf in case it is in a collapsed sidebar
+    workspace.revealLeaf(leaf);
+  }
+
+  async onunload() {
+    this.app.workspace.detachLeavesOfType(VIEW_TYPE_QUEUE);
   }
 }
