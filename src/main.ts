@@ -1,7 +1,9 @@
-import { Notice, Plugin } from "obsidian";
+import { Notice, Plugin, TFile } from "obsidian";
+import { QueueNote } from "./classes/QueueNote";
 
-export default class FloatingButtonBarPlugin extends Plugin {
+export default class QueuePlugin extends Plugin {
 	private buttonBar: HTMLDivElement | null = null;
+	private currentQueueNote: QueueNote | null = null;
 
 	onload() {
 		console.log("Loading Floating Button Bar Plugin...");
@@ -55,6 +57,10 @@ export default class FloatingButtonBarPlugin extends Plugin {
 			if (leaf) {
 				await leaf.openFile(randomFile);
 			}
+
+			// Create a QueueNote instance for the random file
+			this.currentQueueNote = QueueNote.fromFile(randomFile, this.app);
+			console.log("current note", this.currentQueueNote);
 		}
 	}
 
