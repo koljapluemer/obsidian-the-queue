@@ -18,17 +18,6 @@ export class QueueView extends MarkdownView {
 		this.queueManager = queueManager;
 		this.addButtonsBasedOnNoteType();
 
-        // get html parent of parentcontainer
-        const parentContainer = this.containerEl.parentElement;
-
-        // add an HTML element h1 "welcome to your view" on top
-        const container = this.containerEl.children[1];
-        const h1 = document.createElement("h1");
-        h1.innerText = "Welcome to your view";
-        parentContainer!.createEl("h1", { text: "Welcome to your view!" });
-        console.log("parentContainer", parentContainer);
-
-        console.log("container", container);
 	}
 
 	// Add buttons based on the note type and strategy
@@ -45,10 +34,13 @@ export class QueueView extends MarkdownView {
 			return;
 		}
 
-
-		const buttonWrapper = document.createElement("div");
-		buttonWrapper.className = "queue-note-buttons";
-		parentEl.appendChild(buttonWrapper);
+		// add buttonwrapper if not exist
+		let buttonWrapper = document.querySelector(".queue-note-buttons");
+		if (!buttonWrapper) {
+			buttonWrapper = document.createElement("div");
+			buttonWrapper.className = "queue-note-buttons";
+			parentEl.appendChild(buttonWrapper);
+		}
 
 		// Clear any existing buttons before adding new ones
 		const existingButtons = parentEl.querySelectorAll(".queue-note-button");

@@ -9,20 +9,22 @@ function setNoteDueInOneDay(note: QueueNote) {
   note.saveUpdates();
 }
 
+
 // Show Less button action (reduces priority by 1)
 export function showLessAction(note: QueueNote, queueManager: QueueManager): () => void {
   return () => {
     note.decreasePriority(); // Decrease priority by 1
     setNoteDueInOneDay(note);
-    queueManager.loadNewRandomFileInQueueView(queueManager.getExistingQueueView()!); // Load next note
+    queueManager.openNextQueueNote(); // Load next note
   };
 }
 
 // Ok, Cool button action (sets due in 1 day)
 export function okCoolAction(note: QueueNote, queueManager: QueueManager): () => void {
+  console.log('Ok, Cool button clicked');
   return () => {
     setNoteDueInOneDay(note);
-    queueManager.loadNewRandomFileInQueueView(queueManager.getExistingQueueView()!); // Load next note
+    queueManager.openNextQueueNote(); // Load next note
   };
 }
 
@@ -31,6 +33,6 @@ export function showMoreOftenAction(note: QueueNote, queueManager: QueueManager)
   return () => {
     note.increasePriority(); // Increase priority by 1
     setNoteDueInOneDay(note);
-    queueManager.loadNewRandomFileInQueueView(queueManager.getExistingQueueView()!); // Load next note
+    queueManager.openNextQueueNote(); // Load next note
   };
 }

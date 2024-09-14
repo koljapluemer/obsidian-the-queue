@@ -19,7 +19,7 @@ export class MiscStrategy implements NoteTypeStrategy {
     const showLessButton = ButtonFactory.createButton('Show Less', showLessAction(note, this.queueManager));
 
     // Create "Ok, Cool" button
-    const okCoolButton = ButtonFactory.createButton('Ok, Cool', okCoolAction(note, this.queueManager));
+    const okCoolButton = ButtonFactory.createButton('Ok, Cool.', okCoolAction(note, this.queueManager));
 
     // Create "Show More Often" button
     const showMoreOftenButton = ButtonFactory.createButton('Show More Often', showMoreOftenAction(note, this.queueManager));

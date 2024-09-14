@@ -12,7 +12,7 @@ export default class TheQueue extends Plugin {
 
     // Add a ribbon button to open a random note
     const ribbonIconEl = this.addRibbonIcon('clock', 'Open Random Note', () => {
-      this.queueManager.handleQueueView();
+      this.queueManager.openNextQueueNote();
 
     });
 
