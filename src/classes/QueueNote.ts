@@ -42,9 +42,8 @@ export class QueueNote {
 
 	// Getters and setters for all properties
 
-	get qType(): string | null {
-		console.log("retunring qType", this._qType);
-		return this._qType || null;
+	get qType(): string {
+		return this._qType || "misc";
 	}
 
 	set qType(value: string | null) {

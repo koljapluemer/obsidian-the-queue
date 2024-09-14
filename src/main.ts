@@ -20,6 +20,7 @@ export default class QueuePlugin extends Plugin {
 	createFloatingButtonBar() {
 		// Ensure there's only one instance of the button bar
 		if (this.buttonBar) {
+			console.log("Button bar already exists, removing it...");
 			// Remove the existing button bar
 			this.removeFloatingButtonBar();
 		}
@@ -64,7 +65,7 @@ export default class QueuePlugin extends Plugin {
 				this.buttonBar.appendChild(doneButton);
 				break;
 			// check: yes, no, kind of
-			case "article":
+			case "check":
 				// Create "Yes" button
 				const yesButton = document.createElement("button");
 				yesButton.textContent = "Yes";
