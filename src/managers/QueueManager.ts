@@ -11,7 +11,7 @@ export class QueueManager {
 	}
 
 	async openNextQueueNote() {
-		const leaf = this.app.workspace.getLeaf(false); // Open in the right pane
+		const leaf = this.app.workspace.getLeaf() // Open in the right pane
 
 		// Load a random file
 
