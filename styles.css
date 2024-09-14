@@ -1,13 +1,13 @@
-.queue-note-buttons {
-    padding: 24px;
+.floating-button-bar {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    background-color: #333;
+    padding: 10px;
+    border-radius: 8px;
     display: flex;
-    flex-direction: row;
-    justify-content: center;
-    margin: auto;
     gap: 10px;
-    flex-shrink: 2;
-    flex: 0 1 0;
-    border-top: var(--tab-outline-width) solid var(--tab-outline-color);
 }
 
 /* LEGACY CSS */

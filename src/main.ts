@@ -1,65 +1,72 @@
-import { Notice, Plugin } from 'obsidian';
+import { Notice, Plugin } from "obsidian";
 
 export default class FloatingButtonBarPlugin extends Plugin {
-  private buttonBar: HTMLDivElement | null = null;
+	private buttonBar: HTMLDivElement | null = null;
 
-  onload() {
-    console.log('Loading Floating Button Bar Plugin...');
-    this.createFloatingButtonBar();
-  }
+	onload() {
+		console.log("Loading Floating Button Bar Plugin...");
+		this.createFloatingButtonBar();
+	}
 
-  onunload() {
-    console.log('Unloading Floating Button Bar Plugin...');
-    this.removeFloatingButtonBar();
-  }
+	onunload() {
+		console.log("Unloading Floating Button Bar Plugin...");
+		this.removeFloatingButtonBar();
+	}
 
-  // Create the floating button bar and attach it to the .app-container
-  createFloatingButtonBar() {
-    // Ensure there's only one instance of the button bar
-    if (this.buttonBar) return;
+	// Create the floating button bar and attach it to the .app-container
+	createFloatingButtonBar() {
+		// Ensure there's only one instance of the button bar
+		if (this.buttonBar) return;
 
-    // Create the button bar container
-    this.buttonBar = document.createElement('div');
-    this.buttonBar.classList.add('floating-button-bar');
-    this.buttonBar.style.position = 'fixed';
-    this.buttonBar.style.bottom = '20px';
-    this.buttonBar.style.right = '20px';
-    this.buttonBar.style.zIndex = '1000'; // Ensure it's on top
-    this.buttonBar.style.backgroundColor = '#333';
-    this.buttonBar.style.padding = '10px';
-    this.buttonBar.style.borderRadius = '8px';
-    this.buttonBar.style.display = 'flex';
-    this.buttonBar.style.gap = '10px';
+		// Create the button bar container
+		this.buttonBar = document.createElement("div");
+    //  set css class:
+    this.buttonBar.classList.add("floating-button-bar");
 
-    // Create "Show Next" button
-    const showNextButton = document.createElement('button');
-    showNextButton.textContent = 'Show Next';
-    showNextButton.addEventListener('click', () => {
-      console.log('Show Next button clicked');
-      new Notice('Show Next action triggered.');
-    });
 
-    // Create "Delete" button
-    const deleteButton = document.createElement('button');
-    deleteButton.textContent = 'Delete';
-    deleteButton.addEventListener('click', () => {
-      console.log('Delete button clicked');
-      new Notice('Delete action triggered.');
-    });
 
-    // Add buttons to the bar
-    this.buttonBar.appendChild(showNextButton);
-    this.buttonBar.appendChild(deleteButton);
+		// Create "Show Next" button
+		const showNextButton = document.createElement("button");
+		showNextButton.textContent = "Show Next";
+		showNextButton.addEventListener("click", () => {
+      this.loadRandomFile();
+		});
 
-    // Attach the button bar to the .app-container
-    document.querySelector('.app-container')?.appendChild(this.buttonBar);
-  }
+		// Add buttons to the bar
+		this.buttonBar.appendChild(showNextButton);
 
-  // Remove the button bar when the plugin is unloaded
-  removeFloatingButtonBar() {
-    if (this.buttonBar) {
-      this.buttonBar.remove();
-      this.buttonBar = null;
-    }
-  }
+		// Attach the button bar to the .app-container
+		document.querySelector(".app-container")?.appendChild(this.buttonBar);
+	}
+
+	// Remove the button bar when the plugin is unloaded
+	removeFloatingButtonBar() {
+		if (this.buttonBar) {
+			this.buttonBar.remove();
+			this.buttonBar = null;
+		}
+	}
+
+	// Load a random TFile in the current view
+	async loadRandomFile() {
+		const randomFile = await this.getRandomFileFromVault();
+		if (randomFile) {
+			const leaf = this.app.workspace.getLeaf(false);
+			if (leaf) {
+				await leaf.openFile(randomFile);
+			}
+		}
+	}
+
+	// Helper to get a random file from the vault
+	async getRandomFileFromVault(): Promise<TFile | null> {
+		const allFiles = this.app.vault.getFiles();
+		if (allFiles.length === 0) {
+			new Notice("No files in the vault!");
+			return null;
+		}
+
+		const randomIndex = Math.floor(Math.random() * allFiles.length);
+		return allFiles[randomIndex];
+	}
 }
