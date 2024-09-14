@@ -1,97 +1,60 @@
-import { Component, MarkdownView, WorkspaceLeaf } from "obsidian";
-import { QueueNote } from "../models/QueueNote";
-import { QueueManager } from "../managers/QueueManager"; // Import the manager to handle file loading
-
-import log from "../logger"; // Import loglevel logger
+import { MarkdownView, Notice, WorkspaceLeaf } from 'obsidian';
 
 export class QueueView extends MarkdownView {
-	note: QueueNote;
-	private queueManager: QueueManager;
+  constructor(leaf: WorkspaceLeaf) {
+    super(leaf);
+  }
 
-	constructor(
-		leaf: WorkspaceLeaf,
-		note: QueueNote,
-		queueManager: QueueManager
-	) {
-		super(leaf);
-		this.note = note;
-		this.queueManager = queueManager;
-		// this.addButtonsBasedOnNoteType();
-		this.injectButtons();
-	}
-	injectButtons() {
-		const currentView =
-			this.app.workspace.getActiveViewOfType(MarkdownView);
+  // We use onload or similar lifecycle hooks to inject the buttons after the view is rendered
+  onload() {
+    this.injectButtons(); // Call the button injection method after the view loads
+  }
 
-		if (currentView) {
-			// Locate the properties container (where frontmatter or metadata is displayed)
-			const propertiesContainer = currentView.containerEl.querySelector(
-				".metadata-container"
-			);
+  // Method to inject buttons after the properties (frontmatter)
+  injectButtons() {
+    const propertiesContainer = this.containerEl.querySelector(".metadata-container");
 
-			// Ensure the properties container exists
-			if (propertiesContainer) {
-				// Check if the button container already exists
-				if (
-					!currentView.containerEl.querySelector(
-						".my-button-container"
-					)
-				) {
-					// Create a div to hold the buttons
-					const buttonContainer = document.createElement("div");
-					buttonContainer.addClass("my-button-container"); // Custom class for easy identification
+    // Ensure the properties container exists
+    if (propertiesContainer) {
+      // Check if the button container already exists
+      if (!this.containerEl.querySelector(".my-button-container")) {
+        // Create a div to hold the buttons
+        const buttonContainer = document.createElement("div");
+        buttonContainer.addClass("my-button-container"); // Custom class for easy identification
 
-					// Create "Show Next" button
-					const showNextButton = document.createElement("button");
-					showNextButton.textContent = "Show Next";
-					showNextButton.addEventListener("click", () => {
-						// Add your logic for the "Show Next" button here
-						console.log("Show Next button clicked");
-					});
+        // Create "Show Next" button
+        const showNextButton = document.createElement("button");
+        showNextButton.textContent = "Show Next";
+        showNextButton.addEventListener("click", () => {
+          console.log("Show Next button clicked");
+          new Notice("Loading next file...");
+        });
 
-					// Create "Delete" button
-					const deleteButton = document.createElement("button");
-					deleteButton.textContent = "Delete";
-					deleteButton.addEventListener("click", () => {
-						// Add your logic for the "Delete" button here
-						console.log("Delete button clicked");
-					});
+        // Create "Delete" button
+        const deleteButton = document.createElement("button");
+        deleteButton.textContent = "Delete";
+        deleteButton.addEventListener("click", () => {
+          console.log("Delete button clicked");
+          new Notice("Note deleted");
+        });
 
-					// Add buttons to the container
-					buttonContainer.appendChild(showNextButton);
-					buttonContainer.appendChild(deleteButton);
+        // Add buttons to the container
+        buttonContainer.appendChild(showNextButton);
+        buttonContainer.appendChild(deleteButton);
 
-					// Inject the button container after the properties section
-					propertiesContainer.insertAdjacentElement(
-						"afterend",
-						buttonContainer
-					);
-				}
-			}
-		}
-	}
+        // Inject the button container after the properties section
+        propertiesContainer.insertAdjacentElement("afterend", buttonContainer);
+      }
+    }
+  }
 
-	// Add buttons based on the note type and strategy
-	addButtonsBasedOnNoteType() {
+  // Ensure this view is registered as the correct type
+  getViewType() {
+    return 'queue-view';
+  }
 
-
-		// const leaf = this.leaf;
-		// const parentEl = leaf.view.containerEl;
-		// const buttonWrapper = document.createElement("div");
-		// buttonWrapper.className = "queue-note-buttons";
-		// parentEl.appendChild(buttonWrapper);
-
-		// // Clear any existing buttons before adding new ones
-		// const existingButtons = parentEl.querySelectorAll(".queue-note-button");
-		// existingButtons.forEach((button) => button.remove());
-
-		// // Get the buttons from the note's strategy
-		// const buttons = this.note.getButtons();
-		// log.info("Buttons:", buttons);
-
-		// // Add each button to the editor container
-		// buttons.forEach((button) => {
-		// 	buttonWrapper.appendChild(button);
-		// });
-	}
+  // Override the default display text
+  getDisplayText() {
+    return 'Queue View';
+  }
 }
