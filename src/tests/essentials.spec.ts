@@ -1,5 +1,6 @@
+import { QueueNoteType } from "../types/QueueNote"
 import { getQueueNoteFromString } from "../utilities/queueNoteUtils"
 
-test('basic note factory works', () => {
-    expect(getQueueNoteFromString("")).toEqual({front:""})
+test('empty note parses correctly', () => {
+    expect(getQueueNoteFromString("")).toEqual({front:"", noteType: QueueNoteType.Misc})
 })

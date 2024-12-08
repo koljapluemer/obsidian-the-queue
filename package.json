@@ -27,6 +27,7 @@
 	},
 	"dependencies": {
 		"loglevel": "^1.9.2",
-		"ts-fsrs": "^3.5.7"
+		"ts-fsrs": "^3.5.7",
+		"yaml": "^2.6.1"
 	}
 }
