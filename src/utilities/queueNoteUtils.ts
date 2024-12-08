@@ -1,4 +1,7 @@
-import { QueueNote, QueueNoteType } from "../types/QueueNote";
+import { QueueNote } from "../classes/queueNote";
+import { QueueNoteLearn } from "../classes/queueNoteLearn";
+import { QueueNoteMisc } from "../classes/queueNoteMisc";
+import { QueueNoteType } from "../types/queueNoteRelated";
 import { parse, stringify } from 'yaml'
 
 
@@ -7,33 +10,27 @@ export function getQueueNoteFromString(str:string): QueueNote {
     const frontmatterRegex = /^---\n([\s\S]*?)\n---/;
     console.log('looking at note:', str)
 
-    // Extract the frontmatter
+    // Extract the frontmatter (if it exists)
     const frontmatterMatch = str.match(frontmatterRegex);
     if (frontmatterMatch) {
         console.log('frontmatter found')
-        const parsedYaml = parse(frontmatterMatch[1])
-        console.log('parsed', parsedYaml)
-        const noteTypeString:string = parsedYaml["q-type"] ?? ""
+        const frontmatter = parse(frontmatterMatch[1])
+        console.log('parsed', frontmatter)
+        const noteTypeString:string = frontmatter["q-type"] ?? ""
         console.log(noteTypeString)
     
         let noteType:QueueNoteType = QueueNoteType.Misc
         
         switch (noteTypeString) {
             case 'learn':
-                noteType = QueueNoteType.Learn
+                return new QueueNoteLearn(str, frontmatter)
+            default:
+                return new QueueNoteMisc(str, frontmatter)
         }
-        const note:QueueNote = {
-            front: str,
-            noteType: noteType
-        } 
-        return note
+        
 
     } else {
         console.log('no frontmatter found')
-        const note:QueueNote = {
-            front: str,
-            noteType: QueueNoteType.Misc
-        } 
-        return note
+        return new QueueNoteMisc(str)
     }
 }

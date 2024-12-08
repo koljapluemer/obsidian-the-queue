@@ -16,9 +16,3 @@ export enum QueueNoteState {
     Finished,
     Base
 }
-
-export type QueueNote = {
-    noteType: QueueNoteType,
-    front?: string,
-    back?:string
-}
