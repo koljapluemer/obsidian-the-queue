@@ -5,7 +5,7 @@ import NoteTypeHabit from "./classes/NoteTypeHabit";
 export default class QueuePlugin extends Plugin {
 	private buttonBar: HTMLDivElement | null = null;
 	private currentQueueNote: QueueNote | null = null;
-
+	
 	onload() {
 		console.log("Loading Floating Button Bar Plugin...");
 		this.createFloatingButtonBar();
