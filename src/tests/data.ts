@@ -1,5 +1,4 @@
-export const basicLearnMd = `
----
+export const basicLearnMd = `---
 q-type: learn
 ---
 
@@ -10,8 +9,7 @@ Egypt
 Cairo
 `
 
-export const basicTodoMd = `
----
+export const basicTodoMd = `---
 q-type: todo
 ---
 
@@ -19,8 +17,7 @@ Answer Anna
 `
 
 
-export const basicHabitMd = `
----
+export const basicHabitMd = `---
 q-type: habit
 
 Make some Kindle quotes standalone notes
@@ -28,32 +25,28 @@ Make some Kindle quotes standalone notes
 `
 
 
-export const basicCheckMd = `
----
+export const basicCheckMd = `---
 q-type: check
 ---
 
 Got enough sleep last night?
 `
 
-export const basicPromptMd = `
----
+export const basicPromptMd = `---
 q-type: prompt
 ---
 
 Note down the last thing you bought
 `
 
-export const basicShortMediaMd = `
----
+export const basicShortMediaMd = `---
 q-type: media-short
 ---
 
 📰 The Pattern Language of Project Xanadu
 `
 
-export const basicLongMediaMd = `
----
+export const basicLongMediaMd = `---
 q-type: media-long
 ---
 
@@ -64,8 +57,7 @@ export const  basicMiscMd = `
 Deep Breaths!
 `
 
-export const basicExcludeMd = `
----
+export const basicExcludeMd = `---
 q-type: exclude
 ---
 

@@ -5,6 +5,7 @@ import { parse, stringify } from 'yaml'
 
 export function getQueueNoteFromString(str:string): QueueNote {
     const frontmatterRegex = /^---\n([\s\S]*?)\n---/;
+    console.log('looking at note:', str)
 
     // Extract the frontmatter
     const frontmatterMatch = str.match(frontmatterRegex);
