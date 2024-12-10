@@ -1,2 +1,0 @@
-- using [this guide](https://docs.obsidian.md/Plugins/Releasing/Release+your+plugin+with+GitHub+Actions) for releases
-- see also: [[Projects/obsidian-the-queue/TODO|TODO]]

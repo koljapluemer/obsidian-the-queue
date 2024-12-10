@@ -1,71 +1,8 @@
-.floating-button-bar {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    z-index: 1000;
-    background-color: #333;
-    padding: 10px;
-    border-radius: 8px;
-    display: flex;
-    gap: 10px;
-}
+/*
 
-/* LEGACY CSS */
+This CSS file will be included with your plugin, and
+available in the app when your plugin is enabled.
 
-.queue-modal {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
+If your plugin does not need CSS, delete this file.
 
-.queue-modal img {
-    max-height: 50vh;
-    max-width: 100%;
-}
-
-.queue-modal li p {
-    margin: 0;
-}
-
-.queue-modal ul {
-    margin: 6px inherit;
-}
-
-.button-prompt {
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
-    margin: auto;
-    text-align: center;
-    padding-top: 12px;
-    padding-bottom: 8px;
-}
-
-.button-row {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-}
-
-.queue-modal blockquote {
-    border-left: 2px gray solid;
-    margin-left: 0;
-    padding-left: 20px;
-}
-
-.modal .headerEl {
-    display: flex;
-    gap: 6px;
-    align-items: flex-end;
-}
-
-#modal-topic {
-    font-variant: small-caps;
-    flex-grow: 1;
-}
-
-.queue-settings-radio-group {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
+*/
