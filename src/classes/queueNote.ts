@@ -8,11 +8,24 @@ export abstract class QueueNote {
     due?: Date
 
     constructor(fileString:string, frontmatter?: Object) {
+        console.log("-FRONTMATTER", frontmatter)
+        if (frontmatter) {
+        if ("q-data" in frontmatter) {
+            if ("due-at" in frontmatter["q-data"]) {
+                this.due = frontmatter["q-data"]["due-at"]
+            }
+        }
+    }
     }
 
     abstract getAnswerOptions(): string[] 
 
     isDue():boolean {
-        return true
+        const now =  new Date()
+        if (this.due) {
+            return this.due < now
+        } else {
+            return true
+        }
     }
 }
