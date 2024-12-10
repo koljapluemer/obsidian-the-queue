@@ -16,18 +16,21 @@ export function getNoteFromString(str: string): QueueNote {
 
         // the following code handles the legacy frontmatter
         const noteTemplateString: string = frontmatter["q-type"] ?? ""
-        let noteTemplate: QueueNoteTemplate = QueueNoteTemplate.Misc
-        let noteStage: QueueNoteStage | undefined
         switch (noteTemplateString) {
-            case 'learn':
-                queueNote.template = noteTemplate = QueueNoteTemplate.Learn
-                queueNote.stage = QueueNoteStage.Unstarted
             case 'learn-started':
-                queueNote.template = noteTemplate = QueueNoteTemplate.Learn
+                queueNote.template = QueueNoteTemplate.Learn
                 queueNote.stage = QueueNoteStage.Ongoing
+                break
+            case 'learn':
+                queueNote.template = QueueNoteTemplate.Learn
+                queueNote.stage = QueueNoteStage.Unstarted
+                break
+            case 'habit':
+                queueNote.template = QueueNoteTemplate.Habit
+                break
         }
 
-        if (noteTemplate == QueueNoteTemplate.Learn) {
+        if (queueNote.template == QueueNoteTemplate.Learn) {
             const dueDateString: string | undefined = frontmatter["q-data"]["fsrs-data"]["due"]
             if (dueDateString) {
                 queueNote.due = new Date(dueDateString)
@@ -43,6 +46,17 @@ export function getNoteFromString(str: string): QueueNote {
             if ("scheduled_days" in frontmatter["q-data"]["fsrs-data"]) queueNote.scheduled = frontmatter["q-data"]["fsrs-data"]["scheduled_days"]
             if ("state" in frontmatter["q-data"]["fsrs-data"]) queueNote.state = frontmatter["q-data"]["fsrs-data"]["state"]
             if ("reps" in frontmatter["q-data"]["fsrs-data"]) queueNote.reps = frontmatter["q-data"]["fsrs-data"]["reps"]
+        } else {
+            const qData = frontmatter["q-data"]
+            if (qData) {
+                const dueDateString: string | undefined = frontmatter["q-data"]["due-at"]
+                if (dueDateString) {
+                    queueNote.due = new Date(dueDateString)
+                }
+            }
+
+            if ("q-interval" in frontmatter) queueNote.interval = frontmatter["q-interval"]
+            if ("q-priority" in frontmatter) queueNote.priority = frontmatter["q-priority"]
         }
 
         // the following codes handles new frontmatter syntax
@@ -52,13 +66,17 @@ export function getNoteFromString(str: string): QueueNote {
             switch (noteTemplateString) {
                 case 'learn':
                     queueNote.template = QueueNoteTemplate.Learn
+                    break
+                case 'habit':
+                    queueNote.template = QueueNoteTemplate.Habit
+                    break
             }
 
             const noteStageString = qData["stage"]
-            switch(noteStageString) {
+            switch (noteStageString) {
                 case 'ongoing':
                     queueNote.stage = QueueNoteStage.Ongoing
-            } 
+            }
 
             const dueDateString: string | undefined = qData["due"]
             if (dueDateString) {
@@ -75,6 +93,8 @@ export function getNoteFromString(str: string): QueueNote {
             if ("scheduled" in qData) queueNote.scheduled = qData["scheduled"]
             if ("state" in qData) queueNote.state = qData["state"]
             if ("reps" in qData) queueNote.reps = qData["reps"]
+            if ("interval" in qData) queueNote.interval = qData["interval"]
+            if ("priority" in qData) queueNote.priority = qData["priority"]
         }
 
 
