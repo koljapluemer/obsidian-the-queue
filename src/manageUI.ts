@@ -27,27 +27,34 @@ export async function toggleFloatingQueueBar() {
     }
 }
 
-export function setContentOfQueueBar(file: TFile) {
-    this.app.fileManager.processFrontMatter(file, (frontmatter: any) => {
-        const note = getNoteFromFrontMatter(frontmatter)
-        const buttons = getButtonsForNote(note)
-        const elements = document.querySelectorAll(".q-floating-bar")
-        if (elements.length > 0) {
-            const bar = elements[0]
+export function setContentOfQueueBar(file: TFile | null) {
+    const elements = document.querySelectorAll(".q-floating-bar")
+    if (elements.length > 0) {
+        const bar = elements[0]
+        bar.innerHTML = ''
 
-            buttons.forEach((btn) => {
-                bar.createEl('button', { text: btn })
-                    .addEventListener('click', () => { loadRandomFile() })
+        if (file) {
+            this.app.fileManager.processFrontMatter(file, (frontmatter: any) => {
+                const note = getNoteFromFrontMatter(frontmatter)
+                const buttons = getButtonsForNote(note)
+
+                buttons.forEach((btn) => {
+                    bar.createEl('button', { text: btn })
+                        .addEventListener('click', () => { loadRandomFile() })
+                })
+
+                bar.createEl('button', { text: 'X' })
+                    .addEventListener('click', () => { toggleFloatingQueueBar() })
             })
 
-
-            const btnCloseBar = bar.createEl('button', { text: 'X' })
-                .addEventListener('click', () => { toggleFloatingQueueBar() })
         } else {
-            console.warn("the queue: tried to set buttons, but bar doesn't exist")
-        }
+            bar.createEl('button', { text: 'Show random due note' })
+                .addEventListener('click', () => { loadRandomFile() })
 
-    })
+            bar.createEl('button', { text: 'X' })
+                .addEventListener('click', () => { toggleFloatingQueueBar() })
+        }
+    }
 }
 
 

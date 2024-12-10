@@ -1,5 +1,6 @@
 import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting, TFile, Workspace } from 'obsidian';
-import { toggleFloatingQueueBar } from './manageUI';
+import { setContentOfQueueBar, toggleFloatingQueueBar } from './manageUI';
+import { getButtonsForNote, getNoteFromFrontMatter } from './manageNotes';
 
 // Remember to rename these classes and interfaces!
 
@@ -17,9 +18,22 @@ export default class QueuePlugin extends Plugin {
     async onload() {
         await this.loadSettings();
 
-        const ribbonIconEl = this.addRibbonIcon('banana', 'Toggle Queue', (evt: MouseEvent) => {
+        this.addRibbonIcon('banana', 'Toggle Queue', (evt: MouseEvent) => {
             toggleFloatingQueueBar()
         });
+
+        // EVENT LISTENERS
+        this.registerEvent(this.app.workspace.on('file-open', (file) => {
+            if (file) {
+                    setContentOfQueueBar(file)
+            } else {
+                setContentOfQueueBar(null)
+            }
+        }));
+
+
+
+
         this.addSettingTab(new SampleSettingTab(this.app, this));
     }
 

@@ -1,5 +1,6 @@
 import { Notice, TFile } from "obsidian";
 import QueuePlugin from "./main";
+import { setContentOfQueueBar } from "./manageUI";
 
 // Helper to get a random file from the vault
 export function getRandomFileFromVault(): TFile | undefined {
