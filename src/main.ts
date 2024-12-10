@@ -1,4 +1,5 @@
-import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting, Workspace } from 'obsidian';
+import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting, TFile, Workspace } from 'obsidian';
+import { toggleFloatingQueueBar } from './manageUI';
 
 // Remember to rename these classes and interfaces!
 
@@ -12,29 +13,17 @@ const DEFAULT_SETTINGS: QueueSettings = {
 
 export default class QueuePlugin extends Plugin {
     settings: QueueSettings;
-    bar: HTMLDivElement | undefined
 
     async onload() {
         await this.loadSettings();
 
         const ribbonIconEl = this.addRibbonIcon('banana', 'Toggle Queue', (evt: MouseEvent) => {
-            const workspaceContainer = this.app.workspace.containerEl
-            if (this.bar) {
-                workspaceContainer.removeChild(this.bar)
-                this.bar = undefined
-            } else {
-                this.bar = workspaceContainer.createEl('div', { cls: 'q-floating-bar' });
-                const btnShowNext = this.bar.createEl('button', { text: 'Show next' })
-                    .addEventListener('click', () => {new Notice('wow!')})
-            }
+            toggleFloatingQueueBar()
         });
         this.addSettingTab(new SampleSettingTab(this.app, this));
-
     }
 
-    testFunc() {
-        console.log('hi')
-    }
+
 
     onunload() {
 
