@@ -1,4 +1,4 @@
-import { QueueNote, QueueNoteTemplate } from "src/types/queueNoteRelated"
+import { QueueNote, QueueNoteTemplate } from "../../types/queueNoteRelated"
 
 export const mdHabitFists = `---
 aliases: []

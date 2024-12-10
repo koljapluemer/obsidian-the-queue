@@ -1,4 +1,4 @@
-import { QueueNote, QueueNoteStage, QueueNoteTemplate } from "src/types/queueNoteRelated"
+import { QueueNote, QueueNoteStage, QueueNoteTemplate } from "../../types/queueNoteRelated"
 
 export const mdLearnEgBenefitFromOg = `---
 q-type: learn-started

@@ -1,8 +1,8 @@
-import { getQueueNoteFromString } from "src/utilities/queueNoteUtils"
+import { getNoteFromString } from "../queueNoteUtils"
 import { mdLearnEgBenefitFromOg, noteLearnEgBenefitFromOg } from "./data/learnEgBenefitFrom"
 
 test(`legacy learn note parses correctly`, () => {
     expect(
-        getQueueNoteFromString(mdLearnEgBenefitFromOg)
+        getNoteFromString(mdLearnEgBenefitFromOg)
     ).toEqual(noteLearnEgBenefitFromOg)
 })
