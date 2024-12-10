@@ -1,5 +1,5 @@
 import { TFile } from "obsidian";
-import { QueueButton, QueueNote, QueueNoteTemplate } from "./types";
+import { QueueButton, QueueNote, QueueNoteTemplate } from "../types";
 
 
 
@@ -62,3 +62,7 @@ export function getButtonsForNote(note: QueueNote): QueueButton[] {
     }
 }
 
+
+export function reactToQueueButtonClick(file:TFile, note:QueueNote, btn:QueueButton) {
+    console.log('clicked btn', btn, note, file)
+}

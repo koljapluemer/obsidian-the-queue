@@ -1,6 +1,9 @@
 import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting, TFile, Workspace } from 'obsidian';
-import { setContentOfQueueBar, toggleFloatingQueueBar } from './manageUI';
-import { getButtonsForNote, getNoteFromFrontMatter } from './manageNotes';
+import { setContentOfQueueBar, toggleFloatingQueueBar } from './sideEffects/queueButtonBar';
+import { getButtonsForNote, getNoteFromFrontMatter } from './functions/noteUtils';
+import { loadQueuePlugin } from './sideEffects/pluginLoad';
+import { QueuePluginSettingsTab } from './classes/queuePluginSettingsTab';
+import { getRandomFileFromVault } from './functions/fileUtils';
 
 // Remember to rename these classes and interfaces!
 
@@ -12,35 +15,16 @@ const DEFAULT_SETTINGS: QueueSettings = {
     mySetting: 'default'
 }
 
+
+
 export default class QueuePlugin extends Plugin {
     settings: QueueSettings;
 
     async onload() {
-        await this.loadSettings();
+        loadQueuePlugin(this)
+        this.addSettingTab(new QueuePluginSettingsTab(this.app, this));
 
-        this.addRibbonIcon('banana', 'Toggle Queue', (evt: MouseEvent) => {
-            toggleFloatingQueueBar()
-        });
-
-        // EVENT LISTENERS
-        // TODO: make these dependent on whether queue is actually open
-        this.registerEvent(this.app.workspace.on('file-open', (file) => {
-            if (file) {
-                setContentOfQueueBar(file)
-            } else {
-                setContentOfQueueBar(null)
-            }
-        }));
-        this.registerEvent(this.app.vault.on('modify', (file) => {
-            setContentOfQueueBar(file as TFile)
-        }))
-
-
-
-
-        this.addSettingTab(new SampleSettingTab(this.app, this));
     }
-
 
 
     onunload() {
@@ -54,32 +38,5 @@ export default class QueuePlugin extends Plugin {
     async saveSettings() {
         await this.saveData(this.settings);
     }
-}
 
-
-
-class SampleSettingTab extends PluginSettingTab {
-    plugin: QueuePlugin;
-
-    constructor(app: App, plugin: QueuePlugin) {
-        super(app, plugin);
-        this.plugin = plugin;
-    }
-
-    display(): void {
-        const { containerEl } = this;
-
-        containerEl.empty();
-
-        new Setting(containerEl)
-            .setName('Setting #1')
-            .setDesc('It\'s a secret')
-            .addText(text => text
-                .setPlaceholder('Enter your secret')
-                .setValue(this.plugin.settings.mySetting)
-                .onChange(async (value) => {
-                    this.plugin.settings.mySetting = value;
-                    await this.plugin.saveSettings();
-                }));
-    }
 }

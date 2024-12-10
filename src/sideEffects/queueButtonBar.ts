@@ -1,7 +1,7 @@
 import { TFile, WorkspaceContainer } from "obsidian";
-import { loadRandomFile } from "./manageFiles";
-import { QueueButton } from "./types";
-import { getButtonsForNote, getNoteFromFrontMatter } from "./manageNotes";
+import { QueueButton } from "../types";
+import { getButtonsForNote, getNoteFromFrontMatter, reactToQueueButtonClick } from "../functions/noteUtils";
+import { loadRandomFile } from "./openRandomNote";
 
 export async function toggleFloatingQueueBar() {
     let elements = document.querySelectorAll(".q-floating-bar")
@@ -27,6 +27,8 @@ export async function toggleFloatingQueueBar() {
     }
 }
 
+// TODO: persist current buttons, so we don't need to redraw if its the same buttons anyways
+// (especially on file change)
 export function setContentOfQueueBar(file: TFile | null) {
     const elements = document.querySelectorAll(".q-floating-bar")
     if (elements.length > 0) {
@@ -40,7 +42,7 @@ export function setContentOfQueueBar(file: TFile | null) {
 
                 buttons.forEach((btn) => {
                     bar.createEl('button', { text: btn })
-                        .addEventListener('click', () => { loadRandomFile() })
+                        .addEventListener('click', () => { reactToQueueButtonClick(file, note, btn), loadRandomFile() })
                 })
 
                 bar.createEl('button', { text: 'X' })
