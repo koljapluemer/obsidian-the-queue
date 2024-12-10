@@ -1,4 +1,4 @@
-import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting, Workspace } from 'obsidian';
 
 // Remember to rename these classes and interfaces!
 
@@ -12,21 +12,28 @@ const DEFAULT_SETTINGS: QueueSettings = {
 
 export default class QueuePlugin extends Plugin {
     settings: QueueSettings;
+    bar: HTMLDivElement | undefined
 
     async onload() {
         await this.loadSettings();
 
-        // This creates an icon in the left ribbon.
-        const ribbonIconEl = this.addRibbonIcon('dice', 'Sample Plugin', (evt: MouseEvent) => {
-            // Called when the user clicks the icon.
-            new Notice('This is a notice!');
+        const ribbonIconEl = this.addRibbonIcon('banana', 'Toggle Queue', (evt: MouseEvent) => {
+            const workspaceContainer = this.app.workspace.containerEl
+            if (this.bar) {
+                workspaceContainer.removeChild(this.bar)
+                this.bar = undefined
+            } else {
+                this.bar = workspaceContainer.createEl('div', { cls: 'q-floating-bar' });
+                const btnShowNext = this.bar.createEl('button', { text: 'Show next' })
+                    .addEventListener('click', () => {new Notice('wow!')})
+            }
         });
-        // Perform additional things with the ribbon
-        ribbonIconEl.addClass('my-plugin-ribbon-class');
-
-        // This adds a settings tab so the user can configure various aspects of the plugin
         this.addSettingTab(new SampleSettingTab(this.app, this));
 
+    }
+
+    testFunc() {
+        console.log('hi')
     }
 
     onunload() {

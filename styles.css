@@ -1,8 +1,14 @@
-/*
-
-This CSS file will be included with your plugin, and
-available in the app when your plugin is enabled.
-
-If your plugin does not need CSS, delete this file.
-
-*/
+.q-floating-bar {
+    position: absolute;
+    bottom: 40px;
+    right: 20px;
+    box-shadow: var(--shadow-l);
+    --checkbox-size: var(--font-ui-medium);
+    background-color: var(--modal-background);
+    border-radius: var(--modal-radius);
+    border: var(--modal-border-width) solid var(--modal-border-color);
+    padding: var(--size-4-4);
+    overflow: auto;
+    display: flex;
+    flex-direction: row;
+}
