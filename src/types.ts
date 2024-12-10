@@ -3,7 +3,6 @@ export enum QueueNoteTemplate {
     Todo,
     Habit,
     Check,
-    Prompt,
     ShortMedia,
     LongMedia,
     Misc,

@@ -23,13 +23,17 @@ export default class QueuePlugin extends Plugin {
         });
 
         // EVENT LISTENERS
+        // TODO: make these dependent on whether queue is actually open
         this.registerEvent(this.app.workspace.on('file-open', (file) => {
             if (file) {
-                    setContentOfQueueBar(file)
+                setContentOfQueueBar(file)
             } else {
                 setContentOfQueueBar(null)
             }
         }));
+        this.registerEvent(this.app.vault.on('modify', (file) => {
+            setContentOfQueueBar(file as TFile)
+        }))
 
 
 
