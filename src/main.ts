@@ -27,7 +27,7 @@ export default class QueuePlugin extends Plugin {
     setCurrentlyTargetedNote(newNote: QueueNote | null) {
         this.currentlyTargetedNote = newNote;
         if (newNote) {
-            setContentOfQueueBar(newNote.file, this)
+            // setContentOfQueueBar(newNote.file, this)
         } else {
             setContentOfQueueBar(null, this)
         }

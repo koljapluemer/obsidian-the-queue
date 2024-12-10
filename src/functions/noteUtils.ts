@@ -34,6 +34,34 @@ export async function getRandomDueNoteFromVault(): Promise<QueueNote | null> {
     }
 }
 
+export async function getFirstDueNoteFromVaultThatWeCanFind(): Promise<QueueNote | null> {
+    try {
+        const allFiles = this.app.vault.getMarkdownFiles();
+        const randomStartIndex = Math.floor(Math.random() * allFiles.length);
+        let dueNote: QueueNote | null = null
+        for (const file of allFiles.slice(randomStartIndex).concat(allFiles)) {
+            const note = await getNoteFromFile(file)
+            if (note) {
+                if (isNoteDue(note)) {
+                    dueNote = note
+                    break
+                }
+            } else {
+                console.warn('could not create note for file', file)
+            }
+        }
+        if (dueNote) {
+            return dueNote
+        } else {
+            return null
+        }
+    }
+    catch (error) {
+        console.error('Error retrieving first due note note:', error);
+        return null
+    }
+}
+
 export function getNoteFromFrontMatter(frontmatter: any, file: TFile): QueueNote {
     let note: QueueNote = {
         template: QueueNoteTemplate.Misc,
@@ -68,10 +96,17 @@ export function getNoteFromFrontMatter(frontmatter: any, file: TFile): QueueNote
             note.template = QueueNoteTemplate.Exclude
             break
     }
+
+    const queueData = frontmatter["q-data"]
+    if (queueData) {
+        const dueString = queueData["due-at"]
+        if (dueString) note.due = new Date(dueString)
+    }
+
     return note
 }
 
-export function getNoteFromFile(file: TFile): Promise<QueueNote| null> {
+export function getNoteFromFile(file: TFile): Promise<QueueNote | null> {
     return new Promise((resolve, reject) => {
         try {
             this.app.fileManager.processFrontMatter(file, (frontmatter: any) => {
@@ -109,11 +144,11 @@ export function getButtonsForNote(note: QueueNote): QueueButton[] {
 
 
 export function isNoteDue(note: QueueNote): boolean {
+    let isDue = true
     if (note.due) {
-        return note.due < new Date()
-    } else {
-        return true
+        isDue = note.due < new Date()
     }
+    return isDue 
 }
 
 
