@@ -1,13 +1,14 @@
-import { TFile } from "obsidian";
-import { getRandomFileFromVault } from "src/functions/fileUtils";
+import { getRandomNoteFromVault } from "src/functions/fileUtils";
+import QueuePlugin from "src/main";
 
-export function loadRandomFile(): TFile | undefined {
-    const randomFile = getRandomFileFromVault();
-    if (randomFile) {
-        console.info('found random file to open', randomFile)
-        console.info('trying', this.app)
-        this.app.workspace.getLeaf(false).openFile(randomFile)
-        return randomFile
+export async function openRandomFile(plugin: QueuePlugin) {
+    try {
+        const randomNote = await getRandomNoteFromVault()
+        if (randomNote !== null) {
+            this.app.workspace.getLeaf(false).openFile(randomNote.file)
+            plugin.setCurrentlyTargetedNote(randomNote)
+        }
+    } catch (error) {
+        console.error('the queue:', error)
     }
-    return undefined
 }

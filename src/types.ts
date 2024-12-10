@@ -1,3 +1,5 @@
+import { TFile } from "obsidian"
+
 export enum QueueNoteTemplate {
     Learn,
     Todo,
@@ -17,6 +19,7 @@ export enum QueueNoteStage {
 }
 
 export type QueueNote = {
+    file: TFile,
     template: QueueNoteTemplate
     stage?: QueueNoteStage,
     priority?: number,

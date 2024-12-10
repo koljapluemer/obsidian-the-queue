@@ -1,6 +1,8 @@
 import { Plugin } from 'obsidian';
 import { loadQueuePlugin } from './sideEffects/pluginLoad';
 import { QueuePluginSettingsTab } from './classes/queuePluginSettingsTab';
+import { QueueNote } from './types';
+import { setContentOfQueueBar } from './sideEffects/queueButtonBar';
 
 
 interface QueueSettings {
@@ -15,10 +17,20 @@ const DEFAULT_SETTINGS: QueueSettings = {
 
 export default class QueuePlugin extends Plugin {
     settings: QueueSettings;
+    currentlyTargetedNote: QueueNote | null;
 
     async onload() {
         loadQueuePlugin(this)
         this.addSettingTab(new QueuePluginSettingsTab(this.app, this));
+    }
+
+    setCurrentlyTargetedNote(newNote: QueueNote | null) {
+        this.currentlyTargetedNote = newNote;
+        if (newNote) {
+            setContentOfQueueBar(newNote.file, this)
+        } else {
+            setContentOfQueueBar(null, this)
+        }
     }
 
 

@@ -3,9 +3,10 @@ import { QueueButton, QueueNote, QueueNoteTemplate } from "../types";
 
 
 
-export function getNoteFromFrontMatter(frontmatter: any): QueueNote {
+export function getNoteFromFrontMatter(frontmatter: any, file: TFile): QueueNote {
     let note: QueueNote = {
-        template: QueueNoteTemplate.Misc
+        template: QueueNoteTemplate.Misc,
+        file: file
     }
 
     const templateString = frontmatter["q-type"] || ""
@@ -36,8 +37,20 @@ export function getNoteFromFrontMatter(frontmatter: any): QueueNote {
             note.template = QueueNoteTemplate.Exclude
             break
     }
-    console.log('NOTE', note)
     return note
+}
+
+export function getNoteFromFile(file: TFile): Promise<QueueNote> {
+    return new Promise((resolve, reject) => {
+        try {
+            this.app.fileManager.processFrontMatter(file, (frontmatter: any) => {
+                const note = getNoteFromFrontMatter(frontmatter, file);
+                resolve(note); // Resolve the Promise with the processed note
+            });
+        } catch (error) {
+            reject(error); // Reject the Promise if an error occurs
+        }
+    });
 }
 
 
@@ -63,6 +76,6 @@ export function getButtonsForNote(note: QueueNote): QueueButton[] {
 }
 
 
-export function reactToQueueButtonClick(file:TFile, note:QueueNote, btn:QueueButton) {
-    console.log('clicked btn', btn, note, file)
+export function isDue(note:QueueNote): boolean {
+    return true
 }
