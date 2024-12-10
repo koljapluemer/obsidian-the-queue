@@ -15,3 +15,10 @@ test(`empty misc note: type parses correctly`, () => {
         .noteType)
         .toEqual(QueueNoteType.Misc)
 })
+
+test('note with no due is counted as due', () => {
+    const basicLearn = getQueueNoteFromString(basicLearnMd)
+    expect(
+        basicLearn.isDue()
+    ).toBeTruthy()
+})

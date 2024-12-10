@@ -65,3 +65,14 @@ Secret Report #344
 `
 
 
+export const basicNoteList = [
+    basicCheckMd,
+    basicExcludeMd,
+    basicHabitMd,
+    basicLearnMd,
+    basicLongMediaMd,
+    basicMiscMd,
+    basicPromptMd,
+    basicShortMediaMd,
+    basicTodoMd
+]

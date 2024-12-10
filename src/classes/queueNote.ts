@@ -5,9 +5,14 @@ export abstract class QueueNote {
     front: string
     back?: string
     frontmatter?: string
+    due?: Date
 
     constructor(fileString:string, frontmatter?: Object) {
     }
 
     abstract getAnswerOptions(): string[] 
+
+    isDue():boolean {
+        return true
+    }
 }
