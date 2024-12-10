@@ -11,36 +11,43 @@ export async function toggleFloatingQueueBar() {
         this.app.workspace.containerEl.createEl('div', { cls: 'q-floating-bar' });
         const currentlyOpenFile: TFile | null = this.app.workspace.getActiveFile();
         if (currentlyOpenFile) {
-            this.app.fileManager.processFrontMatter(currentlyOpenFile, (frontmatter: any) => {
-                const note = getNoteFromFrontMatter(frontmatter)
-                const buttons = getButtonsForNote(note)
-                setContentOfQueueBar(buttons)
-            });
-
+            setContentOfQueueBar(currentlyOpenFile)
+            console.info('file open rn')
         } else {
-            // TODO: load random file
-            setContentOfQueueBar([])
+            console.info('nothing open rn')
+            const randomFile = loadRandomFile()
+            if (randomFile) {
+                console.info('found file')
+                setContentOfQueueBar(randomFile)
+            } else {
+                console.warn('no file found', randomFile)
+            }
+
         }
     }
 }
 
-export function setContentOfQueueBar(buttons: QueueButton[], extraText?: string) {
-    const elements = document.querySelectorAll(".q-floating-bar")
-    if (elements.length > 0) {
-        const bar = elements[0]
+export function setContentOfQueueBar(file: TFile) {
+    this.app.fileManager.processFrontMatter(file, (frontmatter: any) => {
+        const note = getNoteFromFrontMatter(frontmatter)
+        const buttons = getButtonsForNote(note)
+        const elements = document.querySelectorAll(".q-floating-bar")
+        if (elements.length > 0) {
+            const bar = elements[0]
 
-        buttons.forEach((btn) => {
-            bar.createEl('button', { text: btn })
-            .addEventListener('click', () => { loadRandomFile() })
-        })
+            buttons.forEach((btn) => {
+                bar.createEl('button', { text: btn })
+                    .addEventListener('click', () => { loadRandomFile() })
+            })
 
-      
-        const btnCloseBar = bar.createEl('button', { text: 'X' })
-            .addEventListener('click', () => { toggleFloatingQueueBar() })
-    } else {
-        console.warn("the queue: tried to set buttons, but bar doesn't exist")
-    }
 
+            const btnCloseBar = bar.createEl('button', { text: 'X' })
+                .addEventListener('click', () => { toggleFloatingQueueBar() })
+        } else {
+            console.warn("the queue: tried to set buttons, but bar doesn't exist")
+        }
+
+    })
 }
 
 
