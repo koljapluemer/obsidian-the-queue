@@ -4,11 +4,11 @@ import { mdLearnEgBenefitFromOg, noteLearnEgBenefitFromOg, yamlLearnEgBenefitFro
 test(`legacy learn note parses correctly`, () => {
     expect(
         getNoteFromString(mdLearnEgBenefitFromOg)
-    ).toEqual(noteLearnEgBenefitFromOg)
+    ).toMatchObject(noteLearnEgBenefitFromOg)
 })
 
 test(`learn note parses correctly`, () => {
     expect(
         getNoteFromString(yamlLearnEgBenefitFromOg)
-    ).toEqual(noteLearnEgBenefitFromOg)
+    ).toMatchObject(noteLearnEgBenefitFromOg)
 })

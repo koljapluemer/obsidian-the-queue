@@ -10,7 +10,7 @@ q-data:
     due: 2024-12-10T09:21:26.817Z
     stability: 1.4436
     difficulty: 6.3449
-    elapsed_days: 0
+    elapsed_days: 1
     scheduled_days: 0
     reps: 8
     lapses: 0
@@ -30,7 +30,7 @@ export const noteLearnEgBenefitFromOg:QueueNote = {
     due: new Date('2024-12-10T09:21:26.817Z'),
     stability: 1.4436,
     difficulty: 6.3449,
-    elapsed: 0,
+    elapsed: 1,
     scheduled: 0,
     reps: 8,
     lapses: 0,
@@ -47,7 +47,7 @@ q:
   due: 2024-12-10T09:21:26.817Z
   stability: 1.4436
   difficulty: 6.3449
-  elapsed: 0
+  elapsed: 1
   scheduled: 0
   reps: 8
   lapses: 0
