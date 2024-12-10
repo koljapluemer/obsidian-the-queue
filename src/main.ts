@@ -1,11 +1,7 @@
-import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting, TFile, Workspace } from 'obsidian';
-import { setContentOfQueueBar, toggleFloatingQueueBar } from './sideEffects/queueButtonBar';
-import { getButtonsForNote, getNoteFromFrontMatter } from './functions/noteUtils';
+import { Plugin } from 'obsidian';
 import { loadQueuePlugin } from './sideEffects/pluginLoad';
 import { QueuePluginSettingsTab } from './classes/queuePluginSettingsTab';
-import { getRandomFileFromVault } from './functions/fileUtils';
 
-// Remember to rename these classes and interfaces!
 
 interface QueueSettings {
     mySetting: string;
@@ -23,12 +19,10 @@ export default class QueuePlugin extends Plugin {
     async onload() {
         loadQueuePlugin(this)
         this.addSettingTab(new QueuePluginSettingsTab(this.app, this));
-
     }
 
 
     onunload() {
-
     }
 
     async loadSettings() {

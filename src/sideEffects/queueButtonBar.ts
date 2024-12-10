@@ -1,5 +1,4 @@
-import { TFile, WorkspaceContainer } from "obsidian";
-import { QueueButton } from "../types";
+import { TFile } from "obsidian";
 import { getButtonsForNote, getNoteFromFrontMatter, reactToQueueButtonClick } from "../functions/noteUtils";
 import { loadRandomFile } from "./openRandomNote";
 
