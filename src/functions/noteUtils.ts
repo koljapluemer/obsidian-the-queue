@@ -1,7 +1,38 @@
-import { TFile } from "obsidian";
+import { Notice, TFile } from "obsidian";
 import { QueueButton, QueueNote, QueueNoteTemplate } from "../types";
 
 
+export async function getRandomNoteFromVault(): Promise<QueueNote | null> {
+    const allFiles = this.app.vault.getMarkdownFiles();
+    if (allFiles.length === 0) {
+        new Notice("No files in the vault!");
+        return null;
+    }
+    const randomIndex = Math.floor(Math.random() * allFiles.length);
+    const randomFile = allFiles[randomIndex];
+    try {
+        const note = await getNoteFromFile(randomFile);
+        return note; // Return the note
+    } catch (error) {
+        console.error('Error retrieving note:', error);
+        return null
+    }
+}
+
+export async function getRandomDueNoteFromVault(): Promise<QueueNote | null> {
+    const allFiles = this.app.vault.getMarkdownFiles();
+    const dueNotes: QueueNote[] = allFiles
+        .map(async (file: TFile) => await getNoteFromFile(file))
+        .filter((note: QueueNote) => isNoteDue(note))
+    console.log('found due notes:', dueNotes.length)
+    const randomIndex = Math.floor(Math.random() * dueNotes.length);
+    try {
+        return dueNotes[randomIndex]
+    } catch (error) {
+        console.error('Error retrieving random note:', error);
+        return null
+    }
+}
 
 export function getNoteFromFrontMatter(frontmatter: any, file: TFile): QueueNote {
     let note: QueueNote = {
@@ -40,7 +71,7 @@ export function getNoteFromFrontMatter(frontmatter: any, file: TFile): QueueNote
     return note
 }
 
-export function getNoteFromFile(file: TFile): Promise<QueueNote> {
+export function getNoteFromFile(file: TFile): Promise<QueueNote| null> {
     return new Promise((resolve, reject) => {
         try {
             this.app.fileManager.processFrontMatter(file, (frontmatter: any) => {
@@ -48,7 +79,8 @@ export function getNoteFromFile(file: TFile): Promise<QueueNote> {
                 resolve(note); // Resolve the Promise with the processed note
             });
         } catch (error) {
-            reject(error); // Reject the Promise if an error occurs
+            console.error(error); // Reject the Promise if an error occurs
+            return null
         }
     });
 }
@@ -76,6 +108,12 @@ export function getButtonsForNote(note: QueueNote): QueueButton[] {
 }
 
 
-export function isDue(note:QueueNote): boolean {
-    return true
+export function isNoteDue(note: QueueNote): boolean {
+    if (note.due) {
+        return note.due < new Date()
+    } else {
+        return true
+    }
 }
+
+
