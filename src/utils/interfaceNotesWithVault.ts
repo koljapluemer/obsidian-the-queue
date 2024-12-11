@@ -21,9 +21,12 @@ export async function getNotesFromFiles(files: TFile[]): Promise<QueueNote[]> {
 }
 
 
-export function getNoteFromFile(file: TFile): Promise<QueueNote | null> {
+export function getNoteFromFile(file: TFile | null): Promise<QueueNote | null> {
     return new Promise((resolve, reject) => {
         try {
+            if (file === null) {
+                return null
+            }
             this.app.fileManager.processFrontMatter(file, (frontmatter: any) => {
                 const note = fillInNoteFromFile(frontmatter, file);
                 resolve(note); // Resolve the Promise with the processed note
@@ -137,7 +140,6 @@ export async function openRandomFile(plugin: QueuePlugin) {
         }
         if (randomNote !== null) {
             this.app.workspace.getLeaf(false).openFile(randomNote.file)
-            plugin.setCurrentlyTargetedNote(randomNote)
         }
     } catch (error) {
         console.error('the queue:', error)

@@ -12,12 +12,7 @@ export async function loadQueuePlugin(plugin:QueuePlugin) {
     // EVENT LISTENERS
     // TODO: make these dependent on whether queue is actually open
     plugin.registerEvent(plugin.app.workspace.on('file-open', async (file) => {
-        if (file) {
-            plugin.setCurrentlyTargetedNote(await getNoteFromFile(file))
-            setContentOfQueueBar(file,plugin)
-        } else {
-            plugin.setCurrentlyTargetedNote(null)
-        }
+            plugin.setCurrentlyTargetedFile(file)
     }));
     plugin.registerEvent(plugin.app.vault.on('modify', (file) => {
         // TODO: this is needed to make live note template changes nice,

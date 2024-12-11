@@ -1,8 +1,9 @@
-import { Plugin } from 'obsidian';
+import { Plugin, TFile } from 'obsidian';
 import { QueuePluginSettingsTab } from './classes/queuePluginSettingsTab';
 import { QueueNote, QueueNoteTemplate } from './types';
 import { loadQueuePlugin } from './utils/pluginUtils';
 import { setContentOfQueueBar } from './utils/uiUtils';
+import { getNoteFromFile } from './utils/interfaceNotesWithVault';
 
 
 interface QueueSettings {
@@ -18,15 +19,20 @@ const DEFAULT_SETTINGS: QueueSettings = {
 export default class QueuePlugin extends Plugin {
     settings: QueueSettings;
     currentlyTargetedNote: QueueNote | null;
+    currentylTargetedFile: TFile | null;
     notes: QueueNote[] = []
     // streak stuff
     currentTemplate: QueueNoteTemplate | null;
     isStreakActive:boolean 
     streakCounter:number
 
-    setCurrentlyTargetedNote(newNote: QueueNote | null) {
-        this.currentlyTargetedNote = newNote;
-        if (newNote === null) setContentOfQueueBar(null, this)
+    async setCurrentlyTargetedFile(file:TFile | null) {
+        // this.currentylTargetedFile = this.app.workspace.getActiveFile();
+        this.currentylTargetedFile = file;
+        this.currentlyTargetedNote = await getNoteFromFile(this.currentylTargetedFile)
+
+
+        if (this.currentylTargetedFile === null) setContentOfQueueBar(null, this)
     }
 
     async onload() {

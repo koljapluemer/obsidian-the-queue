@@ -1,6 +1,6 @@
 import { TFile } from "obsidian";
 import QueuePlugin from "src/main";
-import { QueueButton } from "src/types";
+import { QueueButton, QueueNote } from "src/types";
 import { getNoteFromFile, loadNotes, openRandomFile, saveCurrentNote } from "./interfaceNotesWithVault";
 import { changeNoteDataAccordingToInteraction, fillInNoteFromFile, getButtonsForNote } from "./noteUtils";
 
@@ -21,10 +21,8 @@ function closeFloatingQueueBar(queueBars: NodeListOf<Element>) {
 
 async function openFloatingQueueBar(plugin: QueuePlugin) {
     plugin.app.workspace.containerEl.createEl('div', { cls: 'q-floating-bar' });
-    const currentlyOpenFile: TFile | null = plugin.app.workspace.getActiveFile();
-    if (currentlyOpenFile) {
-        plugin.currentlyTargetedNote = await getNoteFromFile(currentlyOpenFile)
-        setContentOfQueueBar(currentlyOpenFile, plugin)
+    if (plugin.currentlyTargetedNote) {
+        setContentOfQueueBar(plugin.currentlyTargetedNote, plugin)
     } else {
         openRandomFile(plugin)
     }
@@ -33,34 +31,42 @@ async function openFloatingQueueBar(plugin: QueuePlugin) {
 
 // TODO: persist current buttons, so we don't need to redraw if its the same buttons anyways
 // (especially on file change)
-export function setContentOfQueueBar(file: TFile | null, plugin: QueuePlugin) {
+export function setContentOfQueueBar(note: QueueNote | null, plugin: QueuePlugin) {
+    console.info('setting queue bar...with note', note)
     const elements = document.querySelectorAll(".q-floating-bar")
 
     if (elements.length > 0) {
         elements.forEach((el, i) => i > 0 && el.remove());
         const bar = elements[0]
         bar.innerHTML = ''
-
-        if (file) {
-            this.app.fileManager.processFrontMatter(file, (frontmatter: any) => {
-                const note = fillInNoteFromFile(frontmatter, file)
-                const buttons = getButtonsForNote(note)
-
-                buttons.forEach((btn) => {
-                    bar.createEl('button', { text: btn })
-                        .addEventListener('click', () => { reactToQueueButtonClick(btn, plugin) })
-                })
-
-                addCloseButton(bar, plugin)
-            })
-
+        if (note) {
+            renderNoteQueueBar(bar, note, plugin)
         } else {
-            bar.createEl('button', { text: 'Show random due note' })
-                .addEventListener('click', () => { openRandomFile(plugin) })
+            renderEmptyQueueBar(bar, plugin)
 
-            addCloseButton(bar, plugin)
         }
     }
+}
+
+
+function renderEmptyQueueBar(bar: Element, plugin: QueuePlugin) {
+    console.info('rendering empty queue bar')
+    bar.createEl('button', { text: 'Show random due note' })
+        .addEventListener('click', () => { openRandomFile(plugin) })
+    addCloseButton(bar, plugin)
+}
+
+function renderNoteQueueBar(bar: Element, note: QueueNote, plugin: QueuePlugin) {
+    console.info('rendering bar with note', note)
+
+    const buttons = getButtonsForNote(note)
+
+    buttons.forEach((btn) => {
+        bar.createEl('button', { text: btn })
+            .addEventListener('click', () => { reactToQueueButtonClick(btn, plugin) })
+    })
+
+    addCloseButton(bar, plugin)
 }
 
 function addCloseButton(parent: Element, plugin: QueuePlugin) {
