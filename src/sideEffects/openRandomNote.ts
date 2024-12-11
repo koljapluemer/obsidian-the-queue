@@ -1,11 +1,17 @@
-import { getFirstDueNoteFromVaultThatWeCanFind, getRandomDueNoteFromVault, getRandomNoteFromVault } from "src/functions/noteUtils";
+import { getFirstDueNoteFromVaultThatWeCanFind, getNotesFromFiles, getRandomDueNoteFromNotes } from "src/functions/noteUtils";
 import QueuePlugin from "src/main";
+import { QueueNote } from "src/types";
 
 export async function openRandomFile(plugin: QueuePlugin) {
     try {
-        // const randomNote = await getRandomNoteFromVault()
-        // const randomNote = await getFirstDueNoteFromVaultThatWeCanFind()
-        const randomNote = await getRandomDueNoteFromVault()
+        let randomNote: QueueNote | null
+        if (plugin.notes.length > 0) {
+            console.info('full note set loaded, getting note from there')
+            randomNote = getRandomDueNoteFromNotes(plugin.notes)
+        } else {
+            console.info('full note set not yet loaded, getting any due note')
+            randomNote = await getFirstDueNoteFromVaultThatWeCanFind()
+        }
         if (randomNote !== null) {
             this.app.workspace.getLeaf(false).openFile(randomNote.file)
             plugin.setCurrentlyTargetedNote(randomNote)
@@ -13,4 +19,11 @@ export async function openRandomFile(plugin: QueuePlugin) {
     } catch (error) {
         console.error('the queue:', error)
     }
+}
+
+export async function loadNotes(plugin: QueuePlugin) {
+    console.info('started loading notes')
+    const allFiles = this.app.vault.getMarkdownFiles();
+    plugin.notes = await getNotesFromFiles(allFiles)
+    console.log('loaded notes, now have in store:', plugin.notes.length)
 }

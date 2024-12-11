@@ -18,6 +18,7 @@ const DEFAULT_SETTINGS: QueueSettings = {
 export default class QueuePlugin extends Plugin {
     settings: QueueSettings;
     currentlyTargetedNote: QueueNote | null;
+    notes: QueueNote[] = []
 
     async onload() {
         loadQueuePlugin(this)

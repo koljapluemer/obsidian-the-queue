@@ -1,7 +1,7 @@
 import { TFile } from "obsidian";
 import { getButtonsForNote, getNoteFromFile, getNoteFromFrontMatter } from "../functions/noteUtils";
 import QueuePlugin from "src/main";
-import { openRandomFile } from "./openRandomNote";
+import { loadNotes, openRandomFile } from "./openRandomNote";
 import { QueueButton } from "src/types";
 import { getNoteDataForDueInDays } from "src/functions/scoringUtils";
 import { saveCurrentNote } from "./saveNote";
@@ -11,6 +11,7 @@ export async function toggleFloatingQueueBar(plugin: QueuePlugin) {
     if (elements.length > 0) {
         elements.forEach(e => e.remove());
     } else {
+        loadNotes(plugin)
         this.app.workspace.containerEl.createEl('div', { cls: 'q-floating-bar' });
         const currentlyOpenFile: TFile | null = this.app.workspace.getActiveFile();
         if (currentlyOpenFile) {

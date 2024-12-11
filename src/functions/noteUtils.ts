@@ -3,69 +3,46 @@ import { QueueButton, QueueNote, QueueNoteTemplate } from "../types";
 import { pickRandom } from "./arrayUtils";
 
 
-export async function getRandomNoteFromVault(): Promise<QueueNote | null> {
-    const allFiles = this.app.vault.getMarkdownFiles();
-    if (allFiles.length === 0) {
-        new Notice("No files in the vault!");
-        return null;
-    }
-    const randomIndex = Math.floor(Math.random() * allFiles.length);
-    const randomFile = allFiles[randomIndex];
+export async function getNotesFromFiles(files: TFile[]): Promise<QueueNote[]> {
+    console.log('running over files:', files.length)
     try {
-        const note = await getNoteFromFile(randomFile);
-        return note; // Return the note
-    } catch (error) {
-        console.error('Error retrieving note:', error);
-        return null
-    }
-}
-
-export async function getRandomDueNoteFromVault(): Promise<QueueNote | null> {
-    const allFiles = this.app.vault.getMarkdownFiles();
-    const dueNotes: QueueNote[] = []
-
-    for (const file of allFiles) {
-        const note = await getNoteFromFile(file)
-        if (note) {
-            if (isNoteDue(note)) {
-                dueNotes.push(note)
+        const notes: QueueNote[] = []
+        for (const file of files) {
+            const note = await getNoteFromFile(file)
+            if (note && note.template !== QueueNoteTemplate.Exclude) {
+                notes.push(note)
             }
         }
-    }
-
-    console.log('found due notes:', dueNotes.length)
-    const randomIndex = Math.floor(Math.random() * dueNotes.length);
-    try {
-        return dueNotes[randomIndex]
+        console.log('finished loading notes, returning (nr)', notes.length)
+        return notes
     } catch (error) {
-        console.error('Error retrieving random note:', error);
-        return null
+        console.error('Error loading notes:', error);
+        return []
     }
 }
 
-export async function getFirstDueNoteFromVaultThatWeCanFind(justGetAnyNote = false): Promise<QueueNote | null> {
+
+export function getRandomDueNoteFromNotes(notes: QueueNote[], justGetAnyNote = false): QueueNote | null {
+    const noteTemplates = [QueueNoteTemplate.Learn, QueueNoteTemplate.Learn, QueueNoteTemplate.Todo, QueueNoteTemplate.Habit, QueueNoteTemplate.Check, QueueNoteTemplate.ShortMedia, QueueNoteTemplate.LongMedia, QueueNoteTemplate.Misc]
+    const templateToPick = pickRandom(noteTemplates)
+    const simplyAllDueNotes = notes.filter(note => isNoteDue(note))
+    const notesWithDesiredTemplate = simplyAllDueNotes.filter(note => note.template === templateToPick)
+    console.log('pref template', templateToPick, 'notes w/ that', notesWithDesiredTemplate)
+    return pickRandom(notesWithDesiredTemplate) || pickRandom(simplyAllDueNotes) || null
+}
+
+export async function getFirstDueNoteFromVaultThatWeCanFind(): Promise<QueueNote | null> {
     try {
-
-        const noteTemplates = [QueueNoteTemplate.Learn, QueueNoteTemplate.Todo, QueueNoteTemplate.Habit, QueueNoteTemplate.Check, QueueNoteTemplate.ShortMedia, QueueNoteTemplate.LongMedia, QueueNoteTemplate.Misc]
-        const templateToPick = pickRandom(noteTemplates)
-        console.log('templateToPick', templateToPick, 'ignored?', justGetAnyNote)
-
         const allFiles = this.app.vault.getMarkdownFiles();
         const randomStartIndex = Math.floor(Math.random() * allFiles.length);
         let dueNote: QueueNote | null = null
         for (const file of allFiles.slice(randomStartIndex).concat(allFiles)) {
             const note = await getNoteFromFile(file)
             if (note) {
-                if (justGetAnyNote) {
-                    if (isNoteDue(note)) {
-                        dueNote = note
-                        break
-                    }
-                } else {
-                    if (isNoteDue(note) && note.template === templateToPick) {
-                        dueNote = note
-                        break
-                    }
+
+                if (isNoteDue(note)) {
+                    dueNote = note
+                    break
                 }
             } else {
                 console.warn('could not create note for file', file)
@@ -74,13 +51,7 @@ export async function getFirstDueNoteFromVaultThatWeCanFind(justGetAnyNote = fal
         if (dueNote) {
             return dueNote
         } else {
-            if (justGetAnyNote) {
-                console.info('found no due note at all, returning null')
-                return null
-            } else {
-                console.info('found no note for note template', templateToPick, 'trying for any')
-                return getFirstDueNoteFromVaultThatWeCanFind(true)
-            }
+            return null
         }
     }
     catch (error) {
