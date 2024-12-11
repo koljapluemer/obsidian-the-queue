@@ -1,11 +1,15 @@
+import QueuePlugin from "src/main"
+
 export class QueueBar {
     isOpen = false
     containerEl: Element
     el: Element
     buttonHolderEl: Element
+    mediator:QueuePlugin
 
-    constructor(containerEl: Element) {
+    constructor(mediator:QueuePlugin, containerEl: Element) {
         this.containerEl = containerEl
+        this.mediator = mediator
     }
 
     toggle() {

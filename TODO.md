@@ -1,1 +1,1 @@
-- get the floating bar working again, maybe simply by just rolling back 1 commit
+- keep working on `queuenote.ts` (the new class) at the end, at that function where we need annoying dependencies or move the function elsewhere

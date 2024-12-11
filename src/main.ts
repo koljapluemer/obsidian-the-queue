@@ -20,7 +20,7 @@ export default class QueuePlugin extends Plugin {
     activeNoteManager: ActiveNoteManager = new ActiveNoteManager()
 
     async onload() {
-        this.queueBar =  new QueueBar(this.app.workspace.containerEl)
+        this.queueBar =  new QueueBar(this, this.app.workspace.containerEl)
         this.addRibbonIcon('banana', 'Toggle Queue', (evt: MouseEvent) => {
             this.queueBar.toggle()
         });
