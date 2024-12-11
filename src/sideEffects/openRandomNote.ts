@@ -7,7 +7,8 @@ export async function openRandomFile(plugin: QueuePlugin) {
         let randomNote: QueueNote | null
         if (plugin.notes.length > 0) {
             console.info('full note set loaded, getting note from there')
-            randomNote = getRandomDueNoteFromNotes(plugin.notes)
+            console.info('openRandomFile() plugin', plugin)
+            randomNote = getRandomDueNoteFromNotes(plugin.notes, plugin)
         } else {
             console.info('full note set not yet loaded, getting any due note')
             randomNote = await getFirstDueNoteFromVaultThatWeCanFind()

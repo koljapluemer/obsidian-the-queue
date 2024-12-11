@@ -1,6 +1,7 @@
 import { Notice, TFile } from "obsidian";
 import { QueueButton, QueueNote, QueueNoteStage, QueueNoteTemplate } from "../types";
 import { pickRandom } from "./arrayUtils";
+import QueuePlugin from "src/main";
 
 
 export async function getNotesFromFiles(files: TFile[]): Promise<QueueNote[]> {
@@ -20,9 +21,30 @@ export async function getNotesFromFiles(files: TFile[]): Promise<QueueNote[]> {
 }
 
 
-export function getRandomDueNoteFromNotes(notes: QueueNote[]): QueueNote | null {
+export function getRandomDueNoteFromNotes(notes: QueueNote[], plugin: QueuePlugin): QueueNote | null {
     const noteTemplates = [QueueNoteTemplate.Learn, QueueNoteTemplate.Learn, QueueNoteTemplate.Todo, QueueNoteTemplate.Habit, QueueNoteTemplate.Check, QueueNoteTemplate.ShortMedia, QueueNoteTemplate.LongMedia, QueueNoteTemplate.Misc]
-    const templateToPick = pickRandom(noteTemplates)
+    let templateToPick: QueueNoteTemplate | null
+    console.info('plugin', plugin)
+    if (plugin.isStreakActive) {
+        console.info('streak active picking', plugin.currentTemplate  )
+        plugin.streakCounter += 1
+        if (plugin.streakCounter > 12) {
+            plugin.streakCounter = 0
+            plugin.isStreakActive = false
+            templateToPick = pickRandom(noteTemplates) 
+        } else {
+            templateToPick = plugin.currentTemplate
+        }
+    } else {
+        templateToPick = pickRandom(noteTemplates) 
+        console.info('picked template', templateToPick)
+        if (templateToPick === QueueNoteTemplate.Learn ||templateToPick === QueueNoteTemplate.Check ) {
+            console.info('is check or learn')
+            plugin.isStreakActive = true
+            plugin.currentTemplate = templateToPick
+        }
+    }
+
     const nrDueLearns = notes.filter(note => note.template === QueueNoteTemplate.Learn && note.stage === QueueNoteStage.Ongoing && isNoteDue(note)).length
     const nrActiveLongMedia = notes.filter(note => note.template === QueueNoteTemplate.LongMedia && note.stage === QueueNoteStage.Ongoing).length
     // TODO: hook up magic numbers to settings instead

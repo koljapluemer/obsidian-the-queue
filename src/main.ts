@@ -1,7 +1,7 @@
 import { Plugin } from 'obsidian';
 import { loadQueuePlugin } from './sideEffects/pluginLoad';
 import { QueuePluginSettingsTab } from './classes/queuePluginSettingsTab';
-import { QueueNote } from './types';
+import { QueueNote, QueueNoteTemplate } from './types';
 import { setContentOfQueueBar } from './sideEffects/queueButtonBar';
 
 
@@ -19,17 +19,19 @@ export default class QueuePlugin extends Plugin {
     settings: QueueSettings;
     currentlyTargetedNote: QueueNote | null;
     notes: QueueNote[] = []
+    // streak stuff
+    currentTemplate: QueueNoteTemplate | null;
+    isStreakActive:boolean 
+    streakCounter:number
 
     setCurrentlyTargetedNote(newNote: QueueNote | null) {
         this.currentlyTargetedNote = newNote;
-        if (newNote) {
-            // setContentOfQueueBar(newNote.file, this)
-        } else {
-            setContentOfQueueBar(null, this)
-        }
+        if (newNote === null) setContentOfQueueBar(null, this)
     }
 
     async onload() {
+        this.isStreakActive = false
+        this.streakCounter = 0
         loadQueuePlugin(this)
         this.addSettingTab(new QueuePluginSettingsTab(this.app, this));
     }
