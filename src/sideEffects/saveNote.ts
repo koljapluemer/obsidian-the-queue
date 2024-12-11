@@ -35,6 +35,16 @@ export async function saveCurrentNote(plugin: QueuePlugin) {
             if (note.state !== undefined) frontmatter["q"]["state"] = note.state
 
             console.log('processed frontmatter, it is now', frontmatter)
+            deletePropertiesWithOldPrefix(frontmatter)
         })
+    }
+}
+
+// TODO: put this behind a settings toggle
+function deletePropertiesWithOldPrefix(obj: Record<string, any>): void {
+    for (const key of Object.keys(obj)) {
+        if (key.startsWith("q-")) {
+            delete obj[key];
+        }
     }
 }
