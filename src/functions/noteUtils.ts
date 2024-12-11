@@ -22,9 +22,17 @@ export async function getRandomNoteFromVault(): Promise<QueueNote | null> {
 
 export async function getRandomDueNoteFromVault(): Promise<QueueNote | null> {
     const allFiles = this.app.vault.getMarkdownFiles();
-    const dueNotes: QueueNote[] = allFiles
-        .map(async (file: TFile) => await getNoteFromFile(file))
-        .filter((note: QueueNote) => isNoteDue(note))
+    const dueNotes: QueueNote[] = []
+
+    for (const file of allFiles) {
+        const note = await getNoteFromFile(file)
+        if (note) {
+            if (isNoteDue(note)) {
+                dueNotes.push(note)
+            }
+        }
+    }
+
     console.log('found due notes:', dueNotes.length)
     const randomIndex = Math.floor(Math.random() * dueNotes.length);
     try {

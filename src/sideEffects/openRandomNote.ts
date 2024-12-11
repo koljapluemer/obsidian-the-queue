@@ -4,8 +4,8 @@ import QueuePlugin from "src/main";
 export async function openRandomFile(plugin: QueuePlugin) {
     try {
         // const randomNote = await getRandomNoteFromVault()
-        const randomNote = await getFirstDueNoteFromVaultThatWeCanFind()
-        // const randomNote = await getRandomDueNoteFromVault()
+        // const randomNote = await getFirstDueNoteFromVaultThatWeCanFind()
+        const randomNote = await getRandomDueNoteFromVault()
         if (randomNote !== null) {
             this.app.workspace.getLeaf(false).openFile(randomNote.file)
             plugin.setCurrentlyTargetedNote(randomNote)
