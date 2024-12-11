@@ -1,5 +1,6 @@
 import { Notice, TFile } from "obsidian";
 import { QueueButton, QueueNote, QueueNoteTemplate } from "../types";
+import { pickRandom } from "./arrayUtils";
 
 
 export async function getRandomNoteFromVault(): Promise<QueueNote | null> {
@@ -34,17 +35,29 @@ export async function getRandomDueNoteFromVault(): Promise<QueueNote | null> {
     }
 }
 
-export async function getFirstDueNoteFromVaultThatWeCanFind(): Promise<QueueNote | null> {
+export async function getFirstDueNoteFromVaultThatWeCanFind(justGetAnyNote = false): Promise<QueueNote | null> {
     try {
+
+        const noteTemplates = [QueueNoteTemplate.Learn, QueueNoteTemplate.Todo, QueueNoteTemplate.Habit, QueueNoteTemplate.Check, QueueNoteTemplate.ShortMedia, QueueNoteTemplate.LongMedia, QueueNoteTemplate.Misc]
+        const templateToPick = pickRandom(noteTemplates)
+        console.log('templateToPick', templateToPick, 'ignored?', justGetAnyNote)
+
         const allFiles = this.app.vault.getMarkdownFiles();
         const randomStartIndex = Math.floor(Math.random() * allFiles.length);
         let dueNote: QueueNote | null = null
         for (const file of allFiles.slice(randomStartIndex).concat(allFiles)) {
             const note = await getNoteFromFile(file)
             if (note) {
-                if (isNoteDue(note)) {
-                    dueNote = note
-                    break
+                if (justGetAnyNote) {
+                    if (isNoteDue(note)) {
+                        dueNote = note
+                        break
+                    }
+                } else {
+                    if (isNoteDue(note) && note.template === templateToPick) {
+                        dueNote = note
+                        break
+                    }
                 }
             } else {
                 console.warn('could not create note for file', file)
@@ -53,7 +66,13 @@ export async function getFirstDueNoteFromVaultThatWeCanFind(): Promise<QueueNote
         if (dueNote) {
             return dueNote
         } else {
-            return null
+            if (justGetAnyNote) {
+                console.info('found no due note at all, returning null')
+                return null
+            } else {
+                console.info('found no note for note template', templateToPick, 'trying for any')
+                return getFirstDueNoteFromVaultThatWeCanFind(true)
+            }
         }
     }
     catch (error) {
@@ -148,7 +167,7 @@ export function isNoteDue(note: QueueNote): boolean {
     if (note.due) {
         isDue = note.due < new Date()
     }
-    return isDue 
+    return isDue
 }
 
 
