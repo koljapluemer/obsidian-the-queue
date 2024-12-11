@@ -1,8 +1,8 @@
 import { TFile } from "obsidian";
 import QueuePlugin from "src/main";
 import { QueueButton } from "src/types";
-import { getNoteFromFile, getNoteFromFrontMatter, loadNotes, openRandomFile, saveCurrentNote } from "./interfaceNotesWithVault";
-import { changeNoteDataAccordingToInteraction, getButtonsForNote } from "./noteUtils";
+import { getNoteFromFile, loadNotes, openRandomFile, saveCurrentNote } from "./interfaceNotesWithVault";
+import { changeNoteDataAccordingToInteraction, fillInNoteFromFile, getButtonsForNote } from "./noteUtils";
 
 export async function toggleFloatingQueueBar(plugin: QueuePlugin) {
     let elements = document.querySelectorAll(".q-floating-bar")
@@ -34,7 +34,7 @@ export function setContentOfQueueBar(file: TFile | null, plugin: QueuePlugin) {
 
         if (file) {
             this.app.fileManager.processFrontMatter(file, (frontmatter: any) => {
-                const note = getNoteFromFrontMatter(frontmatter, file)
+                const note = fillInNoteFromFile(frontmatter, file)
                 const buttons = getButtonsForNote(note)
 
                 buttons.forEach((btn) => {

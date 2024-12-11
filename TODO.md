@@ -1,1 +1,1 @@
-- find out why learn cards are saved to 30% capacity only
+- go to `interfaceNotesWithVault.ts` and start adding unit tests like those in `Downloads/obs-the-queue` for `getNoteFromFrontMatter()` — is stuff loaded correctly?

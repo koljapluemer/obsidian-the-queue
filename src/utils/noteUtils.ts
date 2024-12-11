@@ -190,4 +190,146 @@ function scoreLearningNoteForTheFirstTime(note: QueueNote, btn: QueueButton): Qu
 }
 
 
+export function fillInNoteFromFile(frontmatter: any, file: TFile):QueueNote {
+    let note: QueueNote = {
+        template: QueueNoteTemplate.Misc,
+        file: file
+    }
+    // new paradigm
+    const q = frontmatter["q"]
+    if (q) {
+        note = getNoteDataFromFrontmatter(note, q)
+    } else {
+        note = getNoteDataFromFrontmatterWithLegacyParadigm(note, frontmatter)
+    }
+    // TODO: make this fail if stuff is none, or not a date, etc.
+    // requires handling of returning null
 
+    return note
+}
+
+function getNoteDataFromFrontmatter(note: QueueNote, qData: any): QueueNote {
+    const templateString = qData["template"] || ""
+    switch (templateString) {
+        case 'learn':
+            note.template = QueueNoteTemplate.Learn
+            break
+        case 'todo':
+            note.template = QueueNoteTemplate.Todo
+            break
+        case 'habit':
+            note.template = QueueNoteTemplate.Habit
+            break
+        case 'check':
+            note.template = QueueNoteTemplate.Check
+            break
+        case 'shortmedia':
+            note.template = QueueNoteTemplate.ShortMedia
+            break
+        case 'longmedia':
+            note.template = QueueNoteTemplate.LongMedia
+            break
+        case 'exclude':
+            note.template = QueueNoteTemplate.Exclude
+            break
+    }
+
+    const stageString = qData["stage"] || ""
+    switch (stageString) {
+        case 'unstarted':
+            note.stage = QueueNoteStage.Unstarted
+            break
+        case 'ongoing':
+            note.stage = QueueNoteStage.Ongoing
+            break
+        case 'finished':
+            note.stage = QueueNoteStage.Finished
+            break
+    }
+
+    if (qData["due"] !== undefined) note.due = new Date(qData["due"])
+    if (qData["seen"] !== undefined) note.seen = new Date(qData["seen"])
+    if (qData["interval"] !== undefined) note.interval = qData["interval"]
+    if (qData["stability"] !== undefined) note.stability = qData["stability"]
+    if (qData["difficulty"] !== undefined) note.difficulty = qData["difficulty"]
+    if (qData["elapsed"] !== undefined) note.elapsed = qData["elapsed"]
+    if (qData["scheduled"] !== undefined) note.scheduled = qData["scheduled"]
+    if (qData["reps"] !== undefined) note.reps = qData["reps"]
+    if (qData["lapses"] !== undefined) note.lapses = qData["lapses"]
+    if (qData["state"] !== undefined) note.state = qData["state"]
+
+
+    return note
+}
+
+export function getNoteDataFromFrontmatterWithLegacyParadigm(note: QueueNote, frontmatter: any): QueueNote {
+    // old paradigm
+
+    const templateString = frontmatter["q-type"] || ""
+    switch (templateString) {
+        case 'learn-started':
+        case 'learn':
+            note.template = QueueNoteTemplate.Learn
+            break
+        case 'todo':
+            note.template = QueueNoteTemplate.Todo
+            break
+        case 'habit':
+            note.template = QueueNoteTemplate.Habit
+            break
+        case 'check':
+            note.template = QueueNoteTemplate.Check
+            break
+        case 'article':
+            note.template = QueueNoteTemplate.ShortMedia
+            break
+        case 'book-started':
+        case 'book':
+            note.template = QueueNoteTemplate.LongMedia
+            break
+        case 'exclude':
+        case 'todo-finished':
+            note.template = QueueNoteTemplate.Exclude
+            break
+    }
+
+    // check stages
+    switch (templateString) {
+        case 'learn-started':
+        case 'book-started':
+            note.stage = QueueNoteStage.Ongoing
+            break
+        case 'book-finished':
+            note.stage = QueueNoteStage.Finished
+            break
+    }
+
+    const queueData = frontmatter["q-data"]
+    if (queueData) {
+        // due-at changes for learn ntoes
+        if (note.template == QueueNoteTemplate.Learn) {
+            const fsrsData = queueData["fsrs-data"]
+            if (fsrsData) {
+                const dueString = fsrsData["due"]
+                if (dueString !== undefined) note.due = new Date(dueString)
+                if (fsrsData["stability"] !== undefined) note.stability = fsrsData["stability"]
+                if (fsrsData["difficulty"] !== undefined) note.difficulty = fsrsData["difficulty"]
+                if (fsrsData["elapsed_days"] !== undefined) note.elapsed = fsrsData["elapsed_days"]
+                if (fsrsData["scheduled_days"] !== undefined) note.scheduled = fsrsData["scheduled_days"]
+                if (fsrsData["reps"] !== undefined) note.reps = fsrsData["reps"]
+                if (fsrsData["lapses"] !== undefined) note.lapses = fsrsData["lapses"]
+                if (fsrsData["state"] !== undefined) note.state = fsrsData["state"]
+                if (fsrsData["last_review"] !== undefined) note.seen = new Date(fsrsData["last_review"])
+            }
+
+        } else {
+            const dueString = queueData["due-at"]
+            if (dueString) note.due = new Date(dueString)
+        }
+    }
+
+    const intervalVal = frontmatter["q-interval"]
+    note.interval = intervalVal
+
+    return note
+}
