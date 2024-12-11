@@ -1,1 +1,1 @@
-- go to `interfaceNotesWithVault.ts` and start adding unit tests like those in `Downloads/obs-the-queue` for `getNoteFromFrontMatter()` — is stuff loaded correctly?
+- get the floating bar working again, maybe simply by just rolling back 1 commit

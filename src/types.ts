@@ -18,24 +18,7 @@ export enum QueueNoteStage {
     Base
 }
 
-export type QueueNote = {
-    file: TFile,
-    template: QueueNoteTemplate
-    stage?: QueueNoteStage,
-    priority?: number,
-    due?: Date,
-    seen?: Date,
-    interval?: number,
-    // fsrs
-    stability?: number,
-    difficulty?: number,
-    elapsed?: number,
-    scheduled?: number,
-    reps?: number,
-    lapses?: number,
-    state?: number,
-    history?: string
-}
+
 
 export enum QueueButton { 
     Wrong = "Wrong",
