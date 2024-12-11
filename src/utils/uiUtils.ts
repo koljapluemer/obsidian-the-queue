@@ -7,19 +7,28 @@ import { changeNoteDataAccordingToInteraction, fillInNoteFromFile, getButtonsFor
 export async function toggleFloatingQueueBar(plugin: QueuePlugin) {
     let elements = document.querySelectorAll(".q-floating-bar")
     if (elements.length > 0) {
-        elements.forEach(e => e.remove());
+        closeFloatingQueueBar(elements)
     } else {
         loadNotes(plugin)
-        this.app.workspace.containerEl.createEl('div', { cls: 'q-floating-bar' });
-        const currentlyOpenFile: TFile | null = this.app.workspace.getActiveFile();
-        if (currentlyOpenFile) {
-            plugin.currentlyTargetedNote = await getNoteFromFile(currentlyOpenFile)
-            setContentOfQueueBar(currentlyOpenFile, plugin)
-        } else {
-            openRandomFile(plugin)
-
-        }
+        openFloatingQueueBar(plugin)
     }
+}
+
+function closeFloatingQueueBar(queueBars: NodeListOf<Element>) {
+    // weird foreach because we may have several due to some error, in this case kill them all
+    queueBars.forEach(e => e.remove());
+}
+
+async function openFloatingQueueBar(plugin: QueuePlugin) {
+    plugin.app.workspace.containerEl.createEl('div', { cls: 'q-floating-bar' });
+    const currentlyOpenFile: TFile | null = plugin.app.workspace.getActiveFile();
+    if (currentlyOpenFile) {
+        plugin.currentlyTargetedNote = await getNoteFromFile(currentlyOpenFile)
+        setContentOfQueueBar(currentlyOpenFile, plugin)
+    } else {
+        openRandomFile(plugin)
+    }
+
 }
 
 // TODO: persist current buttons, so we don't need to redraw if its the same buttons anyways
@@ -42,18 +51,21 @@ export function setContentOfQueueBar(file: TFile | null, plugin: QueuePlugin) {
                         .addEventListener('click', () => { reactToQueueButtonClick(btn, plugin) })
                 })
 
-                bar.createEl('button', { text: 'X' })
-                    .addEventListener('click', () => { toggleFloatingQueueBar(plugin) })
+                addCloseButton(bar, plugin)
             })
 
         } else {
             bar.createEl('button', { text: 'Show random due note' })
                 .addEventListener('click', () => { openRandomFile(plugin) })
 
-            bar.createEl('button', { text: 'X' })
-                .addEventListener('click', () => { toggleFloatingQueueBar(plugin) })
+            addCloseButton(bar, plugin)
         }
     }
+}
+
+function addCloseButton(parent: Element, plugin: QueuePlugin) {
+    parent.createEl('button', { text: 'X' })
+        .addEventListener('click', () => { toggleFloatingQueueBar(plugin) })
 }
 
 export async function reactToQueueButtonClick(btn: QueueButton, plugin: QueuePlugin) {

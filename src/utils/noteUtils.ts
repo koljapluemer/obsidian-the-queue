@@ -93,10 +93,10 @@ export function changeNoteDataAccordingToInteraction(note: QueueNote, btn: Queue
     }
 
     return note
-
 }
 
 
+// TODO: handle new learning notes that _should_ be treated as new gracefully
 function scoreLearningNote(note: QueueNote, btn: QueueButton): QueueNote {
     if (note.due !== undefined && note.stability !== undefined && note.difficulty !== undefined && note.elapsed !== undefined && note.scheduled !== undefined && note.reps !== undefined && note.lapses !== undefined && note.state !== undefined) {
         let cardState: State = State.New
