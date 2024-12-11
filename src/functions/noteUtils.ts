@@ -1,5 +1,5 @@
 import { Notice, TFile } from "obsidian";
-import { QueueButton, QueueNote, QueueNoteTemplate } from "../types";
+import { QueueButton, QueueNote, QueueNoteStage, QueueNoteTemplate } from "../types";
 import { pickRandom } from "./arrayUtils";
 
 
@@ -63,61 +63,116 @@ export function getNoteFromFrontMatter(frontmatter: any, file: TFile): QueueNote
         file: file
     }
 
-    const templateString = frontmatter["q-type"] || ""
+    // new paradigm
+    const q = frontmatter["q"]
+    if (q) {
 
-    switch (templateString) {
-        case 'learn-started':
-        case 'learn':
-            note.template = QueueNoteTemplate.Learn
-            break
-        case 'todo':
-            note.template = QueueNoteTemplate.Todo
-            break
-        case 'habit':
-            note.template = QueueNoteTemplate.Habit
-            break
-        case 'check':
-            note.template = QueueNoteTemplate.Check
-            break
-        case 'article':
-            note.template = QueueNoteTemplate.ShortMedia
-            break
-        case 'book-started':
-        case 'book':
-            note.template = QueueNoteTemplate.LongMedia
-            break
-        case 'exclude':
-        case 'todo-finished':
-            note.template = QueueNoteTemplate.Exclude
-            break
-    }
-
-    const queueData = frontmatter["q-data"]
-    if (queueData) {
-        // due-at changes for learn ntoes
-        if (note.template == QueueNoteTemplate.Learn) {
-            const fsrsData = queueData["fsrs-data"]
-            if (fsrsData) {
-                const dueString = fsrsData["due"]
-                if (dueString) note.due = new Date(dueString)
-                if (fsrsData["stability"]) note.stability = fsrsData["stability"]
-                if (fsrsData["difficulty"]) note.difficulty = fsrsData["difficulty"]
-                if (fsrsData["elapsed_days"]) note.elapsed = fsrsData["elapsed_days"]
-                if (fsrsData["scheduled_days"]) note.scheduled = fsrsData["scheduled_days"]
-                if (fsrsData["reps"]) note.reps = fsrsData["reps"]
-                if (fsrsData["lapses"]) note.lapses = fsrsData["lapses"]
-                if (fsrsData["state"]) note.state = fsrsData["state"]
-                if (fsrsData["last_review"]) note.seen = new Date(fsrsData["last_review"])
-            }
-
-        } else {
-            const dueString = queueData["due-at"]
-            if (dueString) note.due = new Date(dueString)
+        const templateString = q["template"] || ""
+        switch (templateString) {
+            case 'learn':
+                note.template = QueueNoteTemplate.Learn
+                break
+            case 'todo':
+                note.template = QueueNoteTemplate.Todo
+                break
+            case 'habit':
+                note.template = QueueNoteTemplate.Habit
+                break
+            case 'check':
+                note.template = QueueNoteTemplate.Check
+                break
+            case 'shortmedia':
+                note.template = QueueNoteTemplate.ShortMedia
+                break
+            case 'longmedia':
+                note.template = QueueNoteTemplate.LongMedia
+                break
+            case 'exclude':
+                note.template = QueueNoteTemplate.Exclude
+                break
         }
-    }
 
-    const intervalVal = frontmatter["q-interval"] || 1
-    note.interval = intervalVal
+        const stageString = q["stage"] || ""
+        switch (stageString) {
+            case 'unstarted':
+                note.stage = QueueNoteStage.Unstarted
+            case 'ongoing':
+                note.stage = QueueNoteStage.Ongoing
+            case 'finished':
+                note.stage = QueueNoteStage.Finished
+        }
+
+        if (q["due"]) note.due = new Date(q["due"])
+        if (q["seen"]) note.seen = new Date(q["seen"])
+        if (q["interval"]) note.interval = q["interval"]
+        if (q["stability"]) note.stability = q["stability"]
+        if (q["difficulty"]) note.difficulty = q["difficulty"]
+        if (q["elapsed"]) note.elapsed = q["elapsed"]
+        if (q["scheduled"]) note.scheduled = q["scheduled"]
+        if (q["reps"]) note.reps = q["reps"]
+        if (q["lapses"]) note.lapses = q["lapses"]
+        if (q["state"]) note.state = q["state"]
+
+    } else {
+
+        // old paradigm
+
+        const templateString = frontmatter["q-type"] || ""
+
+        switch (templateString) {
+            case 'learn-started':
+            case 'learn':
+                note.template = QueueNoteTemplate.Learn
+                break
+            case 'todo':
+                note.template = QueueNoteTemplate.Todo
+                break
+            case 'habit':
+                note.template = QueueNoteTemplate.Habit
+                break
+            case 'check':
+                note.template = QueueNoteTemplate.Check
+                break
+            case 'article':
+                note.template = QueueNoteTemplate.ShortMedia
+                break
+            case 'book-started':
+            case 'book':
+                note.template = QueueNoteTemplate.LongMedia
+                break
+            case 'exclude':
+            case 'todo-finished':
+                note.template = QueueNoteTemplate.Exclude
+                break
+        }
+
+        const queueData = frontmatter["q-data"]
+        if (queueData) {
+            // due-at changes for learn ntoes
+            if (note.template == QueueNoteTemplate.Learn) {
+                const fsrsData = queueData["fsrs-data"]
+                if (fsrsData) {
+                    const dueString = fsrsData["due"]
+                    if (dueString) note.due = new Date(dueString)
+                    if (fsrsData["stability"]) note.stability = fsrsData["stability"]
+                    if (fsrsData["difficulty"]) note.difficulty = fsrsData["difficulty"]
+                    if (fsrsData["elapsed_days"]) note.elapsed = fsrsData["elapsed_days"]
+                    if (fsrsData["scheduled_days"]) note.scheduled = fsrsData["scheduled_days"]
+                    if (fsrsData["reps"]) note.reps = fsrsData["reps"]
+                    if (fsrsData["lapses"]) note.lapses = fsrsData["lapses"]
+                    if (fsrsData["state"]) note.state = fsrsData["state"]
+                    if (fsrsData["last_review"]) note.seen = new Date(fsrsData["last_review"])
+                }
+
+            } else {
+                const dueString = queueData["due-at"]
+                if (dueString) note.due = new Date(dueString)
+            }
+        }
+
+        const intervalVal = frontmatter["q-interval"] 
+        note.interval = intervalVal
+    }
 
     // TODO: make this fail if stuff is none, or not a date, etc.
     // requires handling of returning null

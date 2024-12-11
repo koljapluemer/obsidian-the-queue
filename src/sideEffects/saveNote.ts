@@ -7,19 +7,21 @@ export function saveCurrentNote(plugin: QueuePlugin) {
         this.app.fileManager.processFrontMatter(note.file, (frontmatter: any) => {
             frontmatter["q"] = frontmatter["q"] || {}
 
-            const template = Object.keys(QueueNoteTemplate).find(
-                // @ts-ignore
-                key => QueueNoteTemplate[key] === note.template
-            )
+            if (note.template !== QueueNoteTemplate.Misc) {
+                const template = Object.keys(QueueNoteTemplate).find(
+                    // @ts-ignore
+                    key => QueueNoteTemplate[key] === note.template
+                )
 
-            frontmatter["q"]["template"] = template?.toLowerCase()
+                frontmatter["q"]["template"] = template?.toLowerCase()
+            }
 
             if (note.stage && note.stage !== QueueNoteStage.Base) {
                 const stage = Object.keys(QueueNoteStage).find(
                     // @ts-ignore
                     key => QueueNoteTemplate[key] === note.stage
                 )
-                frontmatter["q"]["stage"] = template?.toLowerCase()
+                frontmatter["q"]["stage"] = stage?.toLowerCase()
             }
 
             if (note.due) frontmatter["q"]["due"] = note.due

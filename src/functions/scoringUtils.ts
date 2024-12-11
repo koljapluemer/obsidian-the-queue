@@ -113,7 +113,9 @@ function scoreLearningNote(note: QueueNote, btn: QueueButton): QueueNote {
         note.seen = relevantLog.card.last_review
 
     } else {
-        console.error("couldn't parse note's fsrs data", note)
+        console.error("couldn't parse note's fsrs data, treating as new learning data", note)
+        // TODO: add function for new learning
+        console.info(note.due !== undefined , note.stability !== undefined , note.difficulty !== undefined , note.elapsed !== undefined , note.scheduled !== undefined , note.reps !== undefined , note.lapses !== undefined , note.state !== undefined)
     }
 
     return note
