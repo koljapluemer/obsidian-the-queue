@@ -102,16 +102,16 @@ export function getNoteFromFrontMatter(frontmatter: any, file: TFile): QueueNote
                 note.stage = QueueNoteStage.Finished
         }
 
-        if (q["due"]) note.due = new Date(q["due"])
-        if (q["seen"]) note.seen = new Date(q["seen"])
-        if (q["interval"]) note.interval = q["interval"]
-        if (q["stability"]) note.stability = q["stability"]
-        if (q["difficulty"]) note.difficulty = q["difficulty"]
-        if (q["elapsed"]) note.elapsed = q["elapsed"]
-        if (q["scheduled"]) note.scheduled = q["scheduled"]
-        if (q["reps"]) note.reps = q["reps"]
-        if (q["lapses"]) note.lapses = q["lapses"]
-        if (q["state"]) note.state = q["state"]
+        if (q["due"] !== undefined) note.due = new Date(q["due"])
+        if (q["seen"] !== undefined) note.seen = new Date(q["seen"])
+        if (q["interval"] !== undefined) note.interval = q["interval"]
+        if (q["stability"] !== undefined) note.stability = q["stability"]
+        if (q["difficulty"] !== undefined) note.difficulty = q["difficulty"]
+        if (q["elapsed"] !== undefined) note.elapsed = q["elapsed"]
+        if (q["scheduled"] !== undefined) note.scheduled = q["scheduled"]
+        if (q["reps"] !== undefined) note.reps = q["reps"]
+        if (q["lapses"] !== undefined) note.lapses = q["lapses"]
+        if (q["state"] !== undefined) note.state = q["state"]
 
     } else {
 
@@ -153,15 +153,15 @@ export function getNoteFromFrontMatter(frontmatter: any, file: TFile): QueueNote
                 const fsrsData = queueData["fsrs-data"]
                 if (fsrsData) {
                     const dueString = fsrsData["due"]
-                    if (dueString) note.due = new Date(dueString)
-                    if (fsrsData["stability"]) note.stability = fsrsData["stability"]
-                    if (fsrsData["difficulty"]) note.difficulty = fsrsData["difficulty"]
-                    if (fsrsData["elapsed_days"]) note.elapsed = fsrsData["elapsed_days"]
-                    if (fsrsData["scheduled_days"]) note.scheduled = fsrsData["scheduled_days"]
-                    if (fsrsData["reps"]) note.reps = fsrsData["reps"]
-                    if (fsrsData["lapses"]) note.lapses = fsrsData["lapses"]
-                    if (fsrsData["state"]) note.state = fsrsData["state"]
-                    if (fsrsData["last_review"]) note.seen = new Date(fsrsData["last_review"])
+                    if (dueString !== undefined) note.due = new Date(dueString)
+                    if (fsrsData["stability"] !== undefined) note.stability = fsrsData["stability"]
+                    if (fsrsData["difficulty"] !== undefined) note.difficulty = fsrsData["difficulty"]
+                    if (fsrsData["elapsed_days"] !== undefined) note.elapsed = fsrsData["elapsed_days"]
+                    if (fsrsData["scheduled_days"] !== undefined) note.scheduled = fsrsData["scheduled_days"]
+                    if (fsrsData["reps"] !== undefined) note.reps = fsrsData["reps"]
+                    if (fsrsData["lapses"] !== undefined) note.lapses = fsrsData["lapses"]
+                    if (fsrsData["state"] !== undefined) note.state = fsrsData["state"]
+                    if (fsrsData["last_review"] !== undefined) note.seen = new Date(fsrsData["last_review"])
                 }
 
             } else {

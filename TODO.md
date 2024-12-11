@@ -1,1 +1,1 @@
-- check `src/sideeffects/openRandomNote` and see if we can get the commented out function that takes 10 mil years and doesn't actually work functioning somehow...because the current one doesn't play well with prio etc
+- find out why learn cards are saved to 30% capacity only

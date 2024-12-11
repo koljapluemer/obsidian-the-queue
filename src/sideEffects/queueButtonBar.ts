@@ -11,8 +11,7 @@ export async function toggleFloatingQueueBar(plugin: QueuePlugin) {
     if (elements.length > 0) {
         elements.forEach(e => e.remove());
     } else {
-        // TODO: activate this
-        // loadNotes(plugin)
+        loadNotes(plugin)
         this.app.workspace.containerEl.createEl('div', { cls: 'q-floating-bar' });
         const currentlyOpenFile: TFile | null = this.app.workspace.getActiveFile();
         if (currentlyOpenFile) {
@@ -38,12 +37,12 @@ export function setContentOfQueueBar(file: TFile | null, plugin: QueuePlugin) {
         if (file) {
             this.app.fileManager.processFrontMatter(file, (frontmatter: any) => {
                 const note = getNoteFromFrontMatter(frontmatter, file)
-                console.log('currently targeting note', note)
+                console.info('currently targeting note', note)
                 const buttons = getButtonsForNote(note)
 
                 buttons.forEach((btn) => {
                     bar.createEl('button', { text: btn })
-                        .addEventListener('click', () => { reactToQueueButtonClick(btn, plugin), openRandomFile(plugin) })
+                        .addEventListener('click', () => { reactToQueueButtonClick(btn, plugin) })
                 })
 
                 bar.createEl('button', { text: 'X' })
@@ -60,12 +59,13 @@ export function setContentOfQueueBar(file: TFile | null, plugin: QueuePlugin) {
     }
 }
 
-export function reactToQueueButtonClick(btn: QueueButton, plugin: QueuePlugin) {
+export async function reactToQueueButtonClick(btn: QueueButton, plugin: QueuePlugin) {
     if (plugin.currentlyTargetedNote) {
         // we can ignore the return, b/c this is also using a passed in mutable obj
         // we're changing the currentlyTargetedNote anyways
         changeNoteDataAccordingToInteraction(plugin.currentlyTargetedNote, btn)
         saveCurrentNote(plugin)
+        openRandomFile(plugin)
     }
 }
 

@@ -1,5 +1,5 @@
-import { QueueButton, QueueNote } from "src/types";
-import { Card, FSRS, FSRSParameters, generatorParameters, Rating, RecordLog, RecordLogItem, State } from "ts-fsrs";
+import { QueueButton, QueueNote, QueueNoteStage } from "src/types";
+import { Card, createEmptyCard, FSRS, FSRSParameters, generatorParameters, Rating, RecordLog, RecordLogItem, State } from "ts-fsrs";
 
 // TODO: would love to use immutable data, but structuredClone has random issues :) 
 export function getNoteDataForDueInDays(note: QueueNote, days: number): QueueNote {
@@ -61,13 +61,18 @@ function scoreLearningNote(note: QueueNote, btn: QueueButton): QueueNote {
         switch (note.state) {
             case 0:
                 cardState = State.New
+                break
             case 1:
                 cardState = State.Learning
+                break
             case 2:
                 cardState = State.Review
+                break
             case 3:
                 cardState = State.Relearning
+                break
         }
+
 
         let fsrsCard: Card = {
             due: note.due,
@@ -114,9 +119,28 @@ function scoreLearningNote(note: QueueNote, btn: QueueButton): QueueNote {
 
     } else {
         console.error("couldn't parse note's fsrs data, treating as new learning data", note)
-        // TODO: add function for new learning
-        console.info(note.due !== undefined , note.stability !== undefined , note.difficulty !== undefined , note.elapsed !== undefined , note.scheduled !== undefined , note.reps !== undefined , note.lapses !== undefined , note.state !== undefined)
+        note = scoreLearningNoteForTheFirstTime(note, btn)
+        console.log(note.due !== undefined, note.stability !== undefined, note.difficulty !== undefined, note.elapsed !== undefined, note.scheduled !== undefined, note.reps !== undefined, note.lapses !== undefined, note.state !== undefined)
     }
+
+    note.stage = QueueNoteStage.Ongoing
+    return note
+}
+
+function scoreLearningNoteForTheFirstTime(note: QueueNote, btn: QueueButton): QueueNote {
+    const card: Card = createEmptyCard()
+
+    note.due = card.due
+    note.stability = card.stability
+    note.difficulty = card.difficulty
+    note.elapsed = card.elapsed_days
+    note.scheduled = card.scheduled_days
+    note.reps = card.reps
+    note.lapses = card.lapses
+    note.state = card.state
+    note.seen = new Date()
+
+    note.stage = QueueNoteStage.Ongoing
 
     return note
 }
