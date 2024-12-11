@@ -44,8 +44,6 @@ export function isNoteDue(note: QueueNote, allowNewLearns = false, allowNewLongM
 }
 
 
-
-
 // TODO: would love to use immutable data, but structuredClone has random issues :) 
 export function getNoteDataForDueInDays(note: QueueNote, days: number): QueueNote {
     const now = new Date();
@@ -65,33 +63,28 @@ export function getNoteDataForDueInDays(note: QueueNote, days: number): QueueNot
 }
 
 export function changeNoteDataAccordingToInteraction(note: QueueNote, btn: QueueButton): QueueNote {
-    // managing due
-    switch (btn) {
-        case QueueButton.Correct:
-        case QueueButton.Easy:
-        case QueueButton.Hard:
-        case QueueButton.Wrong:
-            scoreLearningNote(note, btn)
-            break
-        case QueueButton.CheckKindOf:
-        case QueueButton.CheckYes:
-        case QueueButton.CheckNo:
-        case QueueButton.Done:
-            note = getNoteDataForDueInDays(note, note.interval || 1)
-            break
-        case QueueButton.Later:
-            note = getNoteDataForDueInDays(note, 0.01)
-            break
-        case QueueButton.Finished:
-        case QueueButton.ShowLess:
-        case QueueButton.ShowMore:
-        case QueueButton.ShowNext:
-        case QueueButton.NotToday:
-        default:
-            note = getNoteDataForDueInDays(note, 1)
-            break
-    }
+    note = setNewDueOfNote(note, btn)
+    // TODO: manage state changes, such as when clicking "finished"
+    return note
+}
 
+function setNewDueOfNote(note: QueueNote, btn: QueueButton): QueueNote {
+    // learning notes have their own function
+    if (note.template === QueueNoteTemplate.Learn) {
+        note = scoreLearningNote(note, btn)
+    }
+    // checks and habits/todos that are done are boosted by their set interval
+    else if (note.template === QueueNoteTemplate.Check || btn === QueueButton.Done) {
+        note = getNoteDataForDueInDays(note, note.interval || 1)
+    }
+    // specific case; means "in 10 minutes" or whatver
+    else if (btn === QueueButton.Later) {
+        note = getNoteDataForDueInDays(note, 0.01)
+    }
+    // everything else: see you in 1 day
+    else {
+        note = getNoteDataForDueInDays(note, 1)
+    }
     return note
 }
 
