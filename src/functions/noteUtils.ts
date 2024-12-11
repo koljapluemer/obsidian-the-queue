@@ -94,13 +94,33 @@ export function getNoteFromFrontMatter(frontmatter: any, file: TFile): QueueNote
 
     const queueData = frontmatter["q-data"]
     if (queueData) {
-        const dueString = queueData["due-at"]
-        if (dueString) note.due = new Date(dueString)
+        // due-at changes for learn ntoes
+        if (note.template == QueueNoteTemplate.Learn) {
+            const fsrsData = queueData["fsrs-data"]
+            if (fsrsData) {
+                const dueString = fsrsData["due"]
+                if (dueString) note.due = new Date(dueString)
+                if (fsrsData["stability"]) note.stability = fsrsData["stability"]
+                if (fsrsData["difficulty"]) note.difficulty = fsrsData["difficulty"]
+                if (fsrsData["elapsed_days"]) note.elapsed = fsrsData["elapsed_days"]
+                if (fsrsData["scheduled_days"]) note.scheduled = fsrsData["scheduled_days"]
+                if (fsrsData["reps"]) note.reps = fsrsData["reps"]
+                if (fsrsData["lapses"]) note.lapses = fsrsData["lapses"]
+                if (fsrsData["state"]) note.state = fsrsData["state"]
+                if (fsrsData["last_review"]) note.seen = new Date(fsrsData["last_review"])
+            }
+
+        } else {
+            const dueString = queueData["due-at"]
+            if (dueString) note.due = new Date(dueString)
+        }
     }
 
     const intervalVal = frontmatter["q-interval"] || 1
     note.interval = intervalVal
 
+    // TODO: make this fail if stuff is none, or not a date, etc.
+    // requires handling of returning null
 
     return note
 }

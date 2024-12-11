@@ -11,7 +11,8 @@ export async function toggleFloatingQueueBar(plugin: QueuePlugin) {
     if (elements.length > 0) {
         elements.forEach(e => e.remove());
     } else {
-        loadNotes(plugin)
+        // TODO: activate this
+        // loadNotes(plugin)
         this.app.workspace.containerEl.createEl('div', { cls: 'q-floating-bar' });
         const currentlyOpenFile: TFile | null = this.app.workspace.getActiveFile();
         if (currentlyOpenFile) {
@@ -37,6 +38,7 @@ export function setContentOfQueueBar(file: TFile | null, plugin: QueuePlugin) {
         if (file) {
             this.app.fileManager.processFrontMatter(file, (frontmatter: any) => {
                 const note = getNoteFromFrontMatter(frontmatter, file)
+                console.log('currently targeting note', note)
                 const buttons = getButtonsForNote(note)
 
                 buttons.forEach((btn) => {
