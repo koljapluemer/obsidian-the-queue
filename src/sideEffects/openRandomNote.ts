@@ -22,8 +22,6 @@ export async function openRandomFile(plugin: QueuePlugin) {
 }
 
 export async function loadNotes(plugin: QueuePlugin) {
-    console.info('started loading notes')
     const allFiles = this.app.vault.getMarkdownFiles();
     plugin.notes = await getNotesFromFiles(allFiles)
-    console.log('loaded notes, now have in store:', plugin.notes.length)
 }

@@ -38,7 +38,6 @@ export type QueueNote = {
 }
 
 export enum QueueButton { 
-    Reveal = "Reveal",
     Wrong = "Wrong",
     Hard = "Hard",
     Correct = "Correct",

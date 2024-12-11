@@ -4,7 +4,6 @@ import { pickRandom } from "./arrayUtils";
 
 
 export async function getNotesFromFiles(files: TFile[]): Promise<QueueNote[]> {
-    console.log('running over files:', files.length)
     try {
         const notes: QueueNote[] = []
         for (const file of files) {
@@ -13,7 +12,6 @@ export async function getNotesFromFiles(files: TFile[]): Promise<QueueNote[]> {
                 notes.push(note)
             }
         }
-        console.log('finished loading notes, returning (nr)', notes.length)
         return notes
     } catch (error) {
         console.error('Error loading notes:', error);
@@ -27,7 +25,6 @@ export function getRandomDueNoteFromNotes(notes: QueueNote[], justGetAnyNote = f
     const templateToPick = pickRandom(noteTemplates)
     const simplyAllDueNotes = notes.filter(note => isNoteDue(note))
     const notesWithDesiredTemplate = simplyAllDueNotes.filter(note => note.template === templateToPick)
-    console.log('pref template', templateToPick, 'notes w/ that', notesWithDesiredTemplate.length)
     return pickRandom(notesWithDesiredTemplate) || pickRandom(simplyAllDueNotes) || null
 }
 
@@ -100,6 +97,10 @@ export function getNoteFromFrontMatter(frontmatter: any, file: TFile): QueueNote
         const dueString = queueData["due-at"]
         if (dueString) note.due = new Date(dueString)
     }
+
+    const intervalVal = frontmatter["q-interval"] || 1
+    note.interval = intervalVal
+
 
     return note
 }

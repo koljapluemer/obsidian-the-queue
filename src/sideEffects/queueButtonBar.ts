@@ -3,7 +3,7 @@ import { getButtonsForNote, getNoteFromFile, getNoteFromFrontMatter } from "../f
 import QueuePlugin from "src/main";
 import { loadNotes, openRandomFile } from "./openRandomNote";
 import { QueueButton } from "src/types";
-import { getNoteDataForDueInDays } from "src/functions/scoringUtils";
+import { changeNoteDataAccordingToInteraction, getNoteDataForDueInDays } from "src/functions/scoringUtils";
 import { saveCurrentNote } from "./saveNote";
 
 export async function toggleFloatingQueueBar(plugin: QueuePlugin) {
@@ -62,7 +62,7 @@ export function reactToQueueButtonClick(btn: QueueButton, plugin: QueuePlugin) {
     if (plugin.currentlyTargetedNote) {
         // we can ignore the return, b/c this is also using a passed in mutable obj
         // we're changing the currentlyTargetedNote anyways
-        getNoteDataForDueInDays(plugin.currentlyTargetedNote, 1)
+        changeNoteDataAccordingToInteraction(plugin.currentlyTargetedNote, btn)
         saveCurrentNote(plugin)
     }
 }
