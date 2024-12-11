@@ -1,8 +1,8 @@
-import { Notice, TFile } from "obsidian";
-import { QueueButton, QueueNote, QueueNoteStage, QueueNoteTemplate } from "../types";
-import { pickRandom } from "./arrayUtils";
+import { QueueNote, QueueNoteStage, QueueNoteTemplate } from "src/types";
+import {  isNoteDue } from "./noteUtils";
+import { TFile } from "obsidian";
 import QueuePlugin from "src/main";
-
+import { getRandomDueNoteFromNotes } from "./noteListUtils";
 
 export async function getNotesFromFiles(files: TFile[]): Promise<QueueNote[]> {
     try {
@@ -21,36 +21,20 @@ export async function getNotesFromFiles(files: TFile[]): Promise<QueueNote[]> {
 }
 
 
-export function getRandomDueNoteFromNotes(notes: QueueNote[], plugin: QueuePlugin): QueueNote | null {
-    const noteTemplates = [QueueNoteTemplate.Learn, QueueNoteTemplate.Learn, QueueNoteTemplate.Todo, QueueNoteTemplate.Habit, QueueNoteTemplate.Check, QueueNoteTemplate.ShortMedia, QueueNoteTemplate.LongMedia, QueueNoteTemplate.Misc]
-    let templateToPick: QueueNoteTemplate | null
-    if (plugin.isStreakActive) {
-        plugin.streakCounter += 1
-        if (plugin.streakCounter > 12) {
-            plugin.streakCounter = 0
-            plugin.isStreakActive = false
-            templateToPick = pickRandom(noteTemplates) 
-        } else {
-            templateToPick = plugin.currentTemplate
+export function getNoteFromFile(file: TFile): Promise<QueueNote | null> {
+    return new Promise((resolve, reject) => {
+        try {
+            this.app.fileManager.processFrontMatter(file, (frontmatter: any) => {
+                const note = getNoteFromFrontMatter(frontmatter, file);
+                resolve(note); // Resolve the Promise with the processed note
+            });
+        } catch (error) {
+            console.error(error); // Reject the Promise if an error occurs
+            return null
         }
-    } else {
-        templateToPick = pickRandom(noteTemplates) 
-        if (templateToPick === QueueNoteTemplate.Learn ||templateToPick === QueueNoteTemplate.Check ) {
-            plugin.isStreakActive = true
-            plugin.currentTemplate = templateToPick
-        }
-    }
-
-    const nrDueLearns = notes.filter(note => note.template === QueueNoteTemplate.Learn && note.stage === QueueNoteStage.Ongoing && isNoteDue(note)).length
-    const nrActiveLongMedia = notes.filter(note => note.template === QueueNoteTemplate.LongMedia && note.stage === QueueNoteStage.Ongoing).length
-    // TODO: hook up magic numbers to settings instead
-    const allowNewLearns = nrDueLearns < 20
-    const allowNewLongMedia = nrActiveLongMedia < 5
-    console.info('ongoing learn notes currently due:', nrDueLearns)
-    const simplyAllDueNotes = notes.filter(note => isNoteDue(note, allowNewLearns, allowNewLongMedia))
-    const notesWithDesiredTemplate = simplyAllDueNotes.filter(note => note.template === templateToPick)
-    return pickRandom(notesWithDesiredTemplate) || pickRandom(simplyAllDueNotes) || null
+    });
 }
+
 
 export async function getFirstDueNoteFromVaultThatWeCanFind(): Promise<QueueNote | null> {
     try {
@@ -217,56 +201,79 @@ export function getNoteFromFrontMatter(frontmatter: any, file: TFile): QueueNote
     return note
 }
 
-export function getNoteFromFile(file: TFile): Promise<QueueNote | null> {
-    return new Promise((resolve, reject) => {
-        try {
-            this.app.fileManager.processFrontMatter(file, (frontmatter: any) => {
-                const note = getNoteFromFrontMatter(frontmatter, file);
-                resolve(note); // Resolve the Promise with the processed note
-            });
-        } catch (error) {
-            console.error(error); // Reject the Promise if an error occurs
-            return null
+
+
+export async function loadNotes(plugin: QueuePlugin) {
+    const allFiles = this.app.vault.getMarkdownFiles();
+    plugin.notes = await getNotesFromFiles(allFiles)
+}
+
+
+export async function saveCurrentNote(plugin: QueuePlugin) {
+    const note = plugin.currentlyTargetedNote
+    if (note) {
+        this.app.fileManager.processFrontMatter(note.file, (frontmatter: any) => {
+            frontmatter["q"] = frontmatter["q"] || {}
+
+            if (note.template !== QueueNoteTemplate.Misc) {
+                const template = Object.keys(QueueNoteTemplate).find(
+                    // @ts-ignore
+                    key => QueueNoteTemplate[key] === note.template
+                )
+                frontmatter["q"]["template"] = template?.toLowerCase()
+            }
+
+            if (note.stage !== undefined && note.stage !== QueueNoteStage.Base) {
+                const stage = Object.keys(QueueNoteStage).find(
+                    // @ts-ignore
+                    key => QueueNoteStage[key] === note.stage
+                )
+                frontmatter["q"]["stage"] = stage?.toLowerCase()
+            }
+
+            if (note.due !== undefined) frontmatter["q"]["due"] = note.due
+            if (note.seen !== undefined) frontmatter["q"]["seen"] = note.seen
+            if (note.interval !== undefined && note.interval != 1) frontmatter["q"]["interval"] = note.interval
+            if (note.stability !== undefined) frontmatter["q"]["stability"] = note.stability
+            if (note.difficulty !== undefined) frontmatter["q"]["difficulty"] = note.difficulty
+            if (note.elapsed !== undefined) frontmatter["q"]["elapsed"] = note.elapsed
+            if (note.scheduled !== undefined) frontmatter["q"]["scheduled"] = note.scheduled
+            if (note.reps !== undefined) frontmatter["q"]["reps"] = note.reps
+            if (note.lapses !== undefined) frontmatter["q"]["lapses"] = note.lapses
+            if (note.state !== undefined) frontmatter["q"]["state"] = note.state
+
+            deletePropertiesWithOldPrefix(frontmatter)
+        })
+
+        // delete note that was saved from notes, so that it won't be opened again
+        plugin.notes = plugin.notes.filter(el => el.file !== note.file)
+    }
+}
+
+// TODO: put this behind a settings toggle
+function deletePropertiesWithOldPrefix(obj: Record<string, any>): void {
+    for (const key of Object.keys(obj)) {
+        if (key.startsWith("q-")) {
+            delete obj[key];
         }
-    });
-}
-
-
-export function getButtonsForNote(note: QueueNote): QueueButton[] {
-    switch (note.template) {
-        case QueueNoteTemplate.Habit:
-            return [QueueButton.NotToday, QueueButton.Later, QueueButton.Done]
-        case QueueNoteTemplate.Learn:
-            return [QueueButton.Wrong, QueueButton.Hard, QueueButton.Correct, QueueButton.Easy]
-        case QueueNoteTemplate.Todo:
-            return [QueueButton.NotToday, QueueButton.Later, QueueButton.Done, QueueButton.Finished]
-        case QueueNoteTemplate.Check:
-            return [QueueButton.CheckNo, QueueButton.CheckKindOf, QueueButton.CheckYes]
-        case QueueNoteTemplate.ShortMedia:
-            return [QueueButton.NotToday, QueueButton.Later, QueueButton.Done, QueueButton.Finished]
-        case QueueNoteTemplate.LongMedia:
-            return [QueueButton.NotToday, QueueButton.Later, QueueButton.Done, QueueButton.Finished]
-        case QueueNoteTemplate.Exclude:
-            return [QueueButton.ShowNext]
-        default:
-            return [QueueButton.ShowLess, QueueButton.ShowNext, QueueButton.ShowMore]
     }
 }
 
-
-export function isNoteDue(note: QueueNote, allowNewLearns = false, allowNewLongMedia = false): boolean {
-    if (!allowNewLearns && note.template === QueueNoteTemplate.Learn && note.stage !== QueueNoteStage.Ongoing) {
-        return false
+export async function openRandomFile(plugin: QueuePlugin) {
+    try {
+        let randomNote: QueueNote | null
+        if (plugin.notes.length > 0) {
+            console.info('full note set loaded, getting note from there')
+            randomNote = getRandomDueNoteFromNotes(plugin.notes, plugin)
+        } else {
+            console.info('full note set not yet loaded, getting any due note')
+            randomNote = await getFirstDueNoteFromVaultThatWeCanFind()
+        }
+        if (randomNote !== null) {
+            this.app.workspace.getLeaf(false).openFile(randomNote.file)
+            plugin.setCurrentlyTargetedNote(randomNote)
+        }
+    } catch (error) {
+        console.error('the queue:', error)
     }
-    if (!allowNewLongMedia && note.template === QueueNoteTemplate.LongMedia && (!(note.stage === QueueNoteStage.Ongoing || note.stage === QueueNoteStage.Finished))) {
-        return false
-    }
-    let isDue = true
-    if (note.due) {
-        isDue = note.due < new Date()
-    }
-    // if (note.template === QueueNoteTemplate.Learn) console.info('returning due', isDue, 'for', note)
-    return isDue
 }
-
-

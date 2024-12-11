@@ -1,8 +1,8 @@
 import { Plugin } from 'obsidian';
-import { loadQueuePlugin } from './sideEffects/pluginLoad';
 import { QueuePluginSettingsTab } from './classes/queuePluginSettingsTab';
 import { QueueNote, QueueNoteTemplate } from './types';
-import { setContentOfQueueBar } from './sideEffects/queueButtonBar';
+import { loadQueuePlugin } from './utils/pluginUtils';
+import { setContentOfQueueBar } from './utils/uiUtils';
 
 
 interface QueueSettings {

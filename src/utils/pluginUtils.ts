@@ -1,7 +1,6 @@
-import { TFile } from "obsidian";
 import QueuePlugin from "src/main";
-import { setContentOfQueueBar, toggleFloatingQueueBar } from "./queueButtonBar";
-import { getNoteFromFile } from "src/functions/noteUtils";
+import { setContentOfQueueBar, toggleFloatingQueueBar } from "./uiUtils";
+import { getNoteFromFile } from "./interfaceNotesWithVault";
 
 export async function loadQueuePlugin(plugin:QueuePlugin) {
     await plugin.loadSettings();

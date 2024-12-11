@@ -1,10 +1,8 @@
 import { TFile } from "obsidian";
-import { getButtonsForNote, getNoteFromFile, getNoteFromFrontMatter } from "../functions/noteUtils";
 import QueuePlugin from "src/main";
-import { loadNotes, openRandomFile } from "./openRandomNote";
 import { QueueButton } from "src/types";
-import { changeNoteDataAccordingToInteraction, getNoteDataForDueInDays } from "src/functions/scoringUtils";
-import { saveCurrentNote } from "./saveNote";
+import { getNoteFromFile, getNoteFromFrontMatter, loadNotes, openRandomFile, saveCurrentNote } from "./interfaceNotesWithVault";
+import { changeNoteDataAccordingToInteraction, getButtonsForNote } from "./noteUtils";
 
 export async function toggleFloatingQueueBar(plugin: QueuePlugin) {
     let elements = document.querySelectorAll(".q-floating-bar")

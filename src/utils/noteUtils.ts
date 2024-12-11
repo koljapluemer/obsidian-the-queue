@@ -1,5 +1,50 @@
-import { QueueButton, QueueNote, QueueNoteStage } from "src/types";
+import { Notice, TFile } from "obsidian";
+import { QueueButton, QueueNote, QueueNoteStage, QueueNoteTemplate } from "../types";
+import { pickRandom } from "./arrayUtils";
+import QueuePlugin from "src/main";
 import { Card, createEmptyCard, FSRS, FSRSParameters, generatorParameters, Rating, RecordLog, RecordLogItem, State } from "ts-fsrs";
+
+
+
+export function getButtonsForNote(note: QueueNote): QueueButton[] {
+    switch (note.template) {
+        case QueueNoteTemplate.Habit:
+            return [QueueButton.NotToday, QueueButton.Later, QueueButton.Done]
+        case QueueNoteTemplate.Learn:
+            return [QueueButton.Wrong, QueueButton.Hard, QueueButton.Correct, QueueButton.Easy]
+        case QueueNoteTemplate.Todo:
+            return [QueueButton.NotToday, QueueButton.Later, QueueButton.Done, QueueButton.Finished]
+        case QueueNoteTemplate.Check:
+            return [QueueButton.CheckNo, QueueButton.CheckKindOf, QueueButton.CheckYes]
+        case QueueNoteTemplate.ShortMedia:
+            return [QueueButton.NotToday, QueueButton.Later, QueueButton.Done, QueueButton.Finished]
+        case QueueNoteTemplate.LongMedia:
+            return [QueueButton.NotToday, QueueButton.Later, QueueButton.Done, QueueButton.Finished]
+        case QueueNoteTemplate.Exclude:
+            return [QueueButton.ShowNext]
+        default:
+            return [QueueButton.ShowLess, QueueButton.ShowNext, QueueButton.ShowMore]
+    }
+}
+
+
+export function isNoteDue(note: QueueNote, allowNewLearns = false, allowNewLongMedia = false): boolean {
+    if (!allowNewLearns && note.template === QueueNoteTemplate.Learn && note.stage !== QueueNoteStage.Ongoing) {
+        return false
+    }
+    if (!allowNewLongMedia && note.template === QueueNoteTemplate.LongMedia && (!(note.stage === QueueNoteStage.Ongoing || note.stage === QueueNoteStage.Finished))) {
+        return false
+    }
+    let isDue = true
+    if (note.due) {
+        isDue = note.due < new Date()
+    }
+    // if (note.template === QueueNoteTemplate.Learn) console.info('returning due', isDue, 'for', note)
+    return isDue
+}
+
+
+
 
 // TODO: would love to use immutable data, but structuredClone has random issues :) 
 export function getNoteDataForDueInDays(note: QueueNote, days: number): QueueNote {
@@ -143,3 +188,6 @@ function scoreLearningNoteForTheFirstTime(note: QueueNote, btn: QueueButton): Qu
 
     return note
 }
+
+
+
