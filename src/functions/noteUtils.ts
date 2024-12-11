@@ -248,6 +248,7 @@ export function isNoteDue(note: QueueNote, allowNewLearns = false, allowNewLongM
     if (note.due) {
         isDue = note.due < new Date()
     }
+    // if (note.template === QueueNoteTemplate.Learn) console.info('returning due', isDue, 'for', note)
     return isDue
 }
 

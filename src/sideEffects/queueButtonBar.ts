@@ -37,7 +37,6 @@ export function setContentOfQueueBar(file: TFile | null, plugin: QueuePlugin) {
         if (file) {
             this.app.fileManager.processFrontMatter(file, (frontmatter: any) => {
                 const note = getNoteFromFrontMatter(frontmatter, file)
-                console.info('currently targeting note', note)
                 const buttons = getButtonsForNote(note)
 
                 buttons.forEach((btn) => {

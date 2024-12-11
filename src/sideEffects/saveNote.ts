@@ -15,9 +15,7 @@ export async function saveCurrentNote(plugin: QueuePlugin) {
                 frontmatter["q"]["template"] = template?.toLowerCase()
             }
 
-            console.info('saving, note stage', note.stage)
             if (note.stage !== undefined && note.stage !== QueueNoteStage.Base) {
-                console.info('saving stage')
                 const stage = Object.keys(QueueNoteStage).find(
                     // @ts-ignore
                     key => QueueNoteStage[key] === note.stage
@@ -39,6 +37,9 @@ export async function saveCurrentNote(plugin: QueuePlugin) {
             console.log('processed frontmatter, it is now', frontmatter)
             deletePropertiesWithOldPrefix(frontmatter)
         })
+
+        // delete note that was saved from notes, so that it won't be opened again
+        plugin.notes = plugin.notes.filter(el => el != note)
     }
 }
 
