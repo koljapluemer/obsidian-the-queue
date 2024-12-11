@@ -24,9 +24,7 @@ export async function getNotesFromFiles(files: TFile[]): Promise<QueueNote[]> {
 export function getRandomDueNoteFromNotes(notes: QueueNote[], plugin: QueuePlugin): QueueNote | null {
     const noteTemplates = [QueueNoteTemplate.Learn, QueueNoteTemplate.Learn, QueueNoteTemplate.Todo, QueueNoteTemplate.Habit, QueueNoteTemplate.Check, QueueNoteTemplate.ShortMedia, QueueNoteTemplate.LongMedia, QueueNoteTemplate.Misc]
     let templateToPick: QueueNoteTemplate | null
-    console.info('plugin', plugin)
     if (plugin.isStreakActive) {
-        console.info('streak active picking', plugin.currentTemplate  )
         plugin.streakCounter += 1
         if (plugin.streakCounter > 12) {
             plugin.streakCounter = 0
@@ -37,9 +35,7 @@ export function getRandomDueNoteFromNotes(notes: QueueNote[], plugin: QueuePlugi
         }
     } else {
         templateToPick = pickRandom(noteTemplates) 
-        console.info('picked template', templateToPick)
         if (templateToPick === QueueNoteTemplate.Learn ||templateToPick === QueueNoteTemplate.Check ) {
-            console.info('is check or learn')
             plugin.isStreakActive = true
             plugin.currentTemplate = templateToPick
         }
@@ -51,7 +47,6 @@ export function getRandomDueNoteFromNotes(notes: QueueNote[], plugin: QueuePlugi
     const allowNewLearns = nrDueLearns < 20
     const allowNewLongMedia = nrActiveLongMedia < 5
     console.info('ongoing learn notes currently due:', nrDueLearns)
-    console.info('ongoing long media:', nrActiveLongMedia)
     const simplyAllDueNotes = notes.filter(note => isNoteDue(note, allowNewLearns, allowNewLongMedia))
     const notesWithDesiredTemplate = simplyAllDueNotes.filter(note => note.template === templateToPick)
     return pickRandom(notesWithDesiredTemplate) || pickRandom(simplyAllDueNotes) || null

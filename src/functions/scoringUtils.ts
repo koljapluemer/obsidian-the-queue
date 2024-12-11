@@ -47,7 +47,6 @@ export function changeNoteDataAccordingToInteraction(note: QueueNote, btn: Queue
             break
     }
 
-    console.log('scored note', note)
     return note
 
 }
@@ -120,7 +119,7 @@ function scoreLearningNote(note: QueueNote, btn: QueueButton): QueueNote {
     } else {
         console.error("couldn't parse note's fsrs data, treating as new learning data", note)
         note = scoreLearningNoteForTheFirstTime(note, btn)
-        console.log(note.due !== undefined, note.stability !== undefined, note.difficulty !== undefined, note.elapsed !== undefined, note.scheduled !== undefined, note.reps !== undefined, note.lapses !== undefined, note.state !== undefined)
+        // console.log(note.due !== undefined, note.stability !== undefined, note.difficulty !== undefined, note.elapsed !== undefined, note.scheduled !== undefined, note.reps !== undefined, note.lapses !== undefined, note.state !== undefined)
     }
 
     note.stage = QueueNoteStage.Ongoing

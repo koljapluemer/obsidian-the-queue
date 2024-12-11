@@ -34,12 +34,11 @@ export async function saveCurrentNote(plugin: QueuePlugin) {
             if (note.lapses !== undefined) frontmatter["q"]["lapses"] = note.lapses
             if (note.state !== undefined) frontmatter["q"]["state"] = note.state
 
-            console.log('processed frontmatter, it is now', frontmatter)
             deletePropertiesWithOldPrefix(frontmatter)
         })
 
         // delete note that was saved from notes, so that it won't be opened again
-        plugin.notes = plugin.notes.filter(el => el != note)
+        plugin.notes = plugin.notes.filter(el => el.file !== note.file)
     }
 }
 
