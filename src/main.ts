@@ -20,11 +20,6 @@ export default class QueuePlugin extends Plugin {
     currentlyTargetedNote: QueueNote | null;
     notes: QueueNote[] = []
 
-    async onload() {
-        loadQueuePlugin(this)
-        this.addSettingTab(new QueuePluginSettingsTab(this.app, this));
-    }
-
     setCurrentlyTargetedNote(newNote: QueueNote | null) {
         this.currentlyTargetedNote = newNote;
         if (newNote) {
@@ -34,6 +29,10 @@ export default class QueuePlugin extends Plugin {
         }
     }
 
+    async onload() {
+        loadQueuePlugin(this)
+        this.addSettingTab(new QueuePluginSettingsTab(this.app, this));
+    }
 
     onunload() {
     }

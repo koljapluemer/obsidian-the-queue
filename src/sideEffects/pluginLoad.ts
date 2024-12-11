@@ -1,6 +1,7 @@
 import { TFile } from "obsidian";
 import QueuePlugin from "src/main";
 import { setContentOfQueueBar, toggleFloatingQueueBar } from "./queueButtonBar";
+import { getNoteFromFile } from "src/functions/noteUtils";
 
 export async function loadQueuePlugin(plugin:QueuePlugin) {
     await plugin.loadSettings();
@@ -11,11 +12,12 @@ export async function loadQueuePlugin(plugin:QueuePlugin) {
 
     // EVENT LISTENERS
     // TODO: make these dependent on whether queue is actually open
-    plugin.registerEvent(plugin.app.workspace.on('file-open', (file) => {
+    plugin.registerEvent(plugin.app.workspace.on('file-open', async (file) => {
         if (file) {
+            plugin.setCurrentlyTargetedNote(await getNoteFromFile(file))
             setContentOfQueueBar(file,plugin)
         } else {
-            setContentOfQueueBar(null,plugin)
+            plugin.setCurrentlyTargetedNote(null)
         }
     }));
     plugin.registerEvent(plugin.app.vault.on('modify', (file) => {
