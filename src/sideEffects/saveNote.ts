@@ -15,10 +15,12 @@ export async function saveCurrentNote(plugin: QueuePlugin) {
                 frontmatter["q"]["template"] = template?.toLowerCase()
             }
 
+            console.info('saving, note stage', note.stage)
             if (note.stage !== undefined && note.stage !== QueueNoteStage.Base) {
+                console.info('saving stage')
                 const stage = Object.keys(QueueNoteStage).find(
                     // @ts-ignore
-                    key => QueueNoteTemplate[key] === note.stage
+                    key => QueueNoteStage[key] === note.stage
                 )
                 frontmatter["q"]["stage"] = stage?.toLowerCase()
             }

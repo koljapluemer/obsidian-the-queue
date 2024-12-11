@@ -20,10 +20,17 @@ export async function getNotesFromFiles(files: TFile[]): Promise<QueueNote[]> {
 }
 
 
-export function getRandomDueNoteFromNotes(notes: QueueNote[], justGetAnyNote = false): QueueNote | null {
+export function getRandomDueNoteFromNotes(notes: QueueNote[]): QueueNote | null {
     const noteTemplates = [QueueNoteTemplate.Learn, QueueNoteTemplate.Learn, QueueNoteTemplate.Todo, QueueNoteTemplate.Habit, QueueNoteTemplate.Check, QueueNoteTemplate.ShortMedia, QueueNoteTemplate.LongMedia, QueueNoteTemplate.Misc]
     const templateToPick = pickRandom(noteTemplates)
-    const simplyAllDueNotes = notes.filter(note => isNoteDue(note))
+    const nrDueLearns = notes.filter(note => note.template === QueueNoteTemplate.Learn && note.stage === QueueNoteStage.Ongoing && isNoteDue(note)).length
+    const nrActiveLongMedia = notes.filter(note => note.template === QueueNoteTemplate.LongMedia && note.stage === QueueNoteStage.Ongoing).length
+    // TODO: hook up magic numbers to settings instead
+    const allowNewLearns = nrDueLearns < 20
+    const allowNewLongMedia = nrActiveLongMedia < 5
+    console.info('ongoing learn notes currently due:', nrDueLearns)
+    console.info('ongoing long media:', nrActiveLongMedia)
+    const simplyAllDueNotes = notes.filter(note => isNoteDue(note, allowNewLearns, allowNewLongMedia))
     const notesWithDesiredTemplate = simplyAllDueNotes.filter(note => note.template === templateToPick)
     return pickRandom(notesWithDesiredTemplate) || pickRandom(simplyAllDueNotes) || null
 }
@@ -96,10 +103,13 @@ export function getNoteFromFrontMatter(frontmatter: any, file: TFile): QueueNote
         switch (stageString) {
             case 'unstarted':
                 note.stage = QueueNoteStage.Unstarted
+                break
             case 'ongoing':
                 note.stage = QueueNoteStage.Ongoing
+                break
             case 'finished':
                 note.stage = QueueNoteStage.Finished
+                break
         }
 
         if (q["due"] !== undefined) note.due = new Date(q["due"])
@@ -118,7 +128,6 @@ export function getNoteFromFrontMatter(frontmatter: any, file: TFile): QueueNote
         // old paradigm
 
         const templateString = frontmatter["q-type"] || ""
-
         switch (templateString) {
             case 'learn-started':
             case 'learn':
@@ -146,6 +155,17 @@ export function getNoteFromFrontMatter(frontmatter: any, file: TFile): QueueNote
                 break
         }
 
+        // check stages
+        switch (templateString) {
+            case 'learn-started':
+            case 'book-started':
+                note.stage = QueueNoteStage.Ongoing
+                break
+            case 'book-finished':
+                note.stage = QueueNoteStage.Finished
+                break
+        }
+
         const queueData = frontmatter["q-data"]
         if (queueData) {
             // due-at changes for learn ntoes
@@ -170,7 +190,7 @@ export function getNoteFromFrontMatter(frontmatter: any, file: TFile): QueueNote
             }
         }
 
-        const intervalVal = frontmatter["q-interval"] 
+        const intervalVal = frontmatter["q-interval"]
         note.interval = intervalVal
     }
 
@@ -217,7 +237,13 @@ export function getButtonsForNote(note: QueueNote): QueueButton[] {
 }
 
 
-export function isNoteDue(note: QueueNote): boolean {
+export function isNoteDue(note: QueueNote, allowNewLearns = false, allowNewLongMedia = false): boolean {
+    if (!allowNewLearns && note.template === QueueNoteTemplate.Learn && note.stage !== QueueNoteStage.Ongoing) {
+        return false
+    }
+    if (!allowNewLongMedia && note.template === QueueNoteTemplate.LongMedia && (!(note.stage === QueueNoteStage.Ongoing || note.stage === QueueNoteStage.Finished))) {
+        return false
+    }
     let isDue = true
     if (note.due) {
         isDue = note.due < new Date()
