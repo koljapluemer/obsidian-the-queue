@@ -27,7 +27,7 @@ export function getRandomDueNoteFromNotes(notes: QueueNote[], justGetAnyNote = f
     const templateToPick = pickRandom(noteTemplates)
     const simplyAllDueNotes = notes.filter(note => isNoteDue(note))
     const notesWithDesiredTemplate = simplyAllDueNotes.filter(note => note.template === templateToPick)
-    console.log('pref template', templateToPick, 'notes w/ that', notesWithDesiredTemplate)
+    console.log('pref template', templateToPick, 'notes w/ that', notesWithDesiredTemplate.length)
     return pickRandom(notesWithDesiredTemplate) || pickRandom(simplyAllDueNotes) || null
 }
 
