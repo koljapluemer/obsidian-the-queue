@@ -11,24 +11,11 @@ export class QueueMediator {
     noteShuffler: NoteShuffler
     activeNoteManager: ActiveNoteManager
 
-    constructor(queueBar: QueueBar, noteShuffler: NoteShuffler, activeNoteManager: ActiveNoteManager) {
-        this.queueBar = queueBar
-        queueBar.setMediator(this)
-
-        this.noteShuffler = noteShuffler
-        noteShuffler.setMediator(this)
-
-        this.activeNoteManager = activeNoteManager
-        activeNoteManager.setMediator(this)
-        
+    constructor() {
     }
 
-    onNewActiveNote(note:QueueNote | null) {
-        if (note) {
-            this.queueBar.renderButtonsForNote(note.getButtons())
-        } else {
-            this.queueBar.renderButtonsForEmpty()
-        }
+    onNewActiveNote(note: QueueNote | null) {
+        this.rerenderQueueBar()
     }
 
     requestNewNote() {
@@ -37,5 +24,17 @@ export class QueueMediator {
 
     onBarButtonClicked(btn: QueueButton) {
         console.info('button clicked', btn)
+    }
+
+    rerenderQueueBar() {
+        if (this.queueBar) {
+            if (this.activeNoteManager.activeNote) {
+                this.queueBar.renderButtonsForNote(this.activeNoteManager.activeNote.getButtons())
+            } else {
+                this.queueBar.renderButtonsForEmpty()
+            }
+        } else {
+            console.warn('queue bar not yet loaded')
+        }
     }
 }

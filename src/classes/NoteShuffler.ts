@@ -3,7 +3,8 @@ import { QueueMediator } from "./QueueMediator"
 export class NoteShuffler {
     mediator: QueueMediator
 
-    setMediator(mediator: QueueMediator) {
+    constructor(mediator: QueueMediator) {
         this.mediator = mediator
+        mediator.noteShuffler = this
     }
 }

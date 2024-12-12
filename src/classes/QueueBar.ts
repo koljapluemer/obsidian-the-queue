@@ -9,11 +9,10 @@ export class QueueBar {
     buttonHolderEl: Element
     mediator: QueueMediator
 
-    setMediator(mediator: QueueMediator) {
-        this.mediator = mediator
-    }
 
-    constructor(parentEl: Element) {
+    constructor(parentEl: Element, mediator: QueueMediator) {
+        this.mediator = mediator
+        mediator.queueBar = this
         this.containerEl = parentEl
     }
 
@@ -32,22 +31,22 @@ export class QueueBar {
         this.buttonHolderEl = this.el.createEl('div', { cls: 'q-floating-bar-btn-holder' })
         this.el.createEl('button', { text: 'X' })
             .addEventListener('click', () => { this.toggle() })
+        this.mediator.rerenderQueueBar()
     }
 
     #close() {
         this.el.remove()
-        console.log('closed')
     }
 
 
     renderButtonsForEmpty() {
-        console.info('rendering empty queue bar')
+        this.buttonHolderEl.innerHTML = ''
         this.buttonHolderEl.createEl('button', { text: 'Show random due note' })
             .addEventListener('click', () => { this.mediator.requestNewNote() })
     }
 
     renderButtonsForNote(buttons: QueueButton[]) {
-        console.info('rendering bar with note')
+        this.buttonHolderEl.innerHTML = ''
 
         buttons.forEach((btn) => {
             this.buttonHolderEl.createEl('button', { text: btn })

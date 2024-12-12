@@ -18,15 +18,15 @@ const DEFAULT_SETTINGS: QueueSettings = {
 // acts as Mediator for main components
 export default class QueuePlugin extends Plugin {
 
-    queueBar:QueueBar
+    queueBar: QueueBar
 
     async onload() {
         setQueuePluginContext(this)
+        const mediator = new QueueMediator()
 
-        this.queueBar = new QueueBar(this.app.workspace.containerEl)
-        const noteShuffer = new NoteShuffler()
-        const activeNoteManager = new ActiveNoteManager()
-        new QueueMediator(this.queueBar, noteShuffer, activeNoteManager)
+        this.queueBar = new QueueBar(this.app.workspace.containerEl, mediator)
+        const noteShuffer = new NoteShuffler(mediator)
+        const activeNoteManager = new ActiveNoteManager(mediator)
 
         this.addRibbonIcon('banana', 'Toggle Queue', (evt: MouseEvent) => {
             this.queueBar.toggle()

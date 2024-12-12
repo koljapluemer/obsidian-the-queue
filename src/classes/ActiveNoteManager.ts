@@ -8,13 +8,16 @@ export class ActiveNoteManager {
     activeFile:TFile | null
     mediator: QueueMediator
 
-    setMediator(mediator:QueueMediator) {
+
+
+    constructor(mediator:QueueMediator) {
         this.mediator = mediator
-    }
-
-    constructor() {
+        mediator.activeNoteManager = this
         const context = getPluginContext()
+        this.processNewFile(context.app.workspace.getActiveFile())
 
+
+        // watching for new changes to open files
         context.plugin.registerEvent(context.app.workspace.on('file-open', async (file) => {
             this.processNewFile(file)
         }))
@@ -22,7 +25,7 @@ export class ActiveNoteManager {
 
     async processNewFile(file:TFile | null) {
         this.activeFile = file
-        if (file !== null) {
+        if (file) {
             this.activeNote = await QueueNote.createNoteFromFile(file)
         } else {
             this.activeNote = null
