@@ -20,18 +20,17 @@ export class QueueMediator {
     }
 
     async requestNewNote() {
-        console.info('new note requested')
         const newRandomNote = await this.noteShuffler.getDueNote()
-        console.info('got new note', newRandomNote)
         if (newRandomNote) {
             openFile(newRandomNote.file)
         }
     }
 
     onBarButtonClicked(btn: QueueButton) {
-        console.info('button clicked', btn)
+        this.requestNewNote()
     }
 
+  
     rerenderQueueBar() {
         if (this.queueBar) {
             if (this.activeNoteManager.activeNote) {
