@@ -1,7 +1,9 @@
 import { TFile } from "obsidian"
 import { getNoteDataFromFrontmatter, getNoteDataFromFrontmatterWithLegacyParadigm } from "src/helpers/frontmatterReaders"
+import { adaptLearnNoteDataAccordingToScore } from "src/helpers/fsrsUtils"
 import { getFrontmatterOfFile } from "src/helpers/vaultUtils"
 import { QueueButton, QueueNoteData, QueueNoteStage, QueueNoteTemplate } from "src/types"
+import { Card } from "ts-fsrs"
 
 // every TFile may be converted to a QueueNote,
 // which holds the actual properties that interests us directly
@@ -64,6 +66,57 @@ export class QueueNote {
         }
         return isDue
     }
+
+    // SCORING STUFF
+
+    public score(btn: QueueButton) {
+        // managing due
+        switch (btn) {
+            case QueueButton.Correct:
+            case QueueButton.Easy:
+            case QueueButton.Hard:
+            case QueueButton.Wrong:
+                this.qData = adaptLearnNoteDataAccordingToScore(this.qData, btn)
+                break
+            case QueueButton.CheckKindOf:
+            case QueueButton.CheckYes:
+            case QueueButton.CheckNo:
+            case QueueButton.Done:
+                this.setDueInDays(this.qData.interval || 1)
+                break
+            case QueueButton.Later:
+                this.setDueInDays(0.01)
+                break
+            case QueueButton.Finished:
+            case QueueButton.ShowLess:
+            case QueueButton.ShowMore:
+            case QueueButton.ShowNext:
+            case QueueButton.NotToday:
+            default:
+                this.setDueInDays(1)
+                break
+        }
+
+        console.info('note scored, now', this.qData)
+    }
+
+
+    private setDueInDays(days: number) {
+        const now = new Date();
+        if (days > 1) {
+            const nextDay = new Date(now);
+            // Set to the next day
+            nextDay.setDate(now.getDate() + days);
+            // Set time to 3:00 AM
+            nextDay.setHours(3, 0, 0, 0);
+            this.qData.due = nextDay
+        } else {
+            const soon = new Date(now);
+            soon.setTime(now.getTime() + (days * 24 * 60 * 60 * 1000))
+            this.qData.due = soon
+        }
+    }
+
 
 
 

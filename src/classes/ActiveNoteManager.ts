@@ -2,6 +2,7 @@ import { TFile } from "obsidian";
 import { QueueNote } from "./QueueNote";
 import { QueueMediator } from "./QueueMediator";
 import { getPluginContext } from "src/helpers/pluginContext";
+import { QueueButton } from "src/types";
 
 // knows which note and file are currently active
 // to do this job, listens to new files being opened etc.
@@ -44,5 +45,11 @@ export class ActiveNoteManager {
         }
     }
 
-    
+    scoreAndSaveActive(btn:QueueButton) {
+        if (this.activeNote) {
+            console.info('about to score note', this.activeNote)
+            this.activeNote.score(btn)
+        }
+    }
+
 }
