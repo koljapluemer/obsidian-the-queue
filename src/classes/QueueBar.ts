@@ -20,25 +20,24 @@ export class QueueBar {
 
     toggle() {
         if (this.isOpen) {
-            this.#close()
+            this.close()
             this.isOpen = false
-            this.mediator.onQueueBarOpened()
         } else {
-            this.#open()
+            this.open()
             this.isOpen = true
-            this.mediator.onQueueBarClosed()
         }
     }
 
-    #open() {
+    private open() {
         this.el = this.containerEl.createEl('div', { cls: 'q-floating-bar' });
         this.buttonHolderEl = this.el.createEl('div', { cls: 'q-floating-bar-btn-holder' })
         this.el.createEl('button', { text: 'X' })
             .addEventListener('click', () => { this.toggle() })
-        this.mediator.rerenderQueueBar()
+        this.mediator.onQueueBarOpened()
     }
 
-    #close() {
+    private close() {
+        this.mediator.onQueueBarClosed()
         this.el.remove()
     }
 

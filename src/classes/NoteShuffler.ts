@@ -3,29 +3,42 @@ import { QueueNote } from "./QueueNote"
 import { QueueNoteStage, QueueNoteTemplate } from "src/types"
 import { getAllMdFiles } from "src/helpers/vaultUtils"
 import { getRandomInt, pickRandom } from "src/helpers/arrayUtils"
+import { StreakManager } from "./StreakManager"
 
 // knows the notes
 // when asked, produces a random note (probably to open it)
 export class NoteShuffler {
     mediator: QueueMediator
     notes: QueueNote[] = []
+    streakManager: StreakManager
+    notesCurrentlyLoading = false
 
     constructor(mediator: QueueMediator) {
         this.mediator = mediator
         mediator.noteShuffler = this
+        this.streakManager = new StreakManager()
     }
 
     public async getDueNote(): Promise<QueueNote | null> {
+        let note: QueueNote | null
         if (this.notes.length > 0) {
-            console.info('notes fully loaded, picking from full set')
-            return this.getDueNoteFromAllNotes()
+            note = this.getDueNoteFromAllNotes()
         } else {
-            console.info('notes not yet fully loaded, picking any')
-            return await this.getDueNoteQuickly()
+            note = await this.getDueNoteQuickly()
+        }
+        if (note) this.streakManager.onNoteWithTemplateWasPicked(note.qData.template)
+        return note
+    }
+
+    public requestLoadingNotes() {
+        if (!this.notesCurrentlyLoading) {
+            this.notesCurrentlyLoading = true
+            this.loadNotes()
+        } else {
         }
     }
 
-    public async loadNotes() {
+    private async loadNotes() {
         const allFiles = getAllMdFiles();
         try {
             const notes: QueueNote[] = []
@@ -35,19 +48,20 @@ export class NoteShuffler {
                     notes.push(note)
                 }
             }
-            console.info('finished loading notes:', notes.length)
+            console.info('Finished loading notes:', notes.length)
             this.notes = notes
         } catch (error) {
             console.error('Error loading notes:', error);
         }
+        this.notesCurrentlyLoading = false
     }
 
     private getDueNoteFromAllNotes(): QueueNote | null {
         const notes = this.notes
         const noteTemplates = [QueueNoteTemplate.Learn, QueueNoteTemplate.Learn, QueueNoteTemplate.Todo, QueueNoteTemplate.Habit, QueueNoteTemplate.Check, QueueNoteTemplate.ShortMedia, QueueNoteTemplate.LongMedia, QueueNoteTemplate.Misc]
-        let templateToPick: QueueNoteTemplate | null
 
-        templateToPick = pickRandom(noteTemplates)
+        let templateToPick = this.streakManager.getCurrentStreakTemplate()
+        if (templateToPick === null) templateToPick = pickRandom(noteTemplates)
 
         const nrDueLearns = notes.filter(note => note.qData.template === QueueNoteTemplate.Learn && note.qData.stage === QueueNoteStage.Ongoing && note.isDue()).length
         const nrActiveLongMedia = notes.filter(note => note.qData.template === QueueNoteTemplate.LongMedia && note.qData.stage === QueueNoteStage.Ongoing).length
