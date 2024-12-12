@@ -40,17 +40,21 @@ export class QueueBar {
 
 
     renderButtonsForEmpty() {
-        this.buttonHolderEl.innerHTML = ''
-        this.buttonHolderEl.createEl('button', { text: 'Show random due note' })
-            .addEventListener('click', () => { this.mediator.requestNewNote() })
+        if (this.buttonHolderEl) {
+            this.buttonHolderEl.innerHTML = ''
+            this.buttonHolderEl.createEl('button', { text: 'Show random due note' })
+                .addEventListener('click', () => { this.mediator.requestNewNote() })
+        }
     }
 
     renderButtonsForNote(buttons: QueueButton[]) {
-        this.buttonHolderEl.innerHTML = ''
+        if (this.buttonHolderEl) {
+            this.buttonHolderEl.innerHTML = ''
 
-        buttons.forEach((btn) => {
-            this.buttonHolderEl.createEl('button', { text: btn })
-                .addEventListener('click', () => { this.mediator.onBarButtonClicked(btn) })
-        })
+            buttons.forEach((btn) => {
+                this.buttonHolderEl.createEl('button', { text: btn })
+                    .addEventListener('click', () => { this.mediator.onBarButtonClicked(btn) })
+            })
+        }
     }
 }

@@ -10,11 +10,20 @@ export function getFrontmatterOfFile(file: TFile): Promise<any | null> {
             const fileManager = getPluginContext().app.fileManager
             fileManager.processFrontMatter(file, frontmatter => {
                 resolve(frontmatter)
-
             })
         } catch (error) {
             console.error(error);
             return null
         }
     })
+}
+
+export function getAllMdFiles(): TFile[] {
+    const files = getPluginContext().app.vault.getMarkdownFiles()
+    console.info('found md files:', files.length)
+    return files
+}
+
+export function openFile(file:TFile) {
+    this.app.workspace.getLeaf(false).openFile(file)
 }

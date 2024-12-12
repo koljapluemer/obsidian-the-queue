@@ -39,40 +39,10 @@
 // }
 
 
-// export async function getFirstDueNoteFromVaultThatWeCanFind(): Promise<QueueNote | null> {
-//     try {
-//         const allFiles = this.app.vault.getMarkdownFiles();
-//         const randomStartIndex = Math.floor(Math.random() * allFiles.length);
-//         let dueNote: QueueNote | null = null
-//         for (const file of allFiles.slice(randomStartIndex).concat(allFiles)) {
-//             const note = await getNoteFromFile(file)
-//             if (note) {
-
-//                 if (isNoteDue(note)) {
-//                     dueNote = note
-//                     break
-//                 }
-//             } else {
-//                 console.warn('could not create note for file', file)
-//             }
-//         }
-//         if (dueNote) {
-//             return dueNote
-//         } else {
-//             return null
-//         }
-//     }
-//     catch (error) {
-//         console.error('Error retrieving first due note note:', error);
-//         return null
-//     }
-// }
 
 
-// export async function loadNotes(plugin: QueuePlugin) {
-//     const allFiles = this.app.vault.getMarkdownFiles();
-//     plugin.notes = await getNotesFromFiles(allFiles)
-// }
+
+
 
 
 // export async function saveCurrentNote(plugin: QueuePlugin) {
