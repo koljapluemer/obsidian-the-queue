@@ -23,18 +23,16 @@ export default class QueuePlugin extends Plugin {
     async onload() {
         setQueuePluginContext(this)
 
-        this.queueBar = new QueueBar(this, this.app.workspace.containerEl)
+        this.queueBar = new QueueBar(this.app.workspace.containerEl)
         const noteShuffer = new NoteShuffler()
         const activeNoteManager = new ActiveNoteManager()
-        const mediator = new QueueMediator()
+        new QueueMediator(this.queueBar, noteShuffer, activeNoteManager)
 
         this.addRibbonIcon('banana', 'Toggle Queue', (evt: MouseEvent) => {
             this.queueBar.toggle()
         });
 
-        this.registerEvent(this.app.workspace.on('file-open', async (file) => {
-            this.activeNoteManager.onNewFileOpened(file)
-        }))
+
     }
 }
 

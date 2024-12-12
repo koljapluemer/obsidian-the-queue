@@ -13,3 +13,11 @@
     flex-direction: row;
     gap: var(--size-4-4);
 }
+
+.q-floating-bar-btn-holder {
+    display: flex;
+    flex-direction: row;
+    gap: var(--size-4-4);
+    margin: 0;
+    padding: 0
+}

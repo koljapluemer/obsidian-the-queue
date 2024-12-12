@@ -6,12 +6,26 @@ import { QueueButton, QueueNoteData, QueueNoteStage, QueueNoteTemplate } from "s
 export class QueueNote {
     file: TFile
     qData: QueueNoteData
-    constructor(file: TFile, qData:QueueNoteData) {
+    constructor(file: TFile, qData: QueueNoteData) {
         this.file = file;
-        this.qData = qData 
+        this.qData = qData
     }
 
-    public getButtonsForNote(): QueueButton[] {
+    public static async createNoteFromFile(file: TFile): Promise<QueueNote> {
+        const frontmatter = await getFrontmatterOfFile(file)
+        let qData: QueueNoteData
+        // check if note is already written in the new paradigm
+        if (frontmatter["q"]) {
+            qData = getNoteDataFromFrontmatter(frontmatter)
+        } else {
+            qData = getNoteDataFromFrontmatterWithLegacyParadigm(frontmatter)
+        }
+
+        const note = new QueueNote(file, qData)
+        return note
+    }
+
+    public getButtons(): QueueButton[] {
         switch (this.qData.template) {
             case QueueNoteTemplate.Habit:
                 return [QueueButton.NotToday, QueueButton.Later, QueueButton.Done]
@@ -47,18 +61,5 @@ export class QueueNote {
     }
 
 
-    public static async createNoteFromFile(file:TFile):Promise<QueueNote> {
-        const frontmatter = await getFrontmatterOfFile(file)
-        let qData:QueueNoteData
-        // check if note is already written in the new paradigm
-        if (frontmatter["q"]) {
-            qData = getNoteDataFromFrontmatter(frontmatter)
-        } else {
-            qData = getNoteDataFromFrontmatterWithLegacyParadigm(frontmatter)
-        }
 
-        const note = new QueueNote(file, qData)
-        return note
-    }
 }
-      
