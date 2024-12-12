@@ -3,6 +3,7 @@ import { QueueBar } from './classes/QueueBar';
 import { NoteShuffler } from './classes/NoteShuffler';
 import { ActiveNoteManager } from './classes/ActiveNoteManager';
 import { setQueuePluginContext } from './helpers/pluginContext';
+import { QueueMediator } from './classes/QueueMediator';
 
 
 interface QueueSettings {
@@ -16,13 +17,17 @@ const DEFAULT_SETTINGS: QueueSettings = {
 
 // acts as Mediator for main components
 export default class QueuePlugin extends Plugin {
-    queueBar: QueueBar
-    noteShuffer: NoteShuffler = new NoteShuffler()
-    activeNoteManager: ActiveNoteManager = new ActiveNoteManager()
+
+    queueBar:QueueBar
 
     async onload() {
         setQueuePluginContext(this)
-        this.queueBar =  new QueueBar(this, this.app.workspace.containerEl)
+
+        this.queueBar = new QueueBar(this, this.app.workspace.containerEl)
+        const noteShuffer = new NoteShuffler()
+        const activeNoteManager = new ActiveNoteManager()
+        const mediator = new QueueMediator()
+
         this.addRibbonIcon('banana', 'Toggle Queue', (evt: MouseEvent) => {
             this.queueBar.toggle()
         });

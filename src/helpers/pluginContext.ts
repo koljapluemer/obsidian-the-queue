@@ -4,13 +4,15 @@ import QueuePlugin from "src/main";
 
 export interface QueuePluginContext {
     app: App;
+    plugin: QueuePlugin;
 }
 
 let context: QueuePluginContext;
 
 export function setQueuePluginContext(plugin: QueuePlugin): void {
     context = {
-        app: plugin.app
+        app: plugin.app,
+        plugin: plugin
     }
 }
 

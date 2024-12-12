@@ -8,7 +8,7 @@ export class ActiveNoteManager {
     constructor() {
     }
 
-    onNewFileOpened(file:TFile | null) {
-        this.activeFile = file
-    }
+    // onNewFileOpened(file:TFile | null) {
+    //     this.activeFile = file
+    // }
 }
