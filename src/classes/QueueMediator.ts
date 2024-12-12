@@ -7,6 +7,9 @@ import { QueueNote } from "./QueueNote"
 import { QueueButton } from "src/types"
 import { openFile } from "src/helpers/vaultUtils"
 
+// a kind of awkward state tracker, mediates between the other classes
+// e.g. the button registers a click on "Correct" here,
+// this mediator sees that the note is scored, saved, and a new one loaded
 export class QueueMediator {
     queueBar: QueueBar
     noteShuffler: NoteShuffler

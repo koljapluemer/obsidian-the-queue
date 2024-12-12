@@ -3,11 +3,14 @@ import { QueueNote } from "./QueueNote";
 import { QueueMediator } from "./QueueMediator";
 import { getPluginContext } from "src/helpers/pluginContext";
 
+// knows which note and file are currently active
+// to do this job, listens to new files being opened etc.
+// keeps activeFile (TFile) and the active QueueNote
+// apart from that, mostly signals changes up to the mediator
 export class ActiveNoteManager {
     activeNote:QueueNote | null
     activeFile:TFile | null
     mediator: QueueMediator
-
 
 
     constructor(mediator:QueueMediator) {

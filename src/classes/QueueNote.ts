@@ -3,6 +3,11 @@ import { getNoteDataFromFrontmatter, getNoteDataFromFrontmatterWithLegacyParadig
 import { getFrontmatterOfFile } from "src/helpers/vaultUtils"
 import { QueueButton, QueueNoteData, QueueNoteStage, QueueNoteTemplate } from "src/types"
 
+// every TFile may be converted to a QueueNote,
+// which holds the actual properties that interests us directly
+// (e.g. the interval, or the template)
+// has a million methods used by other classes related to interactiong
+// w/ a singular note
 export class QueueNote {
     file: TFile
     qData: QueueNoteData

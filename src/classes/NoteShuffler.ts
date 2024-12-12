@@ -1,9 +1,11 @@
-import { getRandomInt, pickRandom } from "src/utils/arrayUtils"
 import { QueueMediator } from "./QueueMediator"
 import { QueueNote } from "./QueueNote"
 import { QueueNoteTemplate } from "src/types"
 import { getAllMdFiles } from "src/helpers/vaultUtils"
+import { getRandomInt } from "src/helpers/arrayUtils"
 
+// knows the notes
+// when asked, produces a random note (probably to open it)
 export class NoteShuffler {
     mediator: QueueMediator
     notes: QueueNote[] = []

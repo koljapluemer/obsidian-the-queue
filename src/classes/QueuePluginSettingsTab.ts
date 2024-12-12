@@ -1,6 +1,7 @@
 import { App, PluginSettingTab, Setting } from "obsidian";
 import QueuePlugin from "src/main";
 
+// TODO: build
 export class QueuePluginSettingsTab extends PluginSettingTab {
     plugin: QueuePlugin;
 

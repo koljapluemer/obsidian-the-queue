@@ -2,6 +2,8 @@ import QueuePlugin from "src/main"
 import { QueueMediator } from "./QueueMediator"
 import { QueueButton } from "src/types"
 
+// visual component with the buttons (e.g. Wrong, Hard, Correct)
+// should not contain business logic; defer that to the mediator
 export class QueueBar {
     isOpen = false
     containerEl: Element
