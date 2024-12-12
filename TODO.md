@@ -1,1 +1,3 @@
 - keep working on `queuenote.ts` (the new class) at the end, at that function where we need annoying dependencies or move the function elsewhere
+- temp roll back to `4919e680336b99` to be able to use the thing
+    - (or check out main I guess)   
