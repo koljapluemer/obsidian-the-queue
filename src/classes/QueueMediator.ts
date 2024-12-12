@@ -30,7 +30,6 @@ export class QueueMediator {
     }
 
     onBarButtonClicked(btn: QueueButton) {
-        console.info('mediator: button bar click registered')
         this.activeNoteManager.scoreAndSaveActive(btn)
         this.requestNewNote()
     }

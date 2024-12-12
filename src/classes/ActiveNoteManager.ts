@@ -48,7 +48,6 @@ export class ActiveNoteManager {
 
     scoreAndSaveActive(btn: QueueButton) {
         if (this.activeNote) {
-            console.info('about to score note', this.activeNote)
             this.activeNote.score(btn)
             saveNoteToVault(this.activeNote)
         }

@@ -26,7 +26,6 @@ export class NoteShuffler {
     }
 
     public async loadNotes() {
-        console.info('started loading the big notes')
         const allFiles = getAllMdFiles();
         try {
             const notes: QueueNote[] = []

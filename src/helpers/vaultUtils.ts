@@ -22,7 +22,6 @@ export function getFrontmatterOfFile(file: TFile): Promise<any | null> {
 
 export function getAllMdFiles(): TFile[] {
     const files = getPluginContext().app.vault.getMarkdownFiles()
-    console.info('found md files:', files.length)
     return files
 }
 
@@ -33,7 +32,6 @@ export function openFile(file: TFile) {
 // SAVING
 
 export function saveNoteToVault(note: QueueNote) {
-    console.info('saving...')
     if (note) {
         getPluginContext().app.fileManager.processFrontMatter(note.file, (frontmatter: any) => {
             frontmatter["q"] = frontmatter["q"] || {}

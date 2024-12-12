@@ -3,7 +3,6 @@ import { getNoteDataFromFrontmatter, getNoteDataFromFrontmatterWithLegacyParadig
 import { adaptLearnNoteDataAccordingToScore } from "src/helpers/fsrsUtils"
 import { getFrontmatterOfFile } from "src/helpers/vaultUtils"
 import { QueueButton, QueueNoteData, QueueNoteStage, QueueNoteTemplate } from "src/types"
-import { Card } from "ts-fsrs"
 
 // every TFile may be converted to a QueueNote,
 // which holds the actual properties that interests us directly
@@ -18,6 +17,7 @@ export class QueueNote {
         this.qData = qData
     }
 
+
     public static async createNoteFromFile(file: TFile): Promise<QueueNote> {
         const frontmatter = await getFrontmatterOfFile(file)
         let qData: QueueNoteData
@@ -31,6 +31,7 @@ export class QueueNote {
         const note = new QueueNote(file, qData)
         return note
     }
+
 
     public getButtons(): QueueButton[] {
         switch (this.qData.template) {
@@ -52,6 +53,7 @@ export class QueueNote {
                 return [QueueButton.ShowLess, QueueButton.ShowNext, QueueButton.ShowMore]
         }
     }
+
 
     public isDue(allowNewLearns = false, allowNewLongMedia = false): boolean {
         if (!allowNewLearns && this.qData.template === QueueNoteTemplate.Learn && this.qData.stage !== QueueNoteStage.Ongoing) {
@@ -96,8 +98,6 @@ export class QueueNote {
                 this.setDueInDays(1)
                 break
         }
-
-        console.info('note scored, now', this.qData)
     }
 
 
@@ -116,10 +116,4 @@ export class QueueNote {
             this.qData.due = soon
         }
     }
-
-    // SAVING
-
-
-
-
 }
