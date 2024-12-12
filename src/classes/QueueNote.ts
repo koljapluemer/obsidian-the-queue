@@ -1,61 +1,18 @@
 import { TFile } from "obsidian"
+import { getNoteDataFromFrontmatter, getNoteDataFromFrontmatterWithLegacyParadigm } from "src/helpers/frontmatterReaders"
 import { getFrontmatterOfFile } from "src/helpers/vaultUtils"
-import { QueueButton, QueueNoteStage, QueueNoteTemplate } from "src/types"
+import { QueueButton, QueueNoteData, QueueNoteStage, QueueNoteTemplate } from "src/types"
 
 export class QueueNote {
     file: TFile
-    template: QueueNoteTemplate
-    stage?: QueueNoteStage
-    priority?: number
-    due?: Date
-    seen?: Date
-    interval?: number
-    history?: string
-    // fsrs
-    stability?: number
-    difficulty?: number
-    elapsed?: number
-    scheduled?: number
-    reps?: number
-    lapses?: number
-    state?: number
-
-    constructor(params: {
-        file: TFile;
-        template: QueueNoteTemplate;
-        stage?: QueueNoteStage;
-        priority?: number;
-        due?: Date;
-        seen?: Date;
-        interval?: number;
-        history?: string;
-        stability?: number;
-        difficulty?: number;
-        elapsed?: number;
-        scheduled?: number;
-        reps?: number;
-        lapses?: number;
-        state?: number;
-    }) {
-        this.file = params.file;
-        this.template = params.template;
-        this.stage = params.stage;
-        this.priority = params.priority;
-        this.due = params.due;
-        this.seen = params.seen;
-        this.interval = params.interval;
-        this.history = params.history;
-        this.stability = params.stability;
-        this.difficulty = params.difficulty;
-        this.elapsed = params.elapsed;
-        this.scheduled = params.scheduled;
-        this.reps = params.reps;
-        this.lapses = params.lapses;
-        this.state = params.state;
+    qData: QueueNoteData
+    constructor(file: TFile, qData:QueueNoteData) {
+        this.file = file;
+        this.qData = qData 
     }
 
     public getButtonsForNote(): QueueButton[] {
-        switch (this.template) {
+        switch (this.qData.template) {
             case QueueNoteTemplate.Habit:
                 return [QueueButton.NotToday, QueueButton.Later, QueueButton.Done]
             case QueueNoteTemplate.Learn:
@@ -76,19 +33,32 @@ export class QueueNote {
     }
 
     public isDue(allowNewLearns = false, allowNewLongMedia = false): boolean {
-        if (!allowNewLearns && this.template === QueueNoteTemplate.Learn && this.stage !== QueueNoteStage.Ongoing) {
+        if (!allowNewLearns && this.qData.template === QueueNoteTemplate.Learn && this.qData.stage !== QueueNoteStage.Ongoing) {
             return false
         }
-        if (!allowNewLongMedia && this.template === QueueNoteTemplate.LongMedia && (!(this.stage === QueueNoteStage.Ongoing || this.stage === QueueNoteStage.Finished))) {
+        if (!allowNewLongMedia && this.qData.template === QueueNoteTemplate.LongMedia && (!(this.qData.stage === QueueNoteStage.Ongoing || this.qData.stage === QueueNoteStage.Finished))) {
             return false
         }
         let isDue = true
-        if (this.due) {
-            isDue = this.due < new Date()
+        if (this.qData.due) {
+            isDue = this.qData.due < new Date()
         }
         return isDue
     }
 
 
+    public static async createNoteFromFile(file:TFile):Promise<QueueNote> {
+        const frontmatter = await getFrontmatterOfFile(file)
+        let qData:QueueNoteData
+        // check if note is already written in the new paradigm
+        if (frontmatter["q"]) {
+            qData = getNoteDataFromFrontmatter(frontmatter)
+        } else {
+            qData = getNoteDataFromFrontmatterWithLegacyParadigm(frontmatter)
+        }
+
+        const note = new QueueNote(file, qData)
+        return note
+    }
 }
       

@@ -2,6 +2,7 @@ import { Plugin, TFile } from 'obsidian';
 import { QueueBar } from './classes/QueueBar';
 import { NoteShuffler } from './classes/NoteShuffler';
 import { ActiveNoteManager } from './classes/ActiveNoteManager';
+import { setQueuePluginContext } from './helpers/pluginContext';
 
 
 interface QueueSettings {
@@ -20,10 +21,15 @@ export default class QueuePlugin extends Plugin {
     activeNoteManager: ActiveNoteManager = new ActiveNoteManager()
 
     async onload() {
+        setQueuePluginContext(this)
         this.queueBar =  new QueueBar(this, this.app.workspace.containerEl)
         this.addRibbonIcon('banana', 'Toggle Queue', (evt: MouseEvent) => {
             this.queueBar.toggle()
         });
+
+        this.registerEvent(this.app.workspace.on('file-open', async (file) => {
+            this.activeNoteManager.onNewFileOpened(file)
+        }))
     }
 }
 

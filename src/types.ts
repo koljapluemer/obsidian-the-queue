@@ -1,4 +1,3 @@
-import { TFile } from "obsidian"
 
 export enum QueueNoteTemplate {
     Learn,
@@ -19,8 +18,25 @@ export enum QueueNoteStage {
 }
 
 
+export type QueueNoteData = {
+    template: QueueNoteTemplate
+    stage?: QueueNoteStage
+    priority?: number
+    due?: Date
+    seen?: Date
+    interval?: number
+    history?: string
+    // fsrs
+    stability?: number
+    difficulty?: number
+    elapsed?: number
+    scheduled?: number
+    reps?: number
+    lapses?: number
+    state?: number
+}
 
-export enum QueueButton { 
+export enum QueueButton {
     Wrong = "Wrong",
     Hard = "Hard",
     Correct = "Correct",
@@ -33,7 +49,7 @@ export enum QueueButton {
     ShowNext = "Ok, cool",
     ShowMore = "Show more often",
     SeemsHard = "Seems hard",
-    SeemsMedium = "I'll try to remember", 
+    SeemsMedium = "I'll try to remember",
     SeemsEasy = "Easy, got it",
     CheckNo = "No",
     CheckKindOf = "Kind of",
