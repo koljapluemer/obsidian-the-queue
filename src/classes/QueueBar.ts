@@ -22,9 +22,11 @@ export class QueueBar {
         if (this.isOpen) {
             this.#close()
             this.isOpen = false
+            this.mediator.onQueueBarOpened()
         } else {
             this.#open()
             this.isOpen = true
+            this.mediator.onQueueBarClosed()
         }
     }
 

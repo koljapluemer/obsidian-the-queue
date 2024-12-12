@@ -45,4 +45,12 @@ export class QueueMediator {
             console.warn('queue bar not yet loaded')
         }
     }
+
+    onQueueBarOpened() {
+        this.noteShuffler.loadNotes()
+    }
+
+    onQueueBarClosed() {
+
+    }
 }
