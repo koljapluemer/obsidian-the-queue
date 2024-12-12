@@ -80,3 +80,7 @@ export class NoteShuffler {
         return dueNote
     }
 }
+
+            // delete note that was saved from notes, so that it won't be opened again
+
+            // this.notes = plugin.notes.filter(el => el.file !== note.file)
