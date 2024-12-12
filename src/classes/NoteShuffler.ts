@@ -78,8 +78,11 @@ export class NoteShuffler {
         }
         return dueNote
     }
+
+    public removeNoteFromNotes(note: QueueNote) {
+        // delete note that was saved from notes, so that it won't be opened again
+        this.notes = this.notes.filter(el => el.file !== note.file)
+
+    }
 }
 
-            // delete note that was saved from notes, so that it won't be opened again
-
-            // this.notes = plugin.notes.filter(el => el.file !== note.file)
