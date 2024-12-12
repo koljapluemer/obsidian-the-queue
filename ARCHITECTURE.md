@@ -1,0 +1,10 @@
+- Entry point is `main.ts`
+- There, a simple listener for the side bar button toggles the floating bar (`QueueBar`, in the class file of the same name)
+- However, the real central point is the `QueueMediator`, of which one is created in `main.ts` onload
+    - It's kind of a DIY mediator pattern, handling all the not-so-nice interactions between components
+        - These components are: `ActiveNoteManager`, `NoteShuffler` and `QueueBar`, all in their own class file
+        - For example: `QueueBar` has buttons which should be rerendered when `ActiveNoteManager` has finished creating a new `QueueNote` based on a `TFile` the user has opened, but it can also request its own rendering when it is opened by the user. Stuff like this is mediated by the `QueeuMediator`
+- The primary logic regarding the queue, e.g. how cards are treated etc however is in `QueueNote`
+    - However, some stuff in this area requiring Obsidian-related side effects and API calls is quarantined in `helpers/`
+    - As is scoring with `fsrs`, b/c that's just highly bespoke glue code  
+    - A helper-helper so to speak is the `QueuePluginContext` (also in `helpers/`), which is a global context for those semi-cursed functions requiring to do stuff like `app.workspace.foo`
