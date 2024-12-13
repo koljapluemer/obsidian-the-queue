@@ -2,7 +2,7 @@
 // ...and thus, side effects
 
 import { TFile } from "obsidian";
-import { getPluginContext } from "./pluginContext";
+import { getPluginContext } from "../contexts/pluginContext";
 import { QueueNote } from "src/models/QueueNote";
 import { QueueNoteStage, QueueNoteTemplate } from "src/types";
 

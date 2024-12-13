@@ -1,7 +1,7 @@
 import { TFile } from "obsidian";
 import { QueueNote } from "../models/QueueNote";
 import { QueueMediator } from "./QueueMediator";
-import { getPluginContext } from "src/helpers/pluginContext";
+import { getPluginContext } from "src/contexts/pluginContext";
 import { QueueButton } from "src/types";
 import { saveNoteToVault } from "src/helpers/vaultUtils";
 import { QueueNoteFactory } from "src/models/NoteFactory";

@@ -1,9 +1,9 @@
 import { Plugin, TFile } from 'obsidian';
-import { QueueBar } from './classes/QueueBar';
-import { NoteShuffler } from './classes/NoteShuffler';
-import { ActiveNoteManager } from './classes/ActiveNoteManager';
-import { setQueuePluginContext } from './helpers/pluginContext';
-import { QueueMediator } from './classes/QueueMediator';
+import { QueueBar } from './controllers/QueueBar';
+import { NoteShuffler } from './controllers/NoteShuffler';
+import { ActiveNoteManager } from './controllers/ActiveNoteManager';
+import { setQueuePluginContext } from './contexts/pluginContext';
+import { QueueMediator } from './controllers/QueueMediator';
 
 
 interface QueueSettings {

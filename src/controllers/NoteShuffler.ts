@@ -5,6 +5,7 @@ import { getAllMdFiles } from "src/helpers/vaultUtils"
 import { getRandomInt, pickRandom } from "src/helpers/arrayUtils"
 import { StreakManager } from "./StreakManager"
 import { QueueNoteFactory } from "src/models/NoteFactory"
+import { setQueueState } from "src/contexts/stateContext"
 
 // knows the notes
 // when asked, produces a random note (probably to open it)
@@ -69,6 +70,7 @@ export class NoteShuffler {
         // TODO: hook up magic numbers to settings instead
         const allowNewLearns = nrDueLearns < 20
         const allowNewLongMedia = nrActiveLongMedia < 5
+        setQueueState(allowNewLearns, allowNewLongMedia)
         console.info('ongoing learn notes currently due:', nrDueLearns)
         const simplyAllDueNotes = notes.filter(note => note.isDue(allowNewLearns, allowNewLongMedia))
         const notesWithDesiredTemplate = simplyAllDueNotes.filter(note => note.qData.template === templateToPick)

@@ -1,4 +1,4 @@
-import { getPluginContext } from "src/helpers/pluginContext"
+import { getPluginContext } from "src/contexts/pluginContext"
 import { QueueBar } from "./QueueBar"
 import { NoteShuffler } from "./NoteShuffler"
 import { ActiveNoteManager } from "./ActiveNoteManager"
