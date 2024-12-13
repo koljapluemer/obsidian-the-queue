@@ -1,8 +1,5 @@
 import { QueueNoteData, QueueNoteStage, QueueNoteTemplate } from "src/types";
 
-export const noteLongMediaNew:QueueNoteData = {
-    template: QueueNoteTemplate.LongMedia
-}
 
 export const noteLongMediaNewExplicit:QueueNoteData = {
     template: QueueNoteTemplate.LongMedia,
@@ -10,5 +7,7 @@ export const noteLongMediaNewExplicit:QueueNoteData = {
 }
 
 export const noteLongMediaStarted:QueueNoteData = {
-    template: QueueNoteTemplate.LongMedia
+    template: QueueNoteTemplate.LongMedia,
+    stage: QueueNoteStage.Ongoing
+
 }

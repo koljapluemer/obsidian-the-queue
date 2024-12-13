@@ -1,7 +1,8 @@
-import { QueueNoteData, QueueNoteTemplate } from "src/types";
+import { QueueNoteData, QueueNoteStage, QueueNoteTemplate } from "src/types";
 
 export const noteMiscBasic:QueueNoteData = {
     template: QueueNoteTemplate.Misc,
+    stage: QueueNoteStage.Ongoing
 }
 
 

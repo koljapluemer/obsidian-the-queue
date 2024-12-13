@@ -44,6 +44,8 @@ export function getNoteDataFromFrontmatter(frontmatter: any): QueueNoteData {
         case 'finished':
             noteData.stage = QueueNoteStage.Finished
             break
+        default:
+            noteData.stage = QueueNoteStage.Unstarted
     }
 
     if (frontmatterQData["due"] !== undefined) noteData.due = new Date(frontmatterQData["due"])
@@ -104,6 +106,8 @@ export function getNoteDataFromFrontmatterWithLegacyParadigm(frontmatter: any): 
         case 'book-finished':
             noteData.stage = QueueNoteStage.Finished
             break
+        default:
+            noteData.stage = QueueNoteStage.Unstarted
     }
 
     const queueData = frontmatter["q-data"]

@@ -2,7 +2,7 @@ import { QueueButton, QueueNoteData, QueueNoteStage, QueueNoteTemplate } from "s
 import { test, expect} from 'vitest'
 import { mockTFile } from "./data/mock";
 import { noteMiscDue } from "./data/notesMisc";
-import { noteLongMediaNew, noteLongMediaNewExplicit, noteLongMediaStarted } from "./data/notesLongMedia";
+import { noteLongMediaNewExplicit, noteLongMediaStarted } from "./data/notesLongMedia";
 import { noteLearnFSRSData, noteLearnStartedDueIncomplete } from "./data/notesLearn";
 import { noteTodoBasic } from "./data/notesTodo";
 import { noteHabitBasic, noteHabitWeekly } from "./data/notesHabit";
@@ -23,10 +23,6 @@ test('note creating works', () => {
 // isDue()
 
 
-test('QueueNote | isDue(): new long media denied by default (implicit)', () => {
-    const note = QueueNoteFactory.create(mockTFile, noteLongMediaNew)
-    expect(note.isDue()).toBeFalsy()
-})
 
 test('QueueNote | isDue(): new long media denied by default (explicit)', () => {
     const note = QueueNoteFactory.create(mockTFile, noteLongMediaNewExplicit)
@@ -70,7 +66,7 @@ test('QueueNote | buttons: due longmedia — basics', () => {
 
 test('QueueNote | buttons: due misc — basics', () => {
     const note = QueueNoteFactory.create(mockTFile, noteMiscDue) 
-    expect(note.getButtons()).toEqual(["Show less often", "Ok, cool", "Show more often"])
+    expect(note.getButtons()).toEqual(["Ok, cool"])
 })
 
 
@@ -131,7 +127,7 @@ test('QueueNote | scoring: short media `finished`: finished, due tmrw', () => {
 })
 
 test('QueueNote | scoring: long media `finished`: finished, due tmrw', () => {
-    const note = QueueNoteFactory.create(mockTFile, noteLongMediaNew)
+    const note = QueueNoteFactory.create(mockTFile, noteLongMediaNewExplicit)
     note.score(QueueButton.Finished)
     expect(note.qData.due).toEqual(dateTomorrow3Am())
     expect(note.qData.stage).toEqual(QueueNoteStage.Finished)

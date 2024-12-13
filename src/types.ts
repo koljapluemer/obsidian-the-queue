@@ -47,14 +47,14 @@ export enum QueueButton {
     Later = "Later",
     Done = "Done",
     Finished = "Finished",
-    ShowLess = "Show less often",
-    ShowNext = "Ok, cool",
-    ShowMore = "Show more often",
+    ShowNext = "Show Next",
     SeemsHard = "Seems hard",
     SeemsMedium = "I'll try to remember",
     SeemsEasy = "Easy, got it",
     CheckNo = "No",
     CheckKindOf = "Kind of",
     CheckYes = "Yes",
-    MadeProgress = "Made progress"
+    MadeProgress = "Made progress",
+    StartLearning = "Start Learning",
+    Started = "Started"
 }

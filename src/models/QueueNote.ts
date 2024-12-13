@@ -17,9 +17,14 @@ export class QueueNote {
         this.qData = qData
     }
 
-
+    // likely overwritten by derived classes
     public getButtons(): QueueButton[] {
-        return this.buttonsWhenDue
+        if (this.isDue()) {
+            return this.buttonsWhenDue
+
+        } else {
+            return this.buttonsWhenNotDue
+        }
     }
 
 
@@ -37,46 +42,8 @@ export class QueueNote {
         return isDue
     }
 
-    // SCORING STUFF
-
+    
     public score(btn: QueueButton) {
-        // managing due
-        switch (btn) {
-
-            case QueueButton.CheckKindOf:
-            case QueueButton.CheckYes:
-            case QueueButton.CheckNo:
-            case QueueButton.Done:
-                this.setDueInDays(this.qData.interval || 1)
-                break
-            case QueueButton.Later:
-                this.setDueInDays(0.01)
-                break
-            case QueueButton.Finished:
-            case QueueButton.ShowLess:
-            case QueueButton.ShowMore:
-            case QueueButton.ShowNext:
-            case QueueButton.NotToday:
-            default:
-                this.setDueInDays(1)
-                break
-        }
-    }
-
-
-    private setDueInDays(days: number) {
-        const now = new Date();
-        if (days > 1) {
-            const nextDay = new Date(now);
-            // Set to the next day
-            nextDay.setDate(now.getDate() + days);
-            // Set time to 3:00 AM
-            nextDay.setHours(3, 0, 0, 0);
-            this.qData.due = nextDay
-        } else {
-            const soon = new Date(now);
-            soon.setTime(now.getTime() + (days * 24 * 60 * 60 * 1000))
-            this.qData.due = soon
-        }
+        throw "scoring should be handled by derived class"
     }
 }
