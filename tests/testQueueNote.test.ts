@@ -1,14 +1,15 @@
-import { QueueNoteData, QueueNoteTemplate } from "src/types";
+import { QueueButton, QueueNoteData, QueueNoteStage, QueueNoteTemplate } from "src/types";
 import { test, expect} from 'vitest'
 import { mockTFile } from "./data/mock";
 import { noteMiscDue } from "./data/notesMisc";
 import { noteLongMediaNew, noteLongMediaNewExplicit, noteLongMediaStarted } from "./data/notesLongMedia";
-import { noteLearnStartedDueIncomplete } from "./data/notesLearn";
+import { noteLearnFSRSData, noteLearnStartedDueIncomplete } from "./data/notesLearn";
 import { noteTodoBasic } from "./data/notesTodo";
 import { noteHabitBasic } from "./data/notesHabit";
 import { noteCheckBasic } from "./data/notesCheck";
 import { noteShortMediaBasic } from "./data/notesShortMedia";
 import { QueueNoteFactory } from "src/models/NoteFactory";
+import { QueueNote } from "src/models/QueueNote";
 
 // ESSENTIAL
 
@@ -69,4 +70,17 @@ test('QueueNote | buttons: due longmedia — basics', () => {
 test('QueueNote | buttons: due misc — basics', () => {
     const note = QueueNoteFactory.create(mockTFile, noteMiscDue) 
     expect(note.getButtons()).toEqual(["Show less often", "Ok, cool", "Show more often"])
+})
+
+
+// SCORING
+
+test('QueueNote | scoring: learn (fsrs sanity check)', () => {
+    const note:QueueNote = QueueNoteFactory.create(mockTFile, noteLearnFSRSData) 
+    note.score(QueueButton.Easy)
+    expect(note.qData.reps).toEqual(50)
+    expect(note.qData.lapses).toEqual(5)
+    expect(note.qData.interval).toBeUndefined()
+    expect(note.qData.template).toEqual(QueueNoteTemplate.Learn)
+    expect(note.qData.stage).toEqual(QueueNoteStage.Ongoing)
 })
