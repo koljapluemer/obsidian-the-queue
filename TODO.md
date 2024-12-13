@@ -1,1 +1,1 @@
-- add a trivial unit test for `QueueNote.isDue()`
+- prevent streaks when no _old_ learn cards are due, it's getting a tad excessive :D
