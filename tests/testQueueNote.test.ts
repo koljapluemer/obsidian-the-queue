@@ -3,7 +3,7 @@ import { test, expect} from 'vitest'
 import { mockTFile } from "./data/mock";
 import { noteMiscDue } from "./data/notesMisc";
 import { noteLongMediaNewExplicit, noteLongMediaStarted } from "./data/notesLongMedia";
-import { noteLearnFSRSData, noteLearnStartedDueIncomplete } from "./data/notesLearn";
+import { noteLearnFSRSData, noteLearnStartedDueIncomplete, noteLearnUnstarted } from "./data/notesLearn";
 import { noteTodoBasic } from "./data/notesTodo";
 import { noteHabitBasic, noteHabitWeekly } from "./data/notesHabit";
 import { noteCheckBasic, noteCheckWeekly } from "./data/notesCheck";
@@ -66,7 +66,7 @@ test('QueueNote | buttons: due longmedia — basics', () => {
 
 test('QueueNote | buttons: due misc — basics', () => {
     const note = QueueNoteFactory.create(mockTFile, noteMiscDue) 
-    expect(note.getButtons()).toEqual(["Ok, cool"])
+    expect(note.getButtons()).toEqual(["Show next"])
 })
 
 
@@ -131,4 +131,12 @@ test('QueueNote | scoring: long media `finished`: finished, due tmrw', () => {
     note.score(QueueButton.Finished)
     expect(note.qData.due).toEqual(dateTomorrow3Am())
     expect(note.qData.stage).toEqual(QueueNoteStage.Finished)
+})
+
+// SCORING - State Transitions
+
+test('QueueNote | scoring: new learn card transitions to ongoing', () => {
+    const note = QueueNoteFactory.create(mockTFile, noteLearnUnstarted)
+    note.score(QueueButton.StartLearning)
+    expect(note.qData.stage).toEqual(QueueNoteStage.Ongoing)
 })

@@ -1,6 +1,6 @@
 import { QueueButton, QueueNoteStage } from "src/types";
 import { QueueNote } from "./QueueNote";
-import { adaptLearnNoteDataAccordingToScore } from "src/helpers/fsrsUtils";
+import { adaptLearnNoteDataAccordingToScore, getQueueDataForFirstTimeLearningNote } from "src/helpers/fsrsUtils";
 import { dateTenMinutesFromNow } from "src/helpers/dateUtils";
 
 export class QueueNoteLearn extends QueueNote {
@@ -22,6 +22,8 @@ export class QueueNoteLearn extends QueueNote {
                 case QueueButton.ShowNext:
                     // pass
                     break
+                case QueueButton.StartLearning:
+                    this.qData = getQueueDataForFirstTimeLearningNote()
                 default:
                     console.error(`Note type doesn't know this button`, btn)
             }

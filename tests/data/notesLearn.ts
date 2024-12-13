@@ -19,3 +19,8 @@ export const noteLearnFSRSData:QueueNoteData = {
     lapses: 5,
     state: 2
 }
+
+export const noteLearnUnstarted:QueueNoteData = {
+    template: QueueNoteTemplate.Learn,
+    stage: QueueNoteStage.Unstarted
+} 

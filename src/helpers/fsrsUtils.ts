@@ -1,7 +1,7 @@
 import { QueueButton, QueueNoteData, QueueNoteStage, QueueNoteTemplate } from "src/types"
 import { Card, createEmptyCard, FSRS, FSRSParameters, generatorParameters, Rating, RecordLog, RecordLogItem, State } from "ts-fsrs"
 
-function getQueueDataForFirstTimeLearningNote(): QueueNoteData {
+export function getQueueDataForFirstTimeLearningNote(): QueueNoteData {
     const card: Card = createEmptyCard()
     const note: QueueNoteData = {
         template: QueueNoteTemplate.Learn,
