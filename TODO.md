@@ -1,1 +1,2 @@
-- see the red tests; move scoring responsibility into derived classes and add logic
+- check the following manual test: clicking `Start Learning` for a new obs note does nothing; write a test for this and green it
+    - similar things are probably true for other state transitions
