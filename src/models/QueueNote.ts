@@ -10,16 +10,16 @@ import { QueueButton, QueueNoteData, QueueNoteStage, QueueNoteTemplate } from "s
 export class QueueNote {
     file: TFile
     qData: QueueNoteData
+    buttonsWhenDue: QueueButton[]
+    buttonsWhenNotDue: QueueButton[]
     constructor(file: TFile, qData: QueueNoteData) {
         this.file = file;
         this.qData = qData
     }
 
 
-    // could make abstract but only when this whole class is abstract
-    // (and I'm not sure that's worth it)
     public getButtons(): QueueButton[] {
-        throw new Error("getButtons() is subclass responsibility")
+        return this.buttonsWhenDue
     }
 
 
