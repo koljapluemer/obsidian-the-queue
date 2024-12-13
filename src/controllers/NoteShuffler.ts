@@ -63,7 +63,9 @@ export class NoteShuffler {
         const noteTemplates = [QueueNoteTemplate.Learn, QueueNoteTemplate.Learn, QueueNoteTemplate.Todo, QueueNoteTemplate.Habit, QueueNoteTemplate.Check, QueueNoteTemplate.ShortMedia, QueueNoteTemplate.LongMedia, QueueNoteTemplate.Misc]
 
         let templateToPick = this.streakManager.getCurrentStreakTemplate()
-        if (templateToPick === null) templateToPick = pickRandom(noteTemplates)
+        if (templateToPick === null || templateToPick === undefined) templateToPick = pickRandom(noteTemplates)
+
+        console.info('trying to pick template', templateToPick)
 
         const nrDueLearns = notes.filter(note => note.qData.template === QueueNoteTemplate.Learn && note.qData.stage === QueueNoteStage.Ongoing && note.isDue()).length
         const nrActiveLongMedia = notes.filter(note => note.qData.template === QueueNoteTemplate.LongMedia && note.qData.stage === QueueNoteStage.Ongoing).length
@@ -74,6 +76,8 @@ export class NoteShuffler {
         console.info('ongoing learn notes currently due:', nrDueLearns)
         const simplyAllDueNotes = notes.filter(note => note.isDue(allowNewLearns, allowNewLongMedia))
         const notesWithDesiredTemplate = simplyAllDueNotes.filter(note => note.qData.template === templateToPick)
+        console.info('nr of notes w/ desired template', notesWithDesiredTemplate.length)
+
         return pickRandom(notesWithDesiredTemplate) || pickRandom(simplyAllDueNotes) || null
     }
 
