@@ -4,6 +4,13 @@ import { adaptLearnNoteDataAccordingToScore } from "src/helpers/fsrsUtils"
 import { getFrontmatterOfFile } from "src/helpers/vaultUtils"
 import { QueueButton, QueueNoteData, QueueNoteStage, QueueNoteTemplate } from "src/types"
 import { QueueNoteMisc } from "./QueueNoteMisc"
+import { QueueNoteHabit } from "./QueueNoteHabit"
+import { QueueNoteLearn } from "./QueueNoteLearn"
+import { QueueNoteTodo } from "./QueueNoteTodo"
+import { QueueNoteCheck } from "./QueueNoteCheck"
+import { QueueNoteShortMedia } from "./QueueNoteShortMedia"
+import { QueueNoteLongMedia } from "./QueueNoteLongMedia"
+import { QueueNoteExclude } from "./QueueNoteExclude"
 
 // every TFile may be converted to a QueueNote,
 // which holds the actual properties that interests us directly
@@ -33,14 +40,26 @@ export class QueueNote {
         return note
     }
 
-    static noteFactory(file:TFile, qData: QueueNoteData):QueueNote {
-        switch(qData.template) {
-            case (QueueNoteTemplate.Misc):
+    static noteFactory(file: TFile, qData: QueueNoteData): QueueNote {
+        switch (qData.template) {
+            case QueueNoteTemplate.Habit:
+                return new QueueNoteHabit(file, qData)
+            case QueueNoteTemplate.Learn:
+                return new QueueNoteLearn(file, qData)
+            case QueueNoteTemplate.Todo:
+                return new QueueNoteTodo(file, qData)
+            case QueueNoteTemplate.Check:
+                return new QueueNoteCheck(file, qData)
+            case QueueNoteTemplate.ShortMedia:
+                return new QueueNoteShortMedia(file, qData)
+            case QueueNoteTemplate.LongMedia:
+                return new QueueNoteLongMedia(file, qData)
+            case QueueNoteTemplate.Exclude:
+                return new QueueNoteExclude(file, qData)
+            case QueueNoteTemplate.Misc:
                 return new QueueNoteMisc(file, qData)
-            default:
-                return new QueueNote(file, qData)
         }
-    } 
+    }
 
 
     public getButtons(): QueueButton[] {

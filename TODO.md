@@ -1,1 +1,2 @@
 - prevent streaks when no _old_ learn cards are due, it's getting a tad excessive :D
+- move note factory into its own class (most importantly its own file) so no circular dependecy
