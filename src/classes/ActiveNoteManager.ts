@@ -4,6 +4,7 @@ import { QueueMediator } from "./QueueMediator";
 import { getPluginContext } from "src/helpers/pluginContext";
 import { QueueButton } from "src/types";
 import { saveNoteToVault } from "src/helpers/vaultUtils";
+import { QueueNoteFactory } from "src/models/NoteFactory";
 
 // knows which note and file are currently active
 // to do this job, listens to new files being opened etc.
@@ -31,7 +32,7 @@ export class ActiveNoteManager {
     async processNewFile(file: TFile | null) {
         this.activeFile = file
         if (file) {
-            this.activeNote = await QueueNote.createNoteFromFile(file)
+            this.activeNote = await QueueNoteFactory.createNoteFromFile(file)
         } else {
             this.activeNote = null
         }

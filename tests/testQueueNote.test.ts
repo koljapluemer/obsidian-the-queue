@@ -8,12 +8,12 @@ import { noteTodoBasic } from "./data/notesTodo";
 import { noteHabitBasic } from "./data/notesHabit";
 import { noteCheckBasic } from "./data/notesCheck";
 import { noteShortMediaBasic } from "./data/notesShortMedia";
-import { QueueNote } from "src/models/QueueNote";
+import { QueueNoteFactory } from "src/models/NoteFactory";
 
 // ESSENTIAL
 
 test('note creating works', () => {
-    const note = QueueNote.noteFactory(mockTFile, noteMiscDue)
+    const note = QueueNoteFactory.noteFactory(mockTFile, noteMiscDue)
     expect(note.qData.template).toEqual(QueueNoteTemplate.Misc)
 })
 
@@ -22,12 +22,12 @@ test('note creating works', () => {
 
 
 test('QueueNote | isDue(): new long media denied by default (implicit)', () => {
-    const note = QueueNote.noteFactory(mockTFile, noteLongMediaNew)
+    const note = QueueNoteFactory.noteFactory(mockTFile, noteLongMediaNew)
     expect(note.isDue()).toBeFalsy()
 })
 
 test('QueueNote | isDue(): new long media denied by default (explicit)', () => {
-    const note = QueueNote.noteFactory(mockTFile, noteLongMediaNewExplicit)
+    const note = QueueNoteFactory.noteFactory(mockTFile, noteLongMediaNewExplicit)
     expect(note.isDue()).toBeFalsy()
 })
 
@@ -37,36 +37,36 @@ test('QueueNote | isDue(): new long media denied by default (explicit)', () => {
 // Basic Due Case 
 
 test('QueueNote | buttons: due learn — basics', () => {
-    const note = QueueNote.noteFactory(mockTFile, noteLearnStartedDueIncomplete) 
+    const note = QueueNoteFactory.noteFactory(mockTFile, noteLearnStartedDueIncomplete) 
     expect(note.getButtons()).toEqual(["Wrong", "Hard", "Correct", "Easy"])
 })
 
 test('QueueNote | buttons: due todo — basics', () => {
-    const note = QueueNote.noteFactory(mockTFile, noteTodoBasic) 
+    const note = QueueNoteFactory.noteFactory(mockTFile, noteTodoBasic) 
     expect(note.getButtons()).toEqual(["Not today", "Later", "Done", "Finished"])
 })
 
 test('QueueNote | buttons: due habit — basics', () => {
-    const note = QueueNote.noteFactory(mockTFile, noteHabitBasic) 
+    const note = QueueNoteFactory.noteFactory(mockTFile, noteHabitBasic) 
     expect(note.getButtons()).toEqual(["Not today", "Later", "Done"])
 })
 
 test('QueueNote | buttons: due check — basics', () => {
-    const note = QueueNote.noteFactory(mockTFile, noteCheckBasic) 
+    const note = QueueNoteFactory.noteFactory(mockTFile, noteCheckBasic) 
     expect(note.getButtons()).toEqual(["No", "Kind of", "Yes"])
 })
 
 test('QueueNote | buttons: due shortmedia — basics', () => {
-    const note = QueueNote.noteFactory(mockTFile, noteShortMediaBasic) 
+    const note = QueueNoteFactory.noteFactory(mockTFile, noteShortMediaBasic) 
     expect(note.getButtons()).toEqual(["Not today", "Later", "Done", "Finished"])
 })
 
 test('QueueNote | buttons: due longmedia — basics', () => {
-    const note = QueueNote.noteFactory(mockTFile, noteLongMediaStarted) 
+    const note = QueueNoteFactory.noteFactory(mockTFile, noteLongMediaStarted) 
     expect(note.getButtons()).toEqual(["Not today", "Later", "Done", "Finished"])
 })
 
 test('QueueNote | buttons: due misc — basics', () => {
-    const note = QueueNote.noteFactory(mockTFile, noteMiscDue) 
+    const note = QueueNoteFactory.noteFactory(mockTFile, noteMiscDue) 
     expect(note.getButtons()).toEqual(["Show less often", "Ok, cool", "Show more often"])
 })

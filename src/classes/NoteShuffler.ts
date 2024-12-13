@@ -4,6 +4,7 @@ import { QueueNoteStage, QueueNoteTemplate } from "src/types"
 import { getAllMdFiles } from "src/helpers/vaultUtils"
 import { getRandomInt, pickRandom } from "src/helpers/arrayUtils"
 import { StreakManager } from "./StreakManager"
+import { QueueNoteFactory } from "src/models/NoteFactory"
 
 // knows the notes
 // when asked, produces a random note (probably to open it)
@@ -43,7 +44,7 @@ export class NoteShuffler {
         try {
             const notes: QueueNote[] = []
             for (const file of allFiles) {
-                const note = await QueueNote.createNoteFromFile(file)
+                const note = await QueueNoteFactory.createNoteFromFile(file)
                 if (note && note.qData.template !== QueueNoteTemplate.Exclude) {
                     notes.push(note)
                 }
@@ -84,7 +85,7 @@ export class NoteShuffler {
         const allFilesFromStartingIndexAndAddedToTheEndAgain = allFiles.slice(randomStartingIndex).concat(allFiles)
 
         for (const file of allFilesFromStartingIndexAndAddedToTheEndAgain) {
-            const note = await QueueNote.createNoteFromFile(file)
+            const note = await QueueNoteFactory.createNoteFromFile(file)
             if (note) {
                 dueNote = note
                 break

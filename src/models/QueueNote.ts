@@ -1,9 +1,6 @@
 import { TFile } from "obsidian"
-import { getNoteDataFromFrontmatter, getNoteDataFromFrontmatterWithLegacyParadigm } from "src/helpers/frontmatterReaders"
 import { adaptLearnNoteDataAccordingToScore } from "src/helpers/fsrsUtils"
-import { getFrontmatterOfFile } from "src/helpers/vaultUtils"
 import { QueueButton, QueueNoteData, QueueNoteStage, QueueNoteTemplate } from "src/types"
-import { QueueNoteMisc } from "./QueueNoteMisc"
 
 // every TFile may be converted to a QueueNote,
 // which holds the actual properties that interests us directly
@@ -17,31 +14,6 @@ export class QueueNote {
         this.file = file;
         this.qData = qData
     }
-
-
-    public static async createNoteFromFile(file: TFile): Promise<QueueNote> {
-        const frontmatter = await getFrontmatterOfFile(file)
-        let qData: QueueNoteData
-        // check if note is already written in the new paradigm
-        if (frontmatter["q"]) {
-            qData = getNoteDataFromFrontmatter(frontmatter)
-        } else {
-            qData = getNoteDataFromFrontmatterWithLegacyParadigm(frontmatter)
-        }
-
-        const note = this.noteFactory(file, qData)
-        return note
-    }
-
-    static noteFactory(file:TFile, qData: QueueNoteData):QueueNote {
-        switch(qData.template) {
-            case (QueueNoteTemplate.Misc):
-                return new QueueNoteMisc(file, qData)
-            default:
-                return new QueueNote(file, qData)
-        }
-    } 
-
 
     public getButtons(): QueueButton[] {
         switch (this.qData.template) {
