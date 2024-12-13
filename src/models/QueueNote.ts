@@ -3,6 +3,7 @@ import { getNoteDataFromFrontmatter, getNoteDataFromFrontmatterWithLegacyParadig
 import { adaptLearnNoteDataAccordingToScore } from "src/helpers/fsrsUtils"
 import { getFrontmatterOfFile } from "src/helpers/vaultUtils"
 import { QueueButton, QueueNoteData, QueueNoteStage, QueueNoteTemplate } from "src/types"
+import { QueueNoteMisc } from "./QueueNoteMisc"
 
 // every TFile may be converted to a QueueNote,
 // which holds the actual properties that interests us directly
@@ -28,9 +29,18 @@ export class QueueNote {
             qData = getNoteDataFromFrontmatterWithLegacyParadigm(frontmatter)
         }
 
-        const note = new QueueNote(file, qData)
+        const note = this.noteFactory(file, qData)
         return note
     }
+
+    static noteFactory(file:TFile, qData: QueueNoteData):QueueNote {
+        switch(qData.template) {
+            case (QueueNoteTemplate.Misc):
+                return new QueueNoteMisc(file, qData)
+            default:
+                return new QueueNote(file, qData)
+        }
+    } 
 
 
     public getButtons(): QueueButton[] {

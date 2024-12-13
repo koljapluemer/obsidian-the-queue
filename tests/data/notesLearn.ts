@@ -1,4 +1,3 @@
-import { QueueNote } from "src/classes/QueueNote";
 import { QueueNoteData, QueueNoteStage, QueueNoteTemplate } from "src/types";
 
 export const noteLearnStartedDueIncomplete:QueueNoteData = {

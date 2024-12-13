@@ -1,5 +1,5 @@
 import { QueueMediator } from "./QueueMediator"
-import { QueueNote } from "./QueueNote"
+import { QueueNote } from "../models/QueueNote"
 import { QueueNoteStage, QueueNoteTemplate } from "src/types"
 import { getAllMdFiles } from "src/helpers/vaultUtils"
 import { getRandomInt, pickRandom } from "src/helpers/arrayUtils"

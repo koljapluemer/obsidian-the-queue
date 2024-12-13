@@ -3,7 +3,7 @@
 
 import { TFile } from "obsidian";
 import { getPluginContext } from "./pluginContext";
-import { QueueNote } from "src/classes/QueueNote";
+import { QueueNote } from "src/models/QueueNote";
 import { QueueNoteStage, QueueNoteTemplate } from "src/types";
 
 export function getFrontmatterOfFile(file: TFile): Promise<any | null> {

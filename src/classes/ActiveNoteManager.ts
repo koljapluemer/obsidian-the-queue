@@ -1,5 +1,5 @@
 import { TFile } from "obsidian";
-import { QueueNote } from "./QueueNote";
+import { QueueNote } from "../models/QueueNote";
 import { QueueMediator } from "./QueueMediator";
 import { getPluginContext } from "src/helpers/pluginContext";
 import { QueueButton } from "src/types";
