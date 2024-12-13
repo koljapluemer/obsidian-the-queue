@@ -44,7 +44,7 @@ export function saveNoteToVault(note: QueueNote) {
                 frontmatter["q"]["template"] = template?.toLowerCase()
             }
 
-            if (note.qData.stage !== undefined && note.qData.stage !== QueueNoteStage.Base) {
+            if (note.qData.stage !== undefined  && note.qData.stage !== QueueNoteStage.Unstarted) {
                 const stage = Object.keys(QueueNoteStage).find(
                     // @ts-ignore
                     key => QueueNoteStage[key] === note.qData.stage

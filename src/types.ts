@@ -14,7 +14,6 @@ export enum QueueNoteStage {
     Unstarted,
     Ongoing,
     Finished,
-    Base
 }
 
 
