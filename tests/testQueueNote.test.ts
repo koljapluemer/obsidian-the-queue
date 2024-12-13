@@ -98,6 +98,13 @@ test('QueueNote | scoring: todo `later` due in 10m', () => {
     expect(note.qData.due).toEqual(dateTenMinutesFromNow())
 })
 
+test('QueueNote | scoring: todo `finished` exclude and not due', () => {
+    const note = QueueNoteFactory.create(mockTFile, noteTodoBasic)
+    note.score(QueueButton.Finished)
+    expect(note.isDue()).toBeFalsy()
+    expect(note.qData.stage).toEqual(QueueNoteStage.Finished)
+})
+
 test('QueueNote | scoring: habit `done` due after interval', () => {
     const note = QueueNoteFactory.create(mockTFile, noteHabitWeekly)
     note.score(QueueButton.Done)
@@ -108,4 +115,24 @@ test('QueueNote | scoring: check `done` due after interval', () => {
     const note = QueueNoteFactory.create(mockTFile, noteCheckWeekly)
     note.score(QueueButton.Done)
     expect(note.qData.due).toEqual(dateInNrOfDaysAt3Am(7))
+})
+
+test('QueueNote | scoring: short media `done` due tmrw', () => {
+    const note = QueueNoteFactory.create(mockTFile, noteShortMediaBasic)
+    note.score(QueueButton.Done)
+    expect(note.qData.due).toEqual(dateTomorrow3Am())
+})
+
+test('QueueNote | scoring: short media `finished`: finished, due tmrw', () => {
+    const note = QueueNoteFactory.create(mockTFile, noteShortMediaBasic)
+    note.score(QueueButton.Finished)
+    expect(note.qData.due).toEqual(dateTomorrow3Am())
+    expect(note.qData.stage).toEqual(QueueNoteStage.Finished)
+})
+
+test('QueueNote | scoring: long media `finished`: finished, due tmrw', () => {
+    const note = QueueNoteFactory.create(mockTFile, noteLongMediaNew)
+    note.score(QueueButton.Finished)
+    expect(note.qData.due).toEqual(dateTomorrow3Am())
+    expect(note.qData.stage).toEqual(QueueNoteStage.Finished)
 })
