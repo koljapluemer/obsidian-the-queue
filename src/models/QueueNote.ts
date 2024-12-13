@@ -16,25 +16,10 @@ export class QueueNote {
     }
 
 
+    // could make abstract but only when this whole class is abstract
+    // (and I'm not sure that's worth it)
     public getButtons(): QueueButton[] {
-        switch (this.qData.template) {
-            case QueueNoteTemplate.Habit:
-                return [QueueButton.NotToday, QueueButton.Later, QueueButton.Done]
-            case QueueNoteTemplate.Learn:
-                return [QueueButton.Wrong, QueueButton.Hard, QueueButton.Correct, QueueButton.Easy]
-            case QueueNoteTemplate.Todo:
-                return [QueueButton.NotToday, QueueButton.Later, QueueButton.Done, QueueButton.Finished]
-            case QueueNoteTemplate.Check:
-                return [QueueButton.CheckNo, QueueButton.CheckKindOf, QueueButton.CheckYes]
-            case QueueNoteTemplate.ShortMedia:
-                return [QueueButton.NotToday, QueueButton.Later, QueueButton.Done, QueueButton.Finished]
-            case QueueNoteTemplate.LongMedia:
-                return [QueueButton.NotToday, QueueButton.Later, QueueButton.Done, QueueButton.Finished]
-            case QueueNoteTemplate.Exclude:
-                return [QueueButton.ShowNext]
-            default:
-                return [QueueButton.ShowLess, QueueButton.ShowNext, QueueButton.ShowMore]
-        }
+        throw new Error("getButtons() is subclass responsibility")
     }
 
 
