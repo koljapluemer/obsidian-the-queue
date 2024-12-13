@@ -3,6 +3,6 @@ import { QueueNote } from "./QueueNote";
 
 export class QueueNoteCheck extends QueueNote {
     public getButtons(): QueueButton[] {
-        return [QueueButton.NotToday, QueueButton.Later, QueueButton.Done, QueueButton.Finished]
+        return [QueueButton.CheckNo, QueueButton.CheckKindOf, QueueButton.CheckYes]
     }
 }
