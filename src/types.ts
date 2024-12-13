@@ -53,5 +53,6 @@ export enum QueueButton {
     SeemsEasy = "Easy, got it",
     CheckNo = "No",
     CheckKindOf = "Kind of",
-    CheckYes = "Yes"
+    CheckYes = "Yes",
+    MadeProgress = "Made progress"
 }

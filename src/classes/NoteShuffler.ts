@@ -27,7 +27,7 @@ export class NoteShuffler {
         } else {
             note = await this.getDueNoteQuickly()
         }
-        if (note) this.streakManager.onNoteWithTemplateWasPicked(note.qData.template)
+        if (note) this.streakManager.onNoteWasPicked(note.qData)
         return note
     }
 
