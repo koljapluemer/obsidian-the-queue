@@ -34,6 +34,7 @@ export class QueueNoteLongMedia extends QueueNote {
             case QueueButton.Started:
                 this.qData.due = dateTomorrow3Am()
                 this.qData.stage = QueueNoteStage.Ongoing
+                break
             case QueueButton.ShowNext:
                 // pass
                 break

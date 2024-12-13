@@ -24,6 +24,7 @@ export class QueueNoteLearn extends QueueNote {
                     break
                 case QueueButton.StartLearning:
                     this.qData = getQueueDataForFirstTimeLearningNote()
+                    break
                 default:
                     console.error(`Note type doesn't know this button`, btn)
             }
