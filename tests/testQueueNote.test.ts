@@ -10,6 +10,7 @@ import { noteCheckBasic } from "./data/notesCheck";
 import { noteShortMediaBasic } from "./data/notesShortMedia";
 import { QueueNoteFactory } from "src/models/NoteFactory";
 import { QueueNote } from "src/models/QueueNote";
+import { dateTenMinutesFromNow, dateTomorrow3Am } from "../src/helpers/dateUtils";
 
 // ESSENTIAL
 
@@ -83,4 +84,18 @@ test('QueueNote | scoring: learn (fsrs sanity check)', () => {
     expect(note.qData.interval).toBeUndefined()
     expect(note.qData.template).toEqual(QueueNoteTemplate.Learn)
     expect(note.qData.stage).toEqual(QueueNoteStage.Ongoing)
+})
+
+test('QueueNote | scoring: todo `not-today` due tomorrow', () => {
+    const note = QueueNoteFactory.create(mockTFile, noteTodoBasic)
+    const tomorrow = new Date()
+    note.score(QueueButton.NotToday)
+    expect(note.qData.due).toEqual(dateTomorrow3Am())
+})
+
+test('QueueNote | scoring: todo `later` due in 10m', () => {
+    const note = QueueNoteFactory.create(mockTFile, noteTodoBasic)
+    const tomorrow = new Date()
+    note.score(QueueButton.Later)
+    expect(note.qData.due).toEqual(dateTenMinutesFromNow())
 })
