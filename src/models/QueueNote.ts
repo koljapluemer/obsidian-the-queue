@@ -42,12 +42,7 @@ export class QueueNote {
     public score(btn: QueueButton) {
         // managing due
         switch (btn) {
-            case QueueButton.Correct:
-            case QueueButton.Easy:
-            case QueueButton.Hard:
-            case QueueButton.Wrong:
-                this.qData = adaptLearnNoteDataAccordingToScore(this.qData, btn)
-                break
+
             case QueueButton.CheckKindOf:
             case QueueButton.CheckYes:
             case QueueButton.CheckNo:
