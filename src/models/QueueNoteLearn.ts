@@ -10,7 +10,6 @@ export class QueueNoteLearn extends QueueNote {
     buttonsWhenNotDue: QueueButton[] = [QueueButton.RegisterRep, QueueButton.ShowNext]
 
     public score(btn: QueueButton) {
-        console.info('scoring learn note')
         if (this.isDue()) {
             this.adaptAccordingToFSRS(btn)
         } else {
@@ -20,7 +19,6 @@ export class QueueNoteLearn extends QueueNote {
                     this.qData.due = this.isDue() ? dateTenMinutesFromNow() : this.qData.due
                     this.qData.reps = this.qData.reps ? this.qData.reps + 1 : 1
                     this.qData.seen = new Date()
-                    console.log('registered rep')
                     break
                 case QueueButton.ShowNext:
                     // pass

@@ -48,7 +48,6 @@ export class StreakManager {
     }
 
     private iterateStreak() {
-        console.log('streak now:', this.streakCounter)
         this.streakCounter += 1
         if (this.streakCounter > 20) {
             this.resetStreak()
