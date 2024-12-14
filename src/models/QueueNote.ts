@@ -1,5 +1,4 @@
 import { TFile } from "obsidian"
-import { adaptLearnNoteDataAccordingToScore } from "src/helpers/fsrsUtils"
 import { QueueButton, QueueNoteData, QueueNoteStage, QueueNoteTemplate } from "src/types"
 
 // every TFile may be converted to a QueueNote,

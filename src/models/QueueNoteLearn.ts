@@ -1,7 +1,7 @@
 import { QueueButton, QueueNoteStage } from "src/types";
 import { QueueNote } from "./QueueNote";
-import { adaptLearnNoteDataAccordingToScore, getQueueDataForFirstTimeLearningNote } from "src/helpers/fsrsUtils";
 import { dateTenMinutesFromNow } from "src/helpers/dateUtils";
+import { Card, createEmptyCard, FSRS, FSRSParameters, generatorParameters, Rating, RecordLog, RecordLogItem, State } from "ts-fsrs"
 
 export class QueueNoteLearn extends QueueNote {
 
@@ -12,7 +12,7 @@ export class QueueNoteLearn extends QueueNote {
     public score(btn: QueueButton) {
         console.info('scoring learn note')
         if (this.isDue()) {
-            this.qData = adaptLearnNoteDataAccordingToScore(this.qData, btn)
+            this.adaptAccordingToFSRS(btn)
         } else {
             switch (btn) {
                 case QueueButton.RegisterRep:
@@ -26,7 +26,7 @@ export class QueueNoteLearn extends QueueNote {
                     // pass
                     break
                 case QueueButton.StartLearning:
-                    this.qData = getQueueDataForFirstTimeLearningNote()
+                    this.setQDataAtStartOfFSRS()
                     break
                 default:
                     console.error(`Note type doesn't know this button`, btn)
@@ -47,6 +47,108 @@ export class QueueNoteLearn extends QueueNote {
             console.error('getButtons(): invalid note state')
             return []
         }
+    }
+
+
+    private setQDataAtStartOfFSRS() {
+        const card: Card = createEmptyCard()
+
+
+        this.qData.due = card.due
+        this.qData.stability = card.stability
+        this.qData.difficulty = card.difficulty
+        this.qData.elapsed = card.elapsed_days
+        this.qData.scheduled = card.scheduled_days
+        this.qData.reps = card.reps
+        this.qData.lapses = card.lapses
+        this.qData.state = card.state
+        this.qData.seen = new Date()
+    }
+
+
+    private adaptAccordingToFSRS(btn: QueueButton) {
+
+        if (!this.hasAllPropsSetNeededForFSRS()) {
+            console.warn('cannot interpret learning data, treating as new learn note')
+            this.setQDataAtStartOfFSRS()
+        }
+        let cardState: State = State.New
+        switch (this.qData.state) {
+            case 0:
+                cardState = State.New
+                break
+            case 1:
+                cardState = State.Learning
+                break
+            case 2:
+                cardState = State.Review
+                break
+            case 3:
+                cardState = State.Relearning
+                break
+        }
+
+
+        let fsrsCard: Card = {
+            due: this.qData.due!,
+            stability: this.qData.stability!,
+            difficulty: this.qData.difficulty!,
+            elapsed_days: this.qData.elapsed!,
+            scheduled_days: this.qData.scheduled!,
+            reps: this.qData.reps!,
+            lapses: this.qData.lapses!,
+            state: cardState,
+            last_review: this.qData.seen
+        }
+
+        const params: FSRSParameters = generatorParameters({ maximum_interval: 1000 });
+        const f = new FSRS(params);
+        const schedule_options: RecordLog = f.repeat(fsrsCard, new Date())
+
+        let relevantLog: RecordLogItem
+        switch (btn) {
+            case QueueButton.Wrong:
+                relevantLog = schedule_options[Rating.Again]
+                break
+            case QueueButton.Hard:
+                relevantLog = schedule_options[Rating.Hard]
+                break
+            case QueueButton.Correct:
+                relevantLog = schedule_options[Rating.Good]
+                break
+            case QueueButton.Easy:
+            default:
+                relevantLog = schedule_options[Rating.Easy]
+                break
+        }
+
+        this.qData.due = relevantLog.card.due
+        this.qData.stability = relevantLog.card.stability
+        this.qData.difficulty = relevantLog.card.difficulty
+        this.qData.elapsed = relevantLog.card.elapsed_days
+        this.qData.scheduled = relevantLog.card.scheduled_days
+        this.qData.reps = relevantLog.card.reps
+        this.qData.lapses = relevantLog.card.lapses
+        this.qData.state = relevantLog.card.state
+        this.qData.seen = relevantLog.card.last_review
+
+        this.qData.stage = QueueNoteStage.Ongoing
+
+    }
+
+    private hasAllPropsSetNeededForFSRS(): boolean {
+        const allPropsSet =
+            this.qData.due !== undefined
+            && this.qData.stability !== undefined
+            && this.qData.difficulty !== undefined
+            && this.qData.elapsed !== undefined
+            && this.qData.scheduled !== undefined
+            && this.qData.reps !== undefined
+            && this.qData.lapses !== undefined
+            && this.qData.state !== undefined
+
+        return allPropsSet
+
     }
 
 }

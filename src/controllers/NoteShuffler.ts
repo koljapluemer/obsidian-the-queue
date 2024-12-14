@@ -65,16 +65,17 @@ export class NoteShuffler {
 
         const simplyAllDueNotes = notesToPickFrom.filter(note => note.isDue())
         console.info('notes after only due', simplyAllDueNotes.length)
+        console.info('template to pick', templateToPick)
         const notesWithDesiredTemplate = simplyAllDueNotes.filter(note => note.qData.template === templateToPick)
         console.info('notes due with desired template', notesWithDesiredTemplate.length)
 
         // return a note with desired template, if we have none, return any due note
         // TODO: if we have none at all, also allow just any misc
         let noteToPick = pickRandom(notesWithDesiredTemplate) 
-        console.log('note to pick from des. template', noteToPick)
+        console.log('note to pick from des. template', noteToPick, 'isDue', noteToPick?.isDue())
         if (!noteToPick) {
             noteToPick = pickRandom(simplyAllDueNotes)
-            console.log('no note w/ desired template, now got', noteToPick) 
+            console.log('no note w/ desired template, now got', noteToPick, 'isDue', noteToPick?.isDue()) 
         }
         return noteToPick
     }
