@@ -7,6 +7,7 @@ import { StreakManager } from "./StreakManager"
 import { QueueNoteFactory } from "src/models/NoteFactory"
 import { getPluginContext } from "src/contexts/pluginContext"
 import { TFile } from "obsidian"
+import { StatsManager } from "./StatsManager"
 
 // knows the notes
 // when asked, produces a random note (probably to open it)
@@ -56,7 +57,6 @@ export class NoteShuffler {
         if (!this.notesCurrentlyLoading) {
             this.notesCurrentlyLoading = true
             this.loadNotes()
-        } else {
         }
     }
 
@@ -72,6 +72,7 @@ export class NoteShuffler {
             }
             console.info('Finished loading notes:', notes.length)
             this.notes = notes
+            StatsManager.logDueStats(this.notes)
         } catch (error) {
             console.error('Error loading notes:', error);
         }
