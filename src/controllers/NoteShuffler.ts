@@ -5,7 +5,6 @@ import { getAllMdFiles } from "src/helpers/vaultUtils"
 import { getRandomInt, pickRandom } from "src/helpers/arrayUtils"
 import { StreakManager } from "./StreakManager"
 import { QueueNoteFactory } from "src/models/NoteFactory"
-import { setQueueState } from "src/contexts/stateContext"
 
 // knows the notes
 // when asked, produces a random note (probably to open it)
@@ -59,26 +58,43 @@ export class NoteShuffler {
     }
 
     private getDueNoteFromAllNotes(): QueueNote | null {
-        const notes = this.notes
+
+        const templateToPick = this.getRandomTemplateToPick()
+        const notesToPickFrom = this.decideWhichNotesToPickFrom()
+
+        const simplyAllDueNotes = notesToPickFrom.filter(note => note.isDue())
+        const notesWithDesiredTemplate = simplyAllDueNotes.filter(note => note.qData.template === templateToPick)
+
+        // return a note with desired template, if we have none, return any due note
+        // TODO: if we have none at all, also allow just any misc
+        return pickRandom(notesWithDesiredTemplate) || pickRandom(simplyAllDueNotes) || null
+    }
+
+    private getRandomTemplateToPick(): QueueNoteTemplate {
         const noteTemplates = [QueueNoteTemplate.Learn, QueueNoteTemplate.Learn, QueueNoteTemplate.Todo, QueueNoteTemplate.Habit, QueueNoteTemplate.Check, QueueNoteTemplate.ShortMedia, QueueNoteTemplate.LongMedia, QueueNoteTemplate.Misc]
 
-        let templateToPick = this.streakManager.getCurrentStreakTemplate()
-        if (templateToPick === null || templateToPick === undefined) templateToPick = pickRandom(noteTemplates)
+        let templateFromStreak = this.streakManager.getCurrentStreakTemplate()
+        if (templateFromStreak === null || templateFromStreak === undefined) {
+            return pickRandom(noteTemplates)!
+        } else {
+            return templateFromStreak
+        }
+    }
 
-        console.info('trying to pick template', templateToPick)
+    private decideWhichNotesToPickFrom(): QueueNote[] {
+        // filters after deciding whether to filter out new learns (if we have a lot of learns already); and same with longmedia
+        const ongoingLearns = this.notes.filter(note => note.qData.template === QueueNoteTemplate.Learn && note.qData.stage === QueueNoteStage.Ongoing)
+        const nrDueLearns = ongoingLearns.filter(note => note.isDue()).length
+        const exludeUnstartedLearns = nrDueLearns > 20
 
-        const nrDueLearns = notes.filter(note => note.qData.template === QueueNoteTemplate.Learn && note.qData.stage === QueueNoteStage.Ongoing && note.isDue()).length
-        const nrActiveLongMedia = notes.filter(note => note.qData.template === QueueNoteTemplate.LongMedia && note.qData.stage === QueueNoteStage.Ongoing).length
-        // TODO: hook up magic numbers to settings instead
-        const allowNewLearns = nrDueLearns < 20
-        const allowNewLongMedia = nrActiveLongMedia < 5
-        setQueueState(allowNewLearns, allowNewLongMedia)
-        console.info('ongoing learn notes currently due:', nrDueLearns)
-        const simplyAllDueNotes = notes.filter(note => note.isDue(allowNewLearns, allowNewLongMedia))
-        const notesWithDesiredTemplate = simplyAllDueNotes.filter(note => note.qData.template === templateToPick)
-        console.info('nr of notes w/ desired template', notesWithDesiredTemplate.length)
+        const nrActiveLongMedia = this.notes.filter(note => note.qData.template === QueueNoteTemplate.LongMedia && note.qData.stage === QueueNoteStage.Ongoing).length
+        const exludeUnstartedLongMedia = nrActiveLongMedia > 5
+        console.info('excl new learns', exludeUnstartedLearns, 'excl new longmedia', exludeUnstartedLongMedia)
+        let notes = this.notes
+        if (exludeUnstartedLearns) notes = notes.filter(note => !(note.qData.template === QueueNoteTemplate.Learn && note.qData.stage === QueueNoteStage.Unstarted))
+        if (exludeUnstartedLongMedia) notes = notes.filter(note => !(note.qData.template === QueueNoteTemplate.LongMedia && note.qData.stage === QueueNoteStage.Unstarted))
 
-        return pickRandom(notesWithDesiredTemplate) || pickRandom(simplyAllDueNotes) || null
+        return notes
     }
 
     private async getDueNoteQuickly(): Promise<QueueNote | null> {
@@ -100,10 +116,5 @@ export class NoteShuffler {
         return dueNote
     }
 
-    public removeNoteFromNotes(note: QueueNote) {
-        // delete note that was saved from notes, so that it won't be opened again
-        this.notes = this.notes.filter(el => el.file !== note.file)
-
-    }
 }
 

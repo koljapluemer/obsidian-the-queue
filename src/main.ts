@@ -34,7 +34,11 @@ export default class QueuePlugin extends Plugin {
             // and than passed to the mediator
             this.queueBar.toggle()
         });
+    }
 
-
+    unload() {
+        if (this.queueBar) {
+            this.queueBar.el.remove()
+        }
     }
 }

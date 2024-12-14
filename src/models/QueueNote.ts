@@ -28,18 +28,10 @@ export class QueueNote {
     }
 
 
-    public isDue(allowNewLearns = false, allowNewLongMedia = false): boolean {
-        if (!allowNewLearns && this.qData.template === QueueNoteTemplate.Learn && this.qData.stage !== QueueNoteStage.Ongoing) {
-            return false
-        }
-        if (!allowNewLongMedia && this.qData.template === QueueNoteTemplate.LongMedia && (!(this.qData.stage === QueueNoteStage.Ongoing || this.qData.stage === QueueNoteStage.Finished))) {
-            return false
-        }
-        let isDue = true
-        if (this.qData.due) {
-            isDue = this.qData.due < new Date()
-        }
-        return isDue
+    public isDue(): boolean {
+        // considered due when due not set
+        if (this.qData.due) return this.qData.due < new Date()
+        return true
     }
 
     

@@ -30,7 +30,6 @@ export class QueueMediator {
 
     onBarButtonClicked(btn: QueueButton) {
         this.activeNoteManager.scoreAndSaveActive(btn)
-        if (this.activeNoteManager.activeNote) this.noteShuffler.removeNoteFromNotes(this.activeNoteManager.activeNote)
         this.requestNewNote()
     }
 
