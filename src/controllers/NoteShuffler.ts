@@ -1,10 +1,12 @@
 import { QueueMediator } from "./QueueMediator"
 import { QueueNote } from "../models/QueueNote"
 import { QueueNoteStage, QueueNoteTemplate } from "src/types"
-import { getAllMdFiles } from "src/helpers/vaultUtils"
+import { getAllMdFiles, getFrontmatterOfFile } from "src/helpers/vaultUtils"
 import { getRandomInt, pickRandom } from "src/helpers/arrayUtils"
 import { StreakManager } from "./StreakManager"
 import { QueueNoteFactory } from "src/models/NoteFactory"
+import { getPluginContext } from "src/contexts/pluginContext"
+import { TFile } from "obsidian"
 
 // knows the notes
 // when asked, produces a random note (probably to open it)
@@ -18,6 +20,25 @@ export class NoteShuffler {
         this.mediator = mediator
         mediator.noteShuffler = this
         this.streakManager = new StreakManager()
+
+        const context = getPluginContext()
+
+        // watching for new changes to open files
+        // int this case, we generate a note from the changed file
+        // compare that to this.notes, and adapt the note in notes
+        // otherwise, any kind of write, whether scoring in other parts of the plugin
+        // nor user edits would have an effect until plugin/obs restart
+        context.plugin.registerEvent(context.app.vault.on('modify', async (file) => {
+            if (this.notes.length > 0 && file instanceof TFile && file.extension === 'md') {
+                const noteFromFile = await QueueNoteFactory.createNoteFromFile(file)
+                const index = this.notes.findIndex((note) => noteFromFile.file === note.file)
+                if (index !== -1) {
+                    this.notes[index] = noteFromFile
+                    console.info('updated file')
+                }
+            }
+        })
+        )
     }
 
     public async getDueNote(): Promise<QueueNote | null> {
@@ -71,11 +92,11 @@ export class NoteShuffler {
 
         // return a note with desired template, if we have none, return any due note
         // TODO: if we have none at all, also allow just any misc
-        let noteToPick = pickRandom(notesWithDesiredTemplate) 
+        let noteToPick = pickRandom(notesWithDesiredTemplate)
         console.log('note to pick from des. template', noteToPick, 'isDue', noteToPick?.isDue())
         if (!noteToPick) {
             noteToPick = pickRandom(simplyAllDueNotes)
-            console.log('no note w/ desired template, now got', noteToPick, 'isDue', noteToPick?.isDue()) 
+            console.log('no note w/ desired template, now got', noteToPick, 'isDue', noteToPick?.isDue())
         }
         return noteToPick
     }
@@ -95,6 +116,7 @@ export class NoteShuffler {
         // filters after deciding whether to filter out new learns (if we have a lot of learns already); and same with longmedia
         const ongoingLearns = this.notes.filter(note => note.qData.template === QueueNoteTemplate.Learn && note.qData.stage === QueueNoteStage.Ongoing)
         const nrDueLearns = ongoingLearns.filter(note => note.isDue()).length
+        console.info('due ongoing learns', nrDueLearns)
         const exludeUnstartedLearns = nrDueLearns > 20
 
         const nrActiveLongMedia = this.notes.filter(note => note.qData.template === QueueNoteTemplate.LongMedia && note.qData.stage === QueueNoteStage.Ongoing).length
