@@ -60,14 +60,23 @@ export class NoteShuffler {
     private getDueNoteFromAllNotes(): QueueNote | null {
 
         const templateToPick = this.getRandomTemplateToPick()
+        console.info('loaded notes', this.notes.length)
         const notesToPickFrom = this.decideWhichNotesToPickFrom()
 
         const simplyAllDueNotes = notesToPickFrom.filter(note => note.isDue())
+        console.info('notes after only due', simplyAllDueNotes.length)
         const notesWithDesiredTemplate = simplyAllDueNotes.filter(note => note.qData.template === templateToPick)
+        console.info('notes due with desired template', notesWithDesiredTemplate.length)
 
         // return a note with desired template, if we have none, return any due note
         // TODO: if we have none at all, also allow just any misc
-        return pickRandom(notesWithDesiredTemplate) || pickRandom(simplyAllDueNotes) || null
+        let noteToPick = pickRandom(notesWithDesiredTemplate) 
+        console.log('note to pick from des. template', noteToPick)
+        if (!noteToPick) {
+            noteToPick = pickRandom(simplyAllDueNotes)
+            console.log('no note w/ desired template, now got', noteToPick) 
+        }
+        return noteToPick
     }
 
     private getRandomTemplateToPick(): QueueNoteTemplate {
@@ -92,7 +101,9 @@ export class NoteShuffler {
         console.info('excl new learns', exludeUnstartedLearns, 'excl new longmedia', exludeUnstartedLongMedia)
         let notes = this.notes
         if (exludeUnstartedLearns) notes = notes.filter(note => !(note.qData.template === QueueNoteTemplate.Learn && note.qData.stage === QueueNoteStage.Unstarted))
+        console.info('notes after (maybe) exl new learn', notes.length)
         if (exludeUnstartedLongMedia) notes = notes.filter(note => !(note.qData.template === QueueNoteTemplate.LongMedia && note.qData.stage === QueueNoteStage.Unstarted))
+        console.info('notes after (maybe) exl new longmedia', notes.length)
 
         return notes
     }

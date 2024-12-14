@@ -24,9 +24,14 @@ test('note creating works', () => {
 
 
 
-test('QueueNote | isDue(): new long media denied by default (explicit)', () => {
+test('QueueNote | isDue(): new long media accepted by default (explicit)', () => {
     const note = QueueNoteFactory.create(mockTFile, noteLongMediaNewExplicit)
-    expect(note.isDue()).toBeFalsy()
+    expect(note.isDue()).toBeTruthy()
+})
+
+test('QueueNote | isDue(): new learn accepted by default (explicit)', () => {
+    const note = QueueNoteFactory.create(mockTFile, noteLearnUnstarted)
+    expect(note.isDue()).toBeTruthy()
 })
 
 

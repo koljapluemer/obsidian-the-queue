@@ -30,7 +30,7 @@ export class QueueNote {
 
     public isDue(): boolean {
         // considered due when due not set
-        if (this.qData.due) return this.qData.due < new Date()
+        if (this.qData.due !== undefined && this.qData.due !== null) return this.qData.due < new Date()
         return true
     }
 
