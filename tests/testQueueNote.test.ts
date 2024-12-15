@@ -7,7 +7,7 @@ import { noteLearnFSRSData, noteLearnStartedDueIncomplete, noteLearnUnstarted } 
 import { noteTodoBasic } from "./data/notesTodo";
 import { noteHabitBasic, noteHabitWeekly } from "./data/notesHabit";
 import { noteCheckBasic, noteCheckWeekly } from "./data/notesCheck";
-import { noteShortMediaBasic } from "./data/notesShortMedia";
+import { noteShortMediaBasic, noteShortMediaNotDue } from "./data/notesShortMedia";
 import { QueueNoteFactory } from "src/models/NoteFactory";
 import { QueueNote } from "src/models/QueueNote";
 import { dateInNrOfDaysAt3Am, dateTenMinutesFromNow, dateTomorrow3Am } from "../src/helpers/dateUtils";
@@ -124,6 +124,13 @@ test('QueueNote | scoring: short media `done` due tmrw', () => {
     expect(note.qData.due).toEqual(dateTomorrow3Am())
 })
 
+test('QueueNote | scoring: short media not due `shownext` no change to due', () => {
+    const note = QueueNoteFactory.create(mockTFile, noteShortMediaNotDue)
+    const dueDate = note.qData.due
+    note.score(QueueButton.ShowNext)
+    expect(note.qData.due).toEqual(dueDate)
+})
+
 test('QueueNote | scoring: short media `finished`: finished, due tmrw', () => {
     const note = QueueNoteFactory.create(mockTFile, noteShortMediaBasic)
     note.score(QueueButton.Finished)
@@ -144,4 +151,10 @@ test('QueueNote | scoring: new learn card transitions to ongoing', () => {
     const note = QueueNoteFactory.create(mockTFile, noteLearnUnstarted)
     note.score(QueueButton.StartLearning)
     expect(note.qData.stage).toEqual(QueueNoteStage.Ongoing)
+})
+
+test(`Queue Note | new learn card that's skipped keeps state`, () => {
+    const note = QueueNoteFactory.create(mockTFile, noteLearnUnstarted)
+    note.score(QueueButton.NotToday)
+    expect(note.qData.stage).toEqual(QueueNoteStage.Unstarted)
 })
