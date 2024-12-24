@@ -22,6 +22,7 @@ export class QueueNoteTodo extends QueueNote {
                 this.qData.stage = QueueNoteStage.Finished
                 this.qData.due = dateTomorrow3Am()
                 break
+            case QueueButton.MadeProgress:
             case QueueButton.RegisterProg:
                 this.qData.due = dateTomorrow3Am()
                 break
