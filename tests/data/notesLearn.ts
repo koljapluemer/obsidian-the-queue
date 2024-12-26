@@ -3,7 +3,7 @@ import { QueueNoteData, QueueNoteStage, QueueNoteTemplate } from "src/types";
 export const noteLearnStartedDueIncomplete:QueueNoteData = {
     template: QueueNoteTemplate.Learn,
     stage: QueueNoteStage.Ongoing
-} 
+} as const
 
 
 export const noteLearnFSRSData:QueueNoteData = {
@@ -18,7 +18,7 @@ export const noteLearnFSRSData:QueueNoteData = {
     reps: 49,
     lapses: 5,
     state: 2
-}
+} as const
 
 export const noteLearnFSRSDataNotDue:QueueNoteData = {
     template: QueueNoteTemplate.Learn,
@@ -32,10 +32,10 @@ export const noteLearnFSRSDataNotDue:QueueNoteData = {
     reps: 49,
     lapses: 5,
     state: 2
-}
+} as const
 
 
 export const noteLearnUnstarted:QueueNoteData = {
     template: QueueNoteTemplate.Learn,
     stage: QueueNoteStage.Unstarted
-} 
+}  as const

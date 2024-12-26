@@ -1,6 +1,6 @@
 import { QueueButton, QueueNoteStage } from "src/types";
 import { QueueNote } from "./QueueNote";
-import { dateTenMinutesFromNow } from "src/helpers/dateUtils";
+import { dateTenMinutesFromNow, dateTomorrow3Am } from "src/helpers/dateUtils";
 import { Card, createEmptyCard, FSRS, FSRSParameters, generatorParameters, Rating, RecordLog, RecordLogItem, State } from "ts-fsrs"
 
 export class QueueNoteLearn extends QueueNote {
@@ -10,25 +10,30 @@ export class QueueNoteLearn extends QueueNote {
     buttonsWhenNotDue: QueueButton[] = [QueueButton.RegisterRep, QueueButton.ShowNext]
 
     public score(btn: QueueButton) {
-        if (this.isDue()) {
-            this.adaptAccordingToFSRS(btn)
-        } else {
-            switch (btn) {
-                case QueueButton.RegisterRep:
-                    // set at least a bit in the future, but don't override if far in the future
-                    this.qData.due = this.isDue() ? dateTenMinutesFromNow() : this.qData.due
-                    this.qData.reps = this.qData.reps ? this.qData.reps + 1 : 1
-                    this.qData.seen = new Date()
-                    break
-                case QueueButton.ShowNext:
-                    // pass
-                    break
-                case QueueButton.StartLearning:
-                    this.setQDataAtStartOfFSRS()
-                    break
-                default:
-                    console.error(`Note type doesn't know this button`, btn)
-            }
+        switch (btn) {
+            case QueueButton.Wrong:
+            case QueueButton.Hard:
+            case QueueButton.Correct:
+            case QueueButton.Easy:
+                this.adaptAccordingToFSRS(btn)
+                break
+            case QueueButton.RegisterRep:
+                // set at least a bit in the future, but don't override if far in the future
+                this.qData.due = this.isDue() ? dateTenMinutesFromNow() : this.qData.due
+                this.qData.reps = this.qData.reps ? this.qData.reps + 1 : 1
+                this.qData.seen = new Date()
+                break
+            case QueueButton.ShowNext:
+                // pass
+                break
+            case QueueButton.StartLearning:
+                this.setQDataAtStartOfFSRS()
+                break
+            case QueueButton.NotToday:
+                this.qData.due = dateTomorrow3Am()
+                break
+            default:
+                console.error(`Note type doesn't know this button`, btn)
         }
     }
 
@@ -49,8 +54,9 @@ export class QueueNoteLearn extends QueueNote {
 
 
     private setQDataAtStartOfFSRS() {
+        console.log('setQDataAtStartOfFSRS')
+        this.qData.stage = QueueNoteStage.Ongoing
         const card: Card = createEmptyCard()
-
 
         this.qData.due = card.due
         this.qData.stability = card.stability
@@ -65,6 +71,7 @@ export class QueueNoteLearn extends QueueNote {
 
 
     private adaptAccordingToFSRS(btn: QueueButton) {
+        console.log('adaptAccordingToFSRS')
 
         if (!this.hasAllPropsSetNeededForFSRS()) {
             console.warn('cannot interpret learning data, treating as new learn note')
