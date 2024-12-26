@@ -1,21 +1,69 @@
 import { QueueButton, QueueNoteData, QueueNoteStage, QueueNoteTemplate } from "src/types";
-import { test, expect} from 'vitest'
-import { mockTFile } from "./data/mock";
-import { noteMiscDue } from "./data/notesMisc";
-import { noteLongMediaNewExplicit, noteLongMediaStarted } from "./data/notesLongMedia";
-import { noteLearnFSRSData, noteLearnStartedDueIncomplete, noteLearnUnstarted } from "./data/notesLearn";
-import { noteTodoBasic } from "./data/notesTodo";
-import { noteHabitBasic, noteHabitWeekly } from "./data/notesHabit";
-import { noteCheckBasic, noteCheckWeekly } from "./data/notesCheck";
-import { noteShortMediaBasic, noteShortMediaNotDue } from "./data/notesShortMedia";
+import { test, expect, vi } from 'vitest'
 import { QueueNoteFactory } from "src/models/NoteFactory";
 import { QueueNote } from "src/models/QueueNote";
 import { dateInNrOfDaysAt3Am, dateTenMinutesFromNow, dateTomorrow3Am } from "../src/helpers/dateUtils";
+import { TFile } from "obsidian";
+
+
+export const mockTFile = {
+    path: "mock-folder/mock-file.md",
+    name: "mock-file.md",
+    basename: "mock-file",
+    extension: "md",
+    stat: {
+        ctime: 1672531200000, // Mock creation time (e.g., 2023-01-01T00:00:00.000Z)
+        mtime: 1672534800000, // Mock modification time
+        size: 1234, // Mock file size in bytes
+    },
+    vault: {
+        adapter: {
+            write: vi.fn(() => Promise.resolve()),
+            read: vi.fn(() => Promise.resolve("mock file content")),
+            delete: vi.fn(() => Promise.resolve()),
+            rename: vi.fn(() => Promise.resolve()),
+        },
+        getName: vi.fn(() => "MockVault"),
+    },
+    unsafeCachedData: null,
+} as unknown as TFile;
+
+
+// SCORING - State Transitions
+
+test(`Queue Note | new learn card that's skipped keeps state`, () => {
+    const n: QueueNoteData = {
+        template: QueueNoteTemplate.Learn,
+        stage: QueueNoteStage.Unstarted
+    }
+    const note = QueueNoteFactory.create(mockTFile, n)
+    note.score(QueueButton.NotToday)
+    expect(note.qData.stage).toEqual(QueueNoteStage.Unstarted)
+})
+
+
+test('QueueNote | scoring: new learn card transitions to ongoing', () => {
+    const n: QueueNoteData =  {
+        template: QueueNoteTemplate.Learn,
+        stage: QueueNoteStage.Unstarted
+    } 
+    const note = QueueNoteFactory.create(mockTFile, n)
+    note.score(QueueButton.StartLearning)
+    expect(note.qData.stage).toEqual(QueueNoteStage.Ongoing)
+})
+
+
+
+
 
 // ESSENTIAL
 
 test('note creating works', () => {
-    let note = QueueNoteFactory.create(mockTFile, noteMiscDue)
+    const n: QueueNoteData = {
+        template: QueueNoteTemplate.Misc,
+        due: new Date(1999, 1, 1)
+    }
+    const note = QueueNoteFactory.create(mockTFile, n)
     expect(note.qData.template).toEqual(QueueNoteTemplate.Misc)
 })
 
@@ -25,29 +73,21 @@ test('note creating works', () => {
 
 
 test('QueueNote | isDue(): new long media accepted by default (explicit)', () => {
-    let note = QueueNoteFactory.create(mockTFile, noteLongMediaNewExplicit)
+    const n: QueueNoteData = {
+        template: QueueNoteTemplate.LongMedia,
+        stage: QueueNoteStage.Unstarted
+    }
+    const note = QueueNoteFactory.create(mockTFile, n)
     expect(note.isDue()).toBeTruthy()
 })
 
 test('QueueNote | isDue(): new learn accepted by default (explicit)', () => {
-    let note = QueueNoteFactory.create(mockTFile, noteLearnUnstarted)
+    const n: QueueNoteData =  {
+        template: QueueNoteTemplate.Learn,
+        stage: QueueNoteStage.Unstarted
+    } 
+    const note = QueueNoteFactory.create(mockTFile, n)
     expect(note.isDue()).toBeTruthy()
-})
-
-
-// SCORING - State Transitions
-
-test(`Queue Note | new learn card that's skipped keeps state`, () => {
-    let note = QueueNoteFactory.create(mockTFile, noteLearnUnstarted)
-    note.score(QueueButton.NotToday)
-    expect(note.qData.stage).toEqual(QueueNoteStage.Unstarted)
-})
-
-
-test('QueueNote | scoring: new learn card transitions to ongoing', () => {
-    let note = QueueNoteFactory.create(mockTFile, noteLearnUnstarted)
-    note.score(QueueButton.StartLearning)
-    expect(note.qData.stage).toEqual(QueueNoteStage.Ongoing)
 })
 
 
@@ -57,37 +97,64 @@ test('QueueNote | scoring: new learn card transitions to ongoing', () => {
 // Basic Due Case 
 
 test('QueueNote | buttons: due learn — basics', () => {
-    let note = QueueNoteFactory.create(mockTFile, noteLearnStartedDueIncomplete) 
+    const n: QueueNoteData =  {
+        template: QueueNoteTemplate.Learn,
+        stage: QueueNoteStage.Ongoing
+    } 
+    const note = QueueNoteFactory.create(mockTFile, n) 
     expect(note.getButtons()).toEqual(["Wrong", "Hard", "Correct", "Easy"])
 })
 
 test('QueueNote | buttons: due todo — basics', () => {
-    let note = QueueNoteFactory.create(mockTFile, noteTodoBasic) 
+    const n: QueueNoteData = {
+        template: QueueNoteTemplate.Todo,
+        stage: QueueNoteStage.Ongoing
+    }
+    const note = QueueNoteFactory.create(mockTFile, n) 
     expect(note.getButtons()).toEqual(["Not today", "Later", "Made progress", "Finished"])
 })
 
 test('QueueNote | buttons: due habit — basics', () => {
-    let note = QueueNoteFactory.create(mockTFile, noteHabitBasic) 
+    const n: QueueNoteData = {
+        template: QueueNoteTemplate.Habit,
+    }
+    const note = QueueNoteFactory.create(mockTFile, n) 
     expect(note.getButtons()).toEqual(["Not today", "Later", "Done"])
 })
 
 test('QueueNote | buttons: due check — basics', () => {
-    let note = QueueNoteFactory.create(mockTFile, noteCheckBasic) 
+    const n: QueueNoteData = {
+        template: QueueNoteTemplate.Check,
+    } 
+    const note = QueueNoteFactory.create(mockTFile, n) 
     expect(note.getButtons()).toEqual(["No", "Kind of", "Yes"])
 })
 
 test('QueueNote | buttons: due shortmedia — basics', () => {
-    let note = QueueNoteFactory.create(mockTFile, noteShortMediaBasic) 
+    const n: QueueNoteData = {
+        template: QueueNoteTemplate.ShortMedia,
+        stage: QueueNoteStage.Ongoing
+    } 
+    const note = QueueNoteFactory.create(mockTFile, n) 
     expect(note.getButtons()).toEqual(["Not today", "Later", "Done", "Finished"])
 })
 
 test('QueueNote | buttons: due longmedia — basics', () => {
-    let note = QueueNoteFactory.create(mockTFile, noteLongMediaStarted) 
+    const n: QueueNoteData = {
+        template: QueueNoteTemplate.LongMedia,
+        stage: QueueNoteStage.Ongoing
+    
+    } 
+    const note = QueueNoteFactory.create(mockTFile, n) 
     expect(note.getButtons()).toEqual(["Not today", "Later", "Done", "Finished"])
 })
 
 test('QueueNote | buttons: due misc — basics', () => {
-    let note = QueueNoteFactory.create(mockTFile, noteMiscDue) 
+    const n:QueueNoteData = {
+        template: QueueNoteTemplate.Misc,
+        due: new Date(1999, 1, 1)
+    }
+    const note = QueueNoteFactory.create(mockTFile, n) 
     expect(note.getButtons()).toEqual(["Show next"])
 })
 
@@ -95,7 +162,20 @@ test('QueueNote | buttons: due misc — basics', () => {
 // SCORING
 
 test('QueueNote | scoring: learn (fsrs sanity check)', () => {
-    let note:QueueNote = QueueNoteFactory.create(mockTFile, noteLearnFSRSData) 
+    const n: QueueNoteData =  {
+        template: QueueNoteTemplate.Learn,
+        stage: QueueNoteStage.Ongoing,
+        due: new Date('2023-12-27T18:32:17.409Z'),
+        seen: new Date('2023-12-11T18:32:17.409Z'),
+        stability: 15.62332369,
+        difficulty: 9.54482981,
+        elapsed: 13,
+        scheduled: 16,
+        reps: 49,
+        lapses: 5,
+        state: 2
+    }
+    const note:QueueNote = QueueNoteFactory.create(mockTFile, n) 
     note.score(QueueButton.Easy)
     expect(note.qData.reps).toEqual(50)
     expect(note.qData.lapses).toEqual(5)
@@ -105,58 +185,95 @@ test('QueueNote | scoring: learn (fsrs sanity check)', () => {
 })
 
 test('QueueNote | scoring: todo `not-today` due tomorrow', () => {
-    let note = QueueNoteFactory.create(mockTFile, noteTodoBasic)
+    const n: QueueNoteData = {
+        template: QueueNoteTemplate.Todo,
+        stage: QueueNoteStage.Ongoing
+    }
+    const note = QueueNoteFactory.create(mockTFile, n)
     note.score(QueueButton.NotToday)
     expect(note.qData.due).toEqual(dateTomorrow3Am())
 })
 
 test('QueueNote | scoring: todo `later` due in 10m', () => {
-    let note = QueueNoteFactory.create(mockTFile, noteTodoBasic)
+    const n: QueueNoteData = {
+        template: QueueNoteTemplate.Todo,
+        stage: QueueNoteStage.Ongoing
+    } 
+    const note = QueueNoteFactory.create(mockTFile, n)
     note.score(QueueButton.Later)
     expect(note.qData.due).toEqual(dateTenMinutesFromNow())
 })
 
 test('QueueNote | scoring: todo `finished` exclude and not due', () => {
-    let note = QueueNoteFactory.create(mockTFile, noteTodoBasic)
+    const n: QueueNoteData = {
+        template: QueueNoteTemplate.Todo,
+        stage: QueueNoteStage.Ongoing
+    } 
+    const note = QueueNoteFactory.create(mockTFile, n)
     note.score(QueueButton.Finished)
     expect(note.isDue()).toBeFalsy()
     expect(note.qData.stage).toEqual(QueueNoteStage.Finished)
 })
 
 test('QueueNote | scoring: habit `done` due after interval', () => {
-    let note = QueueNoteFactory.create(mockTFile, noteHabitWeekly)
+    const n: QueueNoteData = {
+        template: QueueNoteTemplate.Habit,
+        interval: 7
+    }
+    const note = QueueNoteFactory.create(mockTFile, n)
     note.score(QueueButton.Done)
     expect(note.qData.due).toEqual(dateInNrOfDaysAt3Am(7))
 })
 
 test('QueueNote | scoring: check `done` due after interval', () => {
-    let note = QueueNoteFactory.create(mockTFile, noteCheckWeekly)
+    const n: QueueNoteData = {
+        template: QueueNoteTemplate.Check,
+        interval: 7
+    }
+    const note = QueueNoteFactory.create(mockTFile, n)
     note.score(QueueButton.Done)
     expect(note.qData.due).toEqual(dateInNrOfDaysAt3Am(7))
 })
 
 test('QueueNote | scoring: short media `done` due tmrw', () => {
-    let note = QueueNoteFactory.create(mockTFile, noteShortMediaBasic)
+    const n: QueueNoteData = {
+        template: QueueNoteTemplate.ShortMedia,
+        stage: QueueNoteStage.Ongoing
+    }
+    const note = QueueNoteFactory.create(mockTFile, n)
     note.score(QueueButton.Done)
     expect(note.qData.due).toEqual(dateTomorrow3Am())
 })
 
 test('QueueNote | scoring: short media not due `shownext` no change to due', () => {
-    let note = QueueNoteFactory.create(mockTFile, noteShortMediaNotDue)
+    const n: QueueNoteData = {
+        template: QueueNoteTemplate.ShortMedia,
+        due: new Date(2099, 1, 1),
+        stage: QueueNoteStage.Ongoing
+    } 
+    const note = QueueNoteFactory.create(mockTFile, n)
     const dueDate = note.qData.due
     note.score(QueueButton.ShowNext)
     expect(note.qData.due).toEqual(dueDate)
 })
 
 test('QueueNote | scoring: short media `finished`: finished, due tmrw', () => {
-    let note = QueueNoteFactory.create(mockTFile, noteShortMediaBasic)
+    const n: QueueNoteData = {
+        template: QueueNoteTemplate.ShortMedia,
+        stage: QueueNoteStage.Ongoing
+    } 
+    const note = QueueNoteFactory.create(mockTFile, n)
     note.score(QueueButton.Finished)
     expect(note.qData.due).toEqual(dateTomorrow3Am())
     expect(note.qData.stage).toEqual(QueueNoteStage.Finished)
 })
 
 test('QueueNote | scoring: long media `finished`: finished, due tmrw', () => {
-    let note = QueueNoteFactory.create(mockTFile, noteLongMediaNewExplicit)
+    const n: QueueNoteData =  {
+        template: QueueNoteTemplate.LongMedia,
+        stage: QueueNoteStage.Unstarted
+    } 
+    const note = QueueNoteFactory.create(mockTFile, n)
     note.score(QueueButton.Finished)
     expect(note.qData.due).toEqual(dateTomorrow3Am())
     expect(note.qData.stage).toEqual(QueueNoteStage.Finished)

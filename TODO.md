@@ -1,7 +1,5 @@
 
 - bugs:
-  - TESTS DEPEND ON ORDER?!?!?!
-	- it seems like todos (maybe freshly converted todos) can't handle 'made progress'
 	- starting from empty editor still loads last file's bar
 	- not due learning cards have the right buttons, but are *picked* by the note shuffler (may be state problem though). example note data:
 		- could be just the quick picker
