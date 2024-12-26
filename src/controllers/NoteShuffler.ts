@@ -107,13 +107,17 @@ export class NoteShuffler {
 
     private decideWhichNotesToPickFrom(): QueueNote[] {
         // filters after deciding whether to filter out new learns (if we have a lot of learns already); and same with longmedia
-        const ongoingLearns = this.notes.filter(note => note.qData.template === QueueNoteTemplate.Learn && note.qData.stage === QueueNoteStage.Ongoing)
+        return this.getFilteredNotes(this.notes)
+        // this is wrapped in another function to isolate the side effect (gettin the external this.notes state)
+    }
+
+    private getFilteredNotes(notes:QueueNote[]):QueueNote[] {
+        const ongoingLearns = notes.filter(note => note.qData.template === QueueNoteTemplate.Learn && note.qData.stage === QueueNoteStage.Ongoing)
         const nrDueLearns = ongoingLearns.filter(note => note.isDue()).length
         const exludeUnstartedLearns = nrDueLearns > 20
 
-        const nrActiveLongMedia = this.notes.filter(note => note.qData.template === QueueNoteTemplate.LongMedia && note.qData.stage === QueueNoteStage.Ongoing).length
+        const nrActiveLongMedia = notes.filter(note => note.qData.template === QueueNoteTemplate.LongMedia && note.qData.stage === QueueNoteStage.Ongoing).length
         const exludeUnstartedLongMedia = nrActiveLongMedia > 5
-        let notes = this.notes
         if (exludeUnstartedLearns) notes = notes.filter(note => !(note.qData.template === QueueNoteTemplate.Learn && note.qData.stage === QueueNoteStage.Unstarted))
         if (exludeUnstartedLongMedia) notes = notes.filter(note => !(note.qData.template === QueueNoteTemplate.LongMedia && note.qData.stage === QueueNoteStage.Unstarted))
 
