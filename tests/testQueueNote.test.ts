@@ -39,9 +39,7 @@ test('QueueNote | isDue(): new learn accepted by default (explicit)', () => {
 
 test(`Queue Note | new learn card that's skipped keeps state`, () => {
     let note = QueueNoteFactory.create(mockTFile, noteLearnUnstarted)
-    console.log('note pre score', note)
     note.score(QueueButton.NotToday)
-    console.log('note now', note)
     expect(note.qData.stage).toEqual(QueueNoteStage.Unstarted)
 })
 

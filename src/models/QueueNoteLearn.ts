@@ -54,7 +54,6 @@ export class QueueNoteLearn extends QueueNote {
 
 
     private setQDataAtStartOfFSRS() {
-        console.log('setQDataAtStartOfFSRS')
         this.qData.stage = QueueNoteStage.Ongoing
         const card: Card = createEmptyCard()
 
@@ -71,7 +70,6 @@ export class QueueNoteLearn extends QueueNote {
 
 
     private adaptAccordingToFSRS(btn: QueueButton) {
-        console.log('adaptAccordingToFSRS')
 
         if (!this.hasAllPropsSetNeededForFSRS()) {
             console.warn('cannot interpret learning data, treating as new learn note')
