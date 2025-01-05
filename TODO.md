@@ -25,3 +25,5 @@ q:
 - glob style folder exclusions?
 - temp filter?
 - keyboard/command support?
+
+- 'not today' for longmedia/article 1 day, but 2 days for 'done', as reward?
