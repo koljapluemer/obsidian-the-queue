@@ -16,6 +16,7 @@ export class NoteShuffler {
     notes: QueueNote[] = []
     streakManager: StreakManager
     notesCurrentlyLoading = false
+    noteToExcludeBecauseWeJustHadIt: QueueNote | null = null
 
     constructor(mediator: QueueMediator) {
         this.mediator = mediator
@@ -49,6 +50,7 @@ export class NoteShuffler {
             note = await this.getDueNoteQuickly()
         }
         if (note) this.streakManager.onNoteWasPicked(note.qData)
+        this.noteToExcludeBecauseWeJustHadIt = note
         return note
     }
 
@@ -78,11 +80,10 @@ export class NoteShuffler {
     }
 
     private getDueNoteFromAllNotes(): QueueNote | null {
-
         const templateToPick = this.getRandomTemplateToPick()
         const notesToPickFrom = this.decideWhichNotesToPickFrom()
 
-        const simplyAllDueNotes = notesToPickFrom.filter(note => note.isDue())
+        const simplyAllDueNotes = notesToPickFrom.filter(note => note.isDue() && note !== this.noteToExcludeBecauseWeJustHadIt)
         const notesWithDesiredTemplate = simplyAllDueNotes.filter(note => note.qData.template === templateToPick)
 
         // return a note with desired template, if we have none, return any due note
@@ -111,7 +112,7 @@ export class NoteShuffler {
         // this is wrapped in another function to isolate the side effect (gettin the external this.notes state)
     }
 
-    private getFilteredNotes(notes:QueueNote[]):QueueNote[] {
+    private getFilteredNotes(notes: QueueNote[]): QueueNote[] {
         const ongoingLearns = notes.filter(note => note.qData.template === QueueNoteTemplate.Learn && note.qData.stage === QueueNoteStage.Ongoing)
         const nrDueLearns = ongoingLearns.filter(note => note.isDue()).length
         const exludeUnstartedLearns = nrDueLearns > 20
