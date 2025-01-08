@@ -26,6 +26,10 @@ export class QueueNote {
         }
     }
 
+    public addScoreToHistory(btn: QueueButton) {
+        
+    }
+
 
     public isDue(): boolean {
         // considered due when due not set
