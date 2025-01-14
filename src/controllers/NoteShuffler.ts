@@ -96,7 +96,7 @@ export class NoteShuffler {
     }
 
     private getRandomTemplateToPick(): QueueNoteTemplate {
-        const noteTemplates = [QueueNoteTemplate.Learn, QueueNoteTemplate.Learn, QueueNoteTemplate.Todo, QueueNoteTemplate.Habit, QueueNoteTemplate.Check, QueueNoteTemplate.ShortMedia, QueueNoteTemplate.LongMedia, QueueNoteTemplate.Misc]
+        const noteTemplates = [QueueNoteTemplate.Learn, QueueNoteTemplate.Todo, QueueNoteTemplate.Habit, QueueNoteTemplate.Habit, QueueNoteTemplate.Check, QueueNoteTemplate.ShortMedia, QueueNoteTemplate.LongMedia, QueueNoteTemplate.Misc]
 
         let templateFromStreak = this.streakManager.getCurrentStreakTemplate()
         if (templateFromStreak === null || templateFromStreak === undefined) {
