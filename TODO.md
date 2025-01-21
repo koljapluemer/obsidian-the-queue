@@ -1,5 +1,6 @@
 ## High Prio
 
+- release
 - get README done
 
 ## Mid Prio
@@ -7,6 +8,7 @@
 - check issues
 - settings menu
 - usable stats
+- add a comment to the button bar
 
 ## Ideas
 
