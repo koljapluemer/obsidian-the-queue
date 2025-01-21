@@ -72,7 +72,10 @@ Clean your desk
 For most note types, you set only the `template`, for some, you may also want to set the desired `interval` in days. All possible templates are described below.
 If you don't set an interval, a default interval of 1 day is assumed.
 
+
 ### Types of Notes
+
+You can set `template` to the following values: `misc`, `learn`, `habit`, `check`, `todo`, `longmedia`, `shortmedia` and `exclude`.
 
 #### Standard notes / Miscellaneous / Default
 
