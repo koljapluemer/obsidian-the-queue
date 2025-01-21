@@ -43,8 +43,8 @@ If any of these steps cause you trouble, refer to *Method 2* in [this excellent 
 
 ## Get Started
 
-1. Select the little $ICON in your ribbon. (![queue icon](doc/img/queue.png))
-2. You are in your queue, have fun!
+1. Select the little icon in your ribbon. (![queue icon](queue.png))
+2. You are in your queue, have fun! Go to the next note by selecting any of the buttons in the bar on the bottom.
 
 ## Usage, Features and Functionality
 

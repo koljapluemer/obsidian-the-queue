@@ -27,7 +27,7 @@ export default class QueuePlugin extends Plugin {
         new NoteShuffler(mediator)
         new ActiveNoteManager(mediator)
 
-        this.addRibbonIcon('banana', 'Toggle Queue', (evt: MouseEvent) => {
+        this.addRibbonIcon('square-square', 'Toggle Queue', (evt: MouseEvent) => {
             // the toggle is held here b/c it's basically the core way of
             // interacting with the plugin itself,
             // however the logic is first handled by the QueueBar visually
