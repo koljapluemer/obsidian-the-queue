@@ -27,7 +27,8 @@ export class QueueNote {
     }
 
     public addScoreToHistory(btn: QueueButton) {
-        
+        this.qData.seen = new Date()
+        // TODO: find a solid encoding for btn in history, and store
     }
 
 

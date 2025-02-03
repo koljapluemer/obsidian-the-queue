@@ -50,6 +50,7 @@ export class ActiveNoteManager {
     scoreAndSaveActive(btn: QueueButton) {
         if (this.activeNote) {
             this.activeNote.score(btn)
+            this.activeNote.addScoreToHistory(btn)
             saveNoteToVault(this.activeNote)
         }
     }

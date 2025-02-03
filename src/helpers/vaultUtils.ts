@@ -62,6 +62,7 @@ export function saveNoteToVault(note: QueueNote) {
             if (note.qData.reps !== undefined) frontmatter["q"]["reps"] = note.qData.reps
             if (note.qData.lapses !== undefined) frontmatter["q"]["lapses"] = note.qData.lapses
             if (note.qData.state !== undefined) frontmatter["q"]["state"] = note.qData.state
+            if (note.qData.history !== undefined) frontmatter["q"]["history"] = note.qData.history
 
             deletePropertiesWithOldPrefix(frontmatter)
         })

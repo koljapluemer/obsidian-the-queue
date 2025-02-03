@@ -95,6 +95,7 @@ export class NoteShuffler {
         return noteToPick
     }
 
+
     private getRandomTemplateToPick(): QueueNoteTemplate {
         const noteTemplates = [QueueNoteTemplate.Learn, QueueNoteTemplate.Todo, QueueNoteTemplate.Habit, QueueNoteTemplate.Habit, QueueNoteTemplate.Check, QueueNoteTemplate.ShortMedia, QueueNoteTemplate.LongMedia, QueueNoteTemplate.Misc]
 
