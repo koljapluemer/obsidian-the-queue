@@ -45,7 +45,12 @@ export class NoteShuffler {
     public async getDueNote(): Promise<QueueNote | null> {
         let note: QueueNote | null
         if (this.notes.length > 0) {
-            note = this.getDueNoteFromAllNotes()
+            // with 50/50 getLongestNotSeenDueNote or getDueNoteFromAllNotes
+            if (Math.random() > 0.5) {
+                note = this.getDueNoteFromAllNotes()
+            } else {
+                note = this.getLongestNotSeenDueNote()
+            }
         } else {
             note = await this.getDueNoteQuickly()
         }
@@ -89,6 +94,32 @@ export class NoteShuffler {
         // return a note with desired template, if we have none, return any due note
         // TODO: if we have none at all, also allow just any misc
         let noteToPick = pickRandom(notesWithDesiredTemplate)
+        if (!noteToPick) {
+            noteToPick = pickRandom(simplyAllDueNotes)
+        }
+        return noteToPick
+    }
+
+    private getLongestNotSeenDueNote(): QueueNote | null {
+        // get either the note that has a `seen` longest in the past (and is due)
+        // or a note that `seen` not set at all
+
+        const templateToPick = this.getRandomTemplateToPick()
+        const notesToPickFrom = this.decideWhichNotesToPickFrom()
+
+        const simplyAllDueNotes = notesToPickFrom.filter(note => note.isDue() && note !== this.noteToExcludeBecauseWeJustHadIt)
+        const notesWithDesiredTemplate = simplyAllDueNotes.filter(note => note.qData.template === templateToPick)
+
+        // return a note with desired template, if we have none, return any due note
+
+        // first, get the note with the longest unseen time
+        let noteToPick: QueueNote | null = notesWithDesiredTemplate.reduce((prev, current) => {
+            if (prev.qData.seen === undefined) return current
+            if (current.qData.seen === undefined) return prev
+            return prev.qData.seen < current.qData.seen ? current : prev
+        }, notesWithDesiredTemplate[0])
+
+        // if we have none, just pick any
         if (!noteToPick) {
             noteToPick = pickRandom(simplyAllDueNotes)
         }
