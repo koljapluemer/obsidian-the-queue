@@ -103,18 +103,19 @@ export class NoteShuffler {
     private getLongestNotSeenDueNote(): QueueNote | null {
         // get either the note that has a `seen` longest in the past (and is due)
         // or a note that `seen` not set at all
-
+        const templateToPick = this.getRandomTemplateToPick()
         const notesToPickFrom = this.decideWhichNotesToPickFrom()
         const simplyAllDueNotes = notesToPickFrom.filter(note => note.isDue() && note !== this.noteToExcludeBecauseWeJustHadIt)
+        const notesWithDesiredTemplate = simplyAllDueNotes.filter(note => note.qData.template === templateToPick)
 
         // return a note with desired template, if we have none, return any due note
 
         // first, get the note whose 'seen' Date does not exist, or is furthest in the past
-        let noteToPick: QueueNote | null = notesToPickFrom.reduce((prev, current) => {
+        let noteToPick: QueueNote | null = notesWithDesiredTemplate.reduce((prev, current) => {
             if (prev.qData.seen === undefined) return prev
             if (current.qData.seen === undefined) return current
             return prev.qData.seen < current.qData.seen ? prev : current
-        }, notesToPickFrom[0])
+        }, notesWithDesiredTemplate[0])
 
         // if we have none, just pick any
         if (!noteToPick) {
