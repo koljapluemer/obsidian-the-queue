@@ -45,7 +45,6 @@ export class NoteShuffler {
     public async getDueNote(): Promise<QueueNote | null> {
         let note: QueueNote | null
         if (this.notes.length > 0) {
-            // with 50/50 getLongestNotSeenDueNote or getDueNoteFromAllNotes
             if (Math.random() > 0.5) {
                 note = this.getDueNoteFromAllNotes()
             } else {
@@ -100,6 +99,11 @@ export class NoteShuffler {
         return noteToPick
     }
 
+
+    // this function is an alternative to getDueNoteFromAllNotes(), which tends to give the same notes again and again
+    // however, having implemented this, I think the problem is actually `longmedia` being such a narrow category, that the few entries
+    // in it keep being repeated, and not grouped with misc
+    // so this is a neat idea, but solves the wrong problem.
     private getLongestNotSeenDueNote(): QueueNote | null {
         // get either the note that has a `seen` longest in the past (and is due)
         // or a note that `seen` not set at all
@@ -107,8 +111,6 @@ export class NoteShuffler {
         const notesToPickFrom = this.decideWhichNotesToPickFrom()
         const simplyAllDueNotes = notesToPickFrom.filter(note => note.isDue() && note !== this.noteToExcludeBecauseWeJustHadIt)
         const notesWithDesiredTemplate = simplyAllDueNotes.filter(note => note.qData.template === templateToPick)
-
-        // return a note with desired template, if we have none, return any due note
 
         // first, get the note whose 'seen' Date does not exist, or is furthest in the past
         let noteToPick: QueueNote | null = notesWithDesiredTemplate.reduce((prev, current) => {

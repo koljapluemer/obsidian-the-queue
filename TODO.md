@@ -39,3 +39,5 @@ q:
   seen: 2025-02-04T11:38:46.168Z
 ---
 ```
+
+- under what condition is `longmedia` `finished` actually selected? We want to group it in `misc`, but I think it's not...
