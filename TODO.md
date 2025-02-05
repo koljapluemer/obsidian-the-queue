@@ -22,3 +22,20 @@
 
 
 - bring prio back?
+
+
+## Bugs
+
+- the following note is coming up way too often (after implementing longestNotSeen function)
+
+```
+---
+created-at: 2023-10-22
+auto-generate: true
+q:
+  template: shortmedia
+  stage: finished
+  due: 2024-12-15T02:00:00.000Z
+  seen: 2025-02-04T11:38:46.168Z
+---
+```
