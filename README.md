@@ -237,9 +237,9 @@ open that letter from the bank lying on my desk
 
 #### Media/Iterative Reading
 
-[Iterative Reading](https://en.wikipedia.org/wiki/Incremental_reading) is a method of getting through long reading lists. Instead of reading one article (or whatever) after another, you read everything "at the same time". *The Queue* makes this possible by randomly showing you articles you saved, prompting you to read a bit — it is up to you whether you stop after a sentence or a chapter. Bit by bit, you make progress, until you finished a given document. 
+[Iterative Reading](https://en.wikipedia.org/wiki/Incremental_reading) is a method of getting through long reading lists. Instead of reading one article (or whatever) after another, you read everything "at the same time". *The Queue* makes this possible by randomly showing you articles you saved, prompting you to read a bit — it is up to you whether you stop after a sentence or a chapter. Bit by bit, you make progress, until you finished a given document. Once you finished a given piece of media, it's treated as a miscellaneous note and shows up occasionally.
 
-To have a note show up in your queue in this manner, you have to set `template` to `shortmedia` or `longmedia`
+To have a note show up in your queue in this manner, you have to set `template` to `shortmedia` or `longmedia`.
 
 As you will see, the two types are treated almost the same. The difference is that *The Queue* limits the number of long media you consume at a time, while the number of active `shortmedia` is unlimited.
 

@@ -4,7 +4,6 @@ import { QueueNoteStage, QueueNoteTemplate } from "src/types";
 export class StatsManager {
 
     public static logDueStats(notes: QueueNote[]) {
-
         const dueArticles = notes.filter(n => n.isDue() && n.qData.template === QueueNoteTemplate.ShortMedia).length
         const dueBooks = notes.filter(n => n.isDue() && n.qData.template === QueueNoteTemplate.LongMedia && n.qData.stage === QueueNoteStage.Ongoing).length
         const dueChecks = notes.filter(n => n.isDue() && n.qData.template === QueueNoteTemplate.Check).length

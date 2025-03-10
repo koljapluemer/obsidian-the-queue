@@ -1,7 +1,6 @@
 ## High Prio
 
-- release
-- get README done
+- broken frontmatter crashes the plugin (I think)
 
 ## Mid Prio
 
@@ -9,6 +8,10 @@
 - settings menu
 - usable stats
 - add a comment to the button bar
+- prevent endless runs of learn cards if there's like 200 due (?)
+  - test this scenario
+  - well combinable with downloading vocab from vvv
+- moore detailed README
 
 ## Ideas
 
@@ -23,21 +26,4 @@
 
 - bring prio back?
 
-
-## Bugs
-
-- the following note is coming up way too often (after implementing longestNotSeen function)
-
-```
----
-created-at: 2023-10-22
-auto-generate: true
-q:
-  template: shortmedia
-  stage: finished
-  due: 2024-12-15T02:00:00.000Z
-  seen: 2025-02-04T11:38:46.168Z
----
-```
-
-- under what condition is `longmedia` `finished` actually selected? We want to group it in `misc`, but I think it's not...
+- stuff where you input text as answer?

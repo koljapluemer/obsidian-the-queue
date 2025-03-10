@@ -88,7 +88,7 @@ export class NoteShuffler {
         const notesToPickFrom = this.decideWhichNotesToPickFrom()
 
         const simplyAllDueNotes = notesToPickFrom.filter(note => note.isDue() && note !== this.noteToExcludeBecauseWeJustHadIt)
-        const notesWithDesiredTemplate = simplyAllDueNotes.filter(note => note.qData.template === templateToPick)
+        const notesWithDesiredTemplate = this.filterForNotesWithTemplate(simplyAllDueNotes, templateToPick)
 
         // return a note with desired template, if we have none, return any due note
         // TODO: if we have none at all, also allow just any misc
@@ -101,16 +101,14 @@ export class NoteShuffler {
 
 
     // this function is an alternative to getDueNoteFromAllNotes(), which tends to give the same notes again and again
-    // however, having implemented this, I think the problem is actually `longmedia` being such a narrow category, that the few entries
-    // in it keep being repeated, and not grouped with misc
-    // so this is a neat idea, but solves the wrong problem.
+    // it's not bad, however the core problem was actually media showing up too often when finished
     private getLongestNotSeenDueNote(): QueueNote | null {
         // get either the note that has a `seen` longest in the past (and is due)
         // or a note that `seen` not set at all
         const templateToPick = this.getRandomTemplateToPick()
         const notesToPickFrom = this.decideWhichNotesToPickFrom()
         const simplyAllDueNotes = notesToPickFrom.filter(note => note.isDue() && note !== this.noteToExcludeBecauseWeJustHadIt)
-        const notesWithDesiredTemplate = simplyAllDueNotes.filter(note => note.qData.template === templateToPick)
+        const notesWithDesiredTemplate = this.filterForNotesWithTemplate(simplyAllDueNotes, templateToPick)
 
         // first, get the note whose 'seen' Date does not exist, or is furthest in the past
         let noteToPick: QueueNote | null = notesWithDesiredTemplate.reduce((prev, current) => {
@@ -124,6 +122,33 @@ export class NoteShuffler {
             noteToPick = pickRandom(simplyAllDueNotes)
         }
         return noteToPick
+    }
+
+    // this function is necessary and complicated to treat finished media (e.g. articles you have read as a misc note)
+    // otherwise, queue is spammed with finished articles and books, which show up MUCH more often than deserved
+    private filterForNotesWithTemplate(notes:QueueNote[], template:QueueNoteTemplate): QueueNote[] {
+        if (template === QueueNoteTemplate.Misc) {
+            return notes.filter((note) =>{
+                (note.qData.template === QueueNoteTemplate.Misc) ||
+                (note.qData.template === QueueNoteTemplate.LongMedia && note.qData.stage === QueueNoteStage.Finished) ||
+                (note.qData.template === QueueNoteTemplate.ShortMedia  && note.qData.stage === QueueNoteStage.Finished) 
+            })
+        }
+        if (template === QueueNoteTemplate.ShortMedia) {
+            return notes.filter((note) =>{
+                (note.qData.template === QueueNoteTemplate.ShortMedia  && note.qData.stage !== QueueNoteStage.Finished) 
+            })
+        }
+        if (template === QueueNoteTemplate.LongMedia) {
+            return notes.filter((note) =>{
+                (note.qData.template === QueueNoteTemplate.LongMedia  && note.qData.stage !== QueueNoteStage.Finished) 
+            })
+        }
+        
+        // all other cases are the simple base case, where complexity was caught in the isDue
+        return notes.filter((note) =>{
+            (note.qData.template === template) 
+        })
     }
 
 
