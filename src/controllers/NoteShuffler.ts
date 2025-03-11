@@ -45,11 +45,7 @@ export class NoteShuffler {
     public async getDueNote(): Promise<QueueNote | null> {
         let note: QueueNote | null
         if (this.notes.length > 0) {
-            if (Math.random() > 0.5) {
-                note = this.getDueNoteFromAllNotes()
-            } else {
-                note = this.getLongestNotSeenDueNote()
-            }
+            note = this.getDueNoteFromAllNotes()
         } else {
             note = await this.getDueNoteQuickly()
         }
@@ -99,56 +95,34 @@ export class NoteShuffler {
         return noteToPick
     }
 
-
-    // this function is an alternative to getDueNoteFromAllNotes(), which tends to give the same notes again and again
-    // it's not bad, however the core problem was actually media showing up too often when finished
-    private getLongestNotSeenDueNote(): QueueNote | null {
-        // get either the note that has a `seen` longest in the past (and is due)
-        // or a note that `seen` not set at all
-        const templateToPick = this.getRandomTemplateToPick()
-        const notesToPickFrom = this.decideWhichNotesToPickFrom()
-        const simplyAllDueNotes = notesToPickFrom.filter(note => note.isDue() && note !== this.noteToExcludeBecauseWeJustHadIt)
-        const notesWithDesiredTemplate = this.filterForNotesWithTemplate(simplyAllDueNotes, templateToPick)
-
-        // first, get the note whose 'seen' Date does not exist, or is furthest in the past
-        let noteToPick: QueueNote | null = notesWithDesiredTemplate.reduce((prev, current) => {
-            if (prev.qData.seen === undefined) return prev
-            if (current.qData.seen === undefined) return current
-            return prev.qData.seen < current.qData.seen ? prev : current
-        }, notesWithDesiredTemplate[0])
-
-        // if we have none, just pick any
-        if (!noteToPick) {
-            noteToPick = pickRandom(simplyAllDueNotes)
-        }
-        return noteToPick
-    }
-
     // this function is necessary and complicated to treat finished media (e.g. articles you have read as a misc note)
     // otherwise, queue is spammed with finished articles and books, which show up MUCH more often than deserved
-    private filterForNotesWithTemplate(notes:QueueNote[], template:QueueNoteTemplate): QueueNote[] {
+    private filterForNotesWithTemplate(notes: QueueNote[], template: QueueNoteTemplate): QueueNote[] {
         if (template === QueueNoteTemplate.Misc) {
-            return notes.filter((note) =>{
-                (note.qData.template === QueueNoteTemplate.Misc) ||
+            let filteredNotes = notes.filter(note => note.qData.template === QueueNoteTemplate.Misc ||
                 (note.qData.template === QueueNoteTemplate.LongMedia && note.qData.stage === QueueNoteStage.Finished) ||
-                (note.qData.template === QueueNoteTemplate.ShortMedia  && note.qData.stage === QueueNoteStage.Finished) 
-            })
+                (note.qData.template === QueueNoteTemplate.ShortMedia && note.qData.stage === QueueNoteStage.Finished)
+            )
+            return filteredNotes
         }
-        if (template === QueueNoteTemplate.ShortMedia) {
-            return notes.filter((note) =>{
-                (note.qData.template === QueueNoteTemplate.ShortMedia  && note.qData.stage !== QueueNoteStage.Finished) 
-            })
+        else if (template === QueueNoteTemplate.ShortMedia) {
+            return notes.filter(note =>
+                (note.qData.template === QueueNoteTemplate.ShortMedia && note.qData.stage !== QueueNoteStage.Finished)
+            )
         }
-        if (template === QueueNoteTemplate.LongMedia) {
-            return notes.filter((note) =>{
-                (note.qData.template === QueueNoteTemplate.LongMedia  && note.qData.stage !== QueueNoteStage.Finished) 
-            })
+        else if (template === QueueNoteTemplate.LongMedia) {
+            return notes.filter(note =>
+                (note.qData.template === QueueNoteTemplate.LongMedia && note.qData.stage !== QueueNoteStage.Finished)
+            )
         }
-        
+
         // all other cases are the simple base case, where complexity was caught in the isDue
-        return notes.filter((note) =>{
-            (note.qData.template === template) 
-        })
+        else {
+            const filteredNotes = notes.filter(note =>
+                note.qData.template === template
+            )
+            return filteredNotes
+        }
     }
 
 
