@@ -1,7 +1,3 @@
-## High Prio
-
-- broken frontmatter crashes the plugin (I think)
-
 ## Mid Prio
 
 - check issues
