@@ -1,5 +1,8 @@
 # Obsidian — The Queue
 
+> [!NOTE]  
+> I am currently not actively working on this project. Feel free to add issues/PRs anyway. The plugin itself will stay available for the foreseeable future.
+
 There is no point in creating notes you never see again! 
 
 *The Queue* is a plugin for [Obsidian.md]() that shows you random notes from your vault, one at a time. You can configure your notes to function as habits, flashcards, iterative reading prompts, to-dos and more.
