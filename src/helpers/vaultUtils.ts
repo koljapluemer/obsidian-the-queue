@@ -6,7 +6,7 @@ import { getPluginContext } from "../contexts/pluginContext";
 import { QueueNote } from "src/models/QueueNote";
 import { QueueNoteStage, QueueNoteTemplate } from "src/types";
 
-export function getFrontmatterOfFile(file: TFile): Promise<any | null> {
+export function getFrontmatterOfFile(file: TFile): Promise<Record<string, unknown> | null> {
     return new Promise((resolve, reject) => {
         try {
             const fileManager = getPluginContext().app.fileManager
@@ -33,7 +33,7 @@ export function openFile(file: TFile) {
 
 export function saveNoteToVault(note: QueueNote) {
     if (note) {
-        getPluginContext().app.fileManager.processFrontMatter(note.file, (frontmatter: any) => {
+        getPluginContext().app.fileManager.processFrontMatter(note.file, (frontmatter: Record<string, unknown>) => {
             frontmatter["q"] = frontmatter["q"] || {}
 
             if (note.qData.template !== QueueNoteTemplate.Misc) {
@@ -71,7 +71,7 @@ export function saveNoteToVault(note: QueueNote) {
 }
 
 // TODO: put this behind a settings toggle
-function deletePropertiesWithOldPrefix(obj: Record<string, any>): void {
+function deletePropertiesWithOldPrefix(obj: Record<string, unknown>): void {
     for (const key of Object.keys(obj)) {
         if (key.startsWith("q-")) {
             delete obj[key];

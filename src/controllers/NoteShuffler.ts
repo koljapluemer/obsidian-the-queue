@@ -1,7 +1,7 @@
 import { QueueMediator } from "./QueueMediator"
 import { QueueNote } from "../models/QueueNote"
 import { QueueNoteStage, QueueNoteTemplate } from "src/types"
-import { getAllMdFiles, getFrontmatterOfFile } from "src/helpers/vaultUtils"
+import { getAllMdFiles } from "src/helpers/vaultUtils"
 import { getRandomInt, pickRandom } from "src/helpers/arrayUtils"
 import { StreakManager } from "./StreakManager"
 import { QueueNoteFactory } from "src/models/NoteFactory"

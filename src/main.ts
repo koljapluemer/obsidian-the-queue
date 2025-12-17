@@ -1,18 +1,9 @@
-import { Plugin, TFile } from 'obsidian';
+import { Plugin } from 'obsidian';
 import { QueueBar } from './controllers/QueueBar';
 import { NoteShuffler } from './controllers/NoteShuffler';
 import { ActiveNoteManager } from './controllers/ActiveNoteManager';
 import { setQueuePluginContext } from './contexts/pluginContext';
 import { QueueMediator } from './controllers/QueueMediator';
-
-
-interface QueueSettings {
-    mySetting: string;
-}
-
-const DEFAULT_SETTINGS: QueueSettings = {
-    mySetting: 'default'
-}
 
 // acts as Mediator for main components
 export default class QueuePlugin extends Plugin {

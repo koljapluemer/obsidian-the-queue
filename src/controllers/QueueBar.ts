@@ -1,4 +1,3 @@
-import QueuePlugin from "src/main"
 import { QueueMediator } from "./QueueMediator"
 import { QueueButton } from "src/types"
 

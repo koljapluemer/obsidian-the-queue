@@ -1,8 +1,6 @@
-import { getPluginContext } from "src/contexts/pluginContext"
 import { QueueBar } from "./QueueBar"
 import { NoteShuffler } from "./NoteShuffler"
 import { ActiveNoteManager } from "./ActiveNoteManager"
-import { TFile } from "obsidian"
 import { QueueNote } from "../models/QueueNote"
 import { QueueButton } from "src/types"
 import { openFile } from "src/helpers/vaultUtils"

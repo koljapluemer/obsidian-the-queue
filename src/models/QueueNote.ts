@@ -1,5 +1,5 @@
 import { TFile } from "obsidian"
-import { QueueButton, QueueNoteData, QueueNoteStage, QueueNoteTemplate } from "src/types"
+import { QueueButton, QueueNoteData } from "src/types"
 
 // every TFile may be converted to a QueueNote,
 // which holds the actual properties that interests us directly

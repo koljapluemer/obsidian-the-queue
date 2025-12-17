@@ -42,7 +42,7 @@ export enum QueueButton {
     Easy = "Easy",
     RegisterRep = "Register repetition",
     RegisterProg = "Mark progress",
-    RegisterDone = "Done",
+    RegisterDone = "Mark as done",
     NotToday = "Not today",
     Later = "Later",
     Done = "Done",

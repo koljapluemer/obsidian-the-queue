@@ -1,6 +1,6 @@
 import { QueueNoteData, QueueNoteStage, QueueNoteTemplate } from "src/types"
 
-export function getNoteDataFromFrontmatter(frontmatter: any): QueueNoteData {
+export function getNoteDataFromFrontmatter(frontmatter: Record<string, unknown>): QueueNoteData {
 
     const noteData:QueueNoteData = {
         template: QueueNoteTemplate.Misc
@@ -63,7 +63,7 @@ export function getNoteDataFromFrontmatter(frontmatter: any): QueueNoteData {
     return noteData
 }
 
-export function getNoteDataFromFrontmatterWithLegacyParadigm(frontmatter: any): QueueNoteData {
+export function getNoteDataFromFrontmatterWithLegacyParadigm(frontmatter: Record<string, unknown>): QueueNoteData {
     const noteData:QueueNoteData = {
         template: QueueNoteTemplate.Misc
     }
