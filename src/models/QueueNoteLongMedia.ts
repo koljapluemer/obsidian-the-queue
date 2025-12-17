@@ -27,10 +27,6 @@ export class QueueNoteLongMedia extends QueueNote {
             case QueueButton.RegisterDone:
                 this.qData.due = dateTomorrow3Am()
                 break
-            case QueueButton.Finished:
-                this.qData.stage = QueueNoteStage.Finished
-                this.qData.due = dateTomorrow3Am()
-                break
             case QueueButton.Started:
                 this.qData.due = dateTomorrow3Am()
                 this.qData.stage = QueueNoteStage.Ongoing

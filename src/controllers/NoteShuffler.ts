@@ -12,11 +12,14 @@ import { StatsManager } from "./StatsManager"
 // knows the notes
 // when asked, produces a random note (probably to open it)
 export class NoteShuffler {
+    private readonly MAX_DUE_LEARNS_BEFORE_EXCLUDING_NEW = 20
+    private readonly MAX_ACTIVE_LONGMEDIA_BEFORE_EXCLUDING_NEW = 5
+
     mediator: QueueMediator
     notes: QueueNote[] = []
     streakManager: StreakManager
     notesCurrentlyLoading = false
-    noteToExcludeBecauseWeJustHadIt: QueueNote | null = null
+    lastPickedNote: QueueNote | null = null
 
     constructor(mediator: QueueMediator) {
         this.mediator = mediator
@@ -50,7 +53,7 @@ export class NoteShuffler {
             note = await this.getDueNoteQuickly()
         }
         if (note) this.streakManager.onNoteWasPicked(note.qData)
-        this.noteToExcludeBecauseWeJustHadIt = note
+        this.lastPickedNote = note
         return note
     }
 
@@ -83,7 +86,7 @@ export class NoteShuffler {
         const templateToPick = this.getRandomTemplateToPick()
         const notesToPickFrom = this.decideWhichNotesToPickFrom()
 
-        const simplyAllDueNotes = notesToPickFrom.filter(note => note.isDue() && note !== this.noteToExcludeBecauseWeJustHadIt)
+        const simplyAllDueNotes = notesToPickFrom.filter(note => note.isDue() && note !== this.lastPickedNote)
         const notesWithDesiredTemplate = this.filterForNotesWithTemplate(simplyAllDueNotes, templateToPick)
 
         // return a note with desired template, if we have none, return any due note
@@ -146,10 +149,10 @@ export class NoteShuffler {
     private getFilteredNotes(notes: QueueNote[]): QueueNote[] {
         const ongoingLearns = notes.filter(note => note.qData.template === QueueNoteTemplate.Learn && note.qData.stage === QueueNoteStage.Ongoing)
         const nrDueLearns = ongoingLearns.filter(note => note.isDue()).length
-        const exludeUnstartedLearns = nrDueLearns > 20
+        const exludeUnstartedLearns = nrDueLearns > this.MAX_DUE_LEARNS_BEFORE_EXCLUDING_NEW
 
         const nrActiveLongMedia = notes.filter(note => note.qData.template === QueueNoteTemplate.LongMedia && note.qData.stage === QueueNoteStage.Ongoing).length
-        const exludeUnstartedLongMedia = nrActiveLongMedia > 5
+        const exludeUnstartedLongMedia = nrActiveLongMedia > this.MAX_ACTIVE_LONGMEDIA_BEFORE_EXCLUDING_NEW
         if (exludeUnstartedLearns) notes = notes.filter(note => !(note.qData.template === QueueNoteTemplate.Learn && note.qData.stage === QueueNoteStage.Unstarted))
         if (exludeUnstartedLongMedia) notes = notes.filter(note => !(note.qData.template === QueueNoteTemplate.LongMedia && note.qData.stage === QueueNoteStage.Unstarted))
 

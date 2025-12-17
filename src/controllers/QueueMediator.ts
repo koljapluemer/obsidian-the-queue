@@ -4,7 +4,6 @@ import { ActiveNoteManager } from "./ActiveNoteManager"
 import { QueueNote } from "../models/QueueNote"
 import { QueueButton } from "src/types"
 import { openFile } from "src/helpers/vaultUtils"
-import { StreakManager } from "./StreakManager"
 
 // a kind of awkward state tracker, mediates between the other classes
 // e.g. the button registers a click on "Correct" here,
@@ -13,7 +12,6 @@ export class QueueMediator {
     queueBar: QueueBar
     noteShuffler: NoteShuffler
     activeNoteManager: ActiveNoteManager
-    streakManager: StreakManager
 
     onNewActiveNote(note: QueueNote | null) {
         this.rerenderQueueBar()

@@ -24,10 +24,15 @@ export class QueueNoteFactory {
     public static async createNoteFromFile(file: TFile): Promise<QueueNote> {
         const frontmatter = await getFrontmatterOfFile(file)
         let qData: QueueNoteData
-        // check if note is already written in the new paradigm
-        if (frontmatter["q"]) {
+
+        if (!frontmatter) {
+            // No frontmatter, treat as misc note
+            qData = { template: QueueNoteTemplate.Misc }
+        } else if (frontmatter["q"]) {
+            // New paradigm
             qData = getNoteDataFromFrontmatter(frontmatter)
         } else {
+            // Legacy paradigm
             qData = getNoteDataFromFrontmatterWithLegacyParadigm(frontmatter)
         }
 

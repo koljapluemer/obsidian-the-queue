@@ -38,8 +38,8 @@ export class QueueNote {
         return true
     }
 
-    
+
     public score(btn: QueueButton) {
-        throw "scoring should be handled by derived class"
+        throw new Error("scoring should be handled by derived class")
     }
 }

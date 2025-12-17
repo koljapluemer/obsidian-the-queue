@@ -9,7 +9,7 @@ export class QueueNoteExclude extends QueueNote {
         return
     }
 
-    public isDue(allowNewLearns?: boolean, allowNewLongMedia?: boolean): boolean {
+    public isDue(): boolean {
         return false
     }
 }

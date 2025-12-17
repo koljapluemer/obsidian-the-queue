@@ -7,15 +7,15 @@ import { QueueNote } from "src/models/QueueNote";
 import { QueueNoteStage, QueueNoteTemplate } from "src/types";
 
 export function getFrontmatterOfFile(file: TFile): Promise<Record<string, unknown> | null> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         try {
             const fileManager = getPluginContext().app.fileManager
             fileManager.processFrontMatter(file, frontmatter => {
-                resolve(frontmatter)
+                resolve(frontmatter as Record<string, unknown>)
             })
         } catch (error) {
             console.error(error);
-            return null
+            resolve(null)
         }
     })
 }
@@ -31,40 +31,46 @@ export function openFile(file: TFile) {
 
 // SAVING
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+    return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
 export function saveNoteToVault(note: QueueNote) {
     if (note) {
-        getPluginContext().app.fileManager.processFrontMatter(note.file, (frontmatter: Record<string, unknown>) => {
-            frontmatter["q"] = frontmatter["q"] || {}
+        getPluginContext().app.fileManager.processFrontMatter(note.file, (frontmatter) => {
+            const fm = frontmatter as Record<string, unknown>;
+            if (!isRecord(fm["q"])) {
+                fm["q"] = {}
+            }
+            const q = fm["q"] as Record<string, unknown>
 
             if (note.qData.template !== QueueNoteTemplate.Misc) {
                 const template = Object.keys(QueueNoteTemplate).find(
-                    // @ts-ignore
-                    key => QueueNoteTemplate[key] === note.qData.template
+                    key => QueueNoteTemplate[key as keyof typeof QueueNoteTemplate] === note.qData.template
                 )
-                frontmatter["q"]["template"] = template?.toLowerCase()
+                q["template"] = template?.toLowerCase()
             }
 
             if (note.qData.stage !== undefined  && note.qData.stage !== QueueNoteStage.Unstarted) {
                 const stage = Object.keys(QueueNoteStage).find(
-                    // @ts-ignore
-                    key => QueueNoteStage[key] === note.qData.stage
+                    key => QueueNoteStage[key as keyof typeof QueueNoteStage] === note.qData.stage
                 )
-                frontmatter["q"]["stage"] = stage?.toLowerCase()
+                q["stage"] = stage?.toLowerCase()
             }
 
-            if (note.qData.due !== undefined) frontmatter["q"]["due"] = note.qData.due
-            if (note.qData.seen !== undefined) frontmatter["q"]["seen"] = note.qData.seen
-            if (note.qData.interval !== undefined && note.qData.interval !== 1 && note.qData.interval !== 0) frontmatter["q"]["interval"] = note.qData.interval
-            if (note.qData.stability !== undefined) frontmatter["q"]["stability"] = note.qData.stability
-            if (note.qData.difficulty !== undefined) frontmatter["q"]["difficulty"] = note.qData.difficulty
-            if (note.qData.elapsed !== undefined) frontmatter["q"]["elapsed"] = note.qData.elapsed
-            if (note.qData.scheduled !== undefined) frontmatter["q"]["scheduled"] = note.qData.scheduled
-            if (note.qData.reps !== undefined) frontmatter["q"]["reps"] = note.qData.reps
-            if (note.qData.lapses !== undefined) frontmatter["q"]["lapses"] = note.qData.lapses
-            if (note.qData.state !== undefined) frontmatter["q"]["state"] = note.qData.state
-            if (note.qData.history !== undefined) frontmatter["q"]["history"] = note.qData.history
+            if (note.qData.due !== undefined) q["due"] = note.qData.due
+            if (note.qData.seen !== undefined) q["seen"] = note.qData.seen
+            if (note.qData.interval !== undefined && note.qData.interval !== 1 && note.qData.interval !== 0) q["interval"] = note.qData.interval
+            if (note.qData.stability !== undefined) q["stability"] = note.qData.stability
+            if (note.qData.difficulty !== undefined) q["difficulty"] = note.qData.difficulty
+            if (note.qData.elapsed !== undefined) q["elapsed"] = note.qData.elapsed
+            if (note.qData.scheduled !== undefined) q["scheduled"] = note.qData.scheduled
+            if (note.qData.reps !== undefined) q["reps"] = note.qData.reps
+            if (note.qData.lapses !== undefined) q["lapses"] = note.qData.lapses
+            if (note.qData.state !== undefined) q["state"] = note.qData.state
+            if (note.qData.history !== undefined) q["history"] = note.qData.history
 
-            deletePropertiesWithOldPrefix(frontmatter)
+            deletePropertiesWithOldPrefix(fm)
         })
 
     }
@@ -74,7 +80,7 @@ export function saveNoteToVault(note: QueueNote) {
 function deletePropertiesWithOldPrefix(obj: Record<string, unknown>): void {
     for (const key of Object.keys(obj)) {
         if (key.startsWith("q-")) {
-            delete obj[key];
+            delete obj[key]
         }
     }
 }

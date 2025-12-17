@@ -98,6 +98,7 @@ export class QueueNoteLearn extends QueueNote {
             difficulty: this.qData.difficulty!,
             elapsed_days: this.qData.elapsed!,
             scheduled_days: this.qData.scheduled!,
+            learning_steps: 0,
             reps: this.qData.reps!,
             lapses: this.qData.lapses!,
             state: cardState,

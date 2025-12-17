@@ -46,7 +46,18 @@ export default [
       '@typescript-eslint/no-unused-vars': ['error', { args: 'none' }],
       '@typescript-eslint/ban-ts-comment': 'off',
       'no-prototype-builtins': 'off',
-      '@typescript-eslint/no-empty-function': 'off'
+      '@typescript-eslint/no-empty-function': 'off',
+
+      // Ban any type and disable comments
+      '@typescript-eslint/no-explicit-any': 'error',
+      'no-inline-comments': 'off', // Allow inline comments
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: 'TSAnyKeyword',
+          message: 'any type is not allowed. Use unknown with proper type guards instead.'
+        }
+      ]
     }
   }
 ];
