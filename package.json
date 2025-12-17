@@ -7,7 +7,9 @@
 		"dev": "node esbuild.config.mjs",
 		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
 		"version": "node version-bump.mjs && git add manifest.json versions.json",
-		"test": "vitest --sequence.shuffle.tests"
+		"test": "vitest --sequence.shuffle.tests",
+		"lint": "eslint .",
+		"lint:fix": "eslint . --fix"
 	},
 	"keywords": [],
 	"author": "",
@@ -18,6 +20,7 @@
 		"@typescript-eslint/parser": "8.50.0",
 		"builtin-modules": "5.0.0",
 		"esbuild": "0.27.2",
+		"eslint": "^9.39.2",
 		"obsidian": "latest",
 		"tslib": "2.8.1",
 		"typescript": "5.9.3",
