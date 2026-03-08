@@ -25,6 +25,14 @@ export default class QueuePlugin extends Plugin {
             // and than passed to the mediator
             this.queueBar.toggle()
         });
+        
+  		this.addCommand({
+			id: 'queueBar-toggle',
+			name: 'Toggle',
+			callback: () => {
+				this.queueBar.toggle()
+			},
+		});
     }
 
     unload() {
